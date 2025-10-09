@@ -6,9 +6,18 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
+    <Deterministic>true</Deterministic>
     <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
+    <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts\</ArtifactsPath>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--
+      NU1507: 没有指定包源映射
+    -->
+    <NoWarn>$(NoWarn);NU1507</NoWarn>
   </PropertyGroup>
 
   <!--库信息 -->

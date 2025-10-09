@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 
 #pragma warning disable CS0809 // 过时成员重写未过时成员

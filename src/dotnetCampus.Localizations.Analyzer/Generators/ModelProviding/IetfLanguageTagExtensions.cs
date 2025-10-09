@@ -1,4 +1,7 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace dotnetCampus.Localizations.Generators.ModelProviding;
 
@@ -80,8 +83,8 @@ public static class IetfLanguageTagExtensions
     /// <returns>如果能从文件名中猜测出 IETF 语言标签，则返回它，否则返回 null。</returns>
     public static string GuessIetfLanguageTagFromFileName(string fileNameWithoutExtension)
     {
-        var parts = ((IEnumerable<string>)fileNameWithoutExtension.Split([' ', '.', '_', ',', ';'], StringSplitOptions.RemoveEmptyEntries)).Reverse();
-        return parts.FirstOrDefault(IsIetfLanguageTag) ?? fileNameWithoutExtension;
+        var parts = fileNameWithoutExtension.Split([' ', '.', '_', ',', ';'], StringSplitOptions.RemoveEmptyEntries);
+        return parts.LastOrDefault(IsIetfLanguageTag) ?? fileNameWithoutExtension;
     }
 
     /// <summary>

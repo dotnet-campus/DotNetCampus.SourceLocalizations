@@ -1,5 +1,7 @@
-﻿using System.Collections.Immutable;
-using dotnetCampus.Localizations.Assets.Templates;
+﻿using System;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 using dotnetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

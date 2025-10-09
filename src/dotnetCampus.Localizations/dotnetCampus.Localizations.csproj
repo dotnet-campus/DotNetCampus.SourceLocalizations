@@ -31,10 +31,10 @@
 
   <!-- Package Reference -->
   <ItemGroup>
-    <PackageReference Include="dotnetCampus.LatestCSharpFeatures" Version="12.0.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="Samboy063.Tomlet" Version="5.3.1" ReferenceOutputAssembly="false" PrivateAssets="all" GeneratePathProperty="true" />
-    <PackageReference Include="YamlDotNet" Version="15.1.4" ReferenceOutputAssembly="false" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="dotnetCampus.LatestCSharpFeatures" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+    <PackageReference Include="Samboy063.Tomlet" ReferenceOutputAssembly="false" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="YamlDotNet" ReferenceOutputAssembly="false" PrivateAssets="all" GeneratePathProperty="true" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,11 +50,11 @@
   <Target Name="_IncludeAllDependencies" BeforeTargets="_GetPackageFiles">
     <ItemGroup>
       <None Include="$(RepositoryRoot)README.md" Pack="true" PackagePath="\"/>
-      <Content Include="Package\build\Package.props" Pack="True" PackagePath="build\$(PackageId).props" />
-      <Content Include="Package\build\Package.targets" Pack="True" PackagePath="build\$(PackageId).targets" />
-      <Content Include="..\..\artifacts\bin\dotnetCampus.Localizations.Analyzer\$(Configuration)\**\*" Pack="True" PackagePath="analyzers\dotnet\cs" />
-      <Content Include="$(PKGSamboy063_Tomlet)\lib\netstandard2.0\Tomlet.dll" Pack="True" PackagePath="analyzers\dotnet\cs\Tomlet.dll" />
-      <Content Include="$(PKGYamlDotNet)\lib\netstandard2.0\YamlDotNet.dll" Pack="True" PackagePath="analyzers\dotnet\cs\YamlDotNet.dll" />
+      <None Include="Package\build\Package.props" Pack="True" PackagePath="build\$(PackageId).props" />
+      <None Include="Package\build\Package.targets" Pack="True" PackagePath="build\$(PackageId).targets" />
+      <None Include="..\..\artifacts\bin\dotnetCampus.Localizations.Analyzer\$(Configuration)\**\*" Pack="True" PackagePath="analyzers\dotnet\cs" />
+      <None Include="$(PKGSamboy063_Tomlet)\lib\netstandard2.0\Tomlet.dll" Pack="True" PackagePath="analyzers\dotnet\cs\Tomlet.dll" />
+      <None Include="$(PKGYamlDotNet)\lib\netstandard2.0\YamlDotNet.dll" Pack="True" PackagePath="analyzers\dotnet\cs\YamlDotNet.dll" />
     </ItemGroup>
   </Target>
 

@@ -1,4 +1,7 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using dotnetCampus.Localizations.Assets.Templates;
 using dotnetCampus.Localizations.Generators.ModelProviding;
 using dotnetCampus.Localizations.Utils.CodeAnalysis;

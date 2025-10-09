@@ -1,13 +1,15 @@
-﻿using dotnetCampus.Localizations.Assets.Templates;
+﻿using System;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text;
+using dotnetCampus.Localizations.Assets.Templates;
 using dotnetCampus.Localizations.Generators.CodeTransforming;
 using dotnetCampus.Localizations.Generators.ModelProviding;
 using dotnetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
-using System;
-using System.Collections.Immutable;
-using System.Text;
+using System.Collections.Generic;
 
 namespace dotnetCampus.Localizations.Generators;
 
