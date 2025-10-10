@@ -1,6 +1,7 @@
 <Project>
   <ItemGroup>
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    <PackageVersion Include="DotNetCampus.CodeAnalysisUtils" Version="0.0.1-alpha.7" />
     <PackageVersion Include="DotNetCampus.LatestCSharpFeatures" Version="13.0.1" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" />
     <!-- 当前龙芯的 dotnet SDK 是 8.0.7 ，能支持的最高分析器版本为 4.8.0，详细请参阅 https://ftp.loongnix.cn/dotnet/ -->

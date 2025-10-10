@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using dotnetCampus.Localizations.Assets.Templates;
 using dotnetCampus.Localizations.Generators.ModelProviding;
+using dotnetCampus.Localizations.IO;
 using dotnetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using static dotnetCampus.Localizations.Generators.ModelProviding.IetfLanguageTagExtensions;
@@ -54,7 +55,7 @@ public class LocalizationCodeTransformer
 
     public string ToInterfaceCodeText(LocalizationGeneratingModel model)
     {
-        return GeneratorInfo.GetEmbeddedTemplateFile<ILocalizedValues>().Content
+        return EmbeddedSourceFile.Get<ILocalizedValues>().Content
             .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
             .FlagReplace(string.Join("\n\n", string.Join("\n\n", GenerateInterfacePropertyLines(Tree))))
             .Flag2Replace(string.Concat(Tree.Children.Select(RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode)));
@@ -134,8 +135,8 @@ public interface ILocalizedValues_{{nodeTypeName}}
     {
         var typePrefix = isNotifiable ? "Notifiable" : "Immutable";
         var content = isNotifiable
-            ? GeneratorInfo.GetEmbeddedTemplateFile<NotifiableLocalizedValues>().Content
-            : GeneratorInfo.GetEmbeddedTemplateFile<ImmutableLocalizedValues>().Content;
+            ? EmbeddedSourceFile.Get<NotifiableLocalizedValues>().Content
+            : EmbeddedSourceFile.Get<ImmutableLocalizedValues>().Content;
         return content
             .Replace("LOCALIZATION_TYPE_NAME", model.TypeName)
             .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
@@ -264,7 +265,7 @@ internal sealed partial class {{typePrefix}}LocalizedValues_{{nodeTypeName}}(ILo
     public string ToProviderCodeText(string rootNamespace, string ietfLanguageTag)
     {
         var typeName = IetfLanguageTagToIdentifier(ietfLanguageTag);
-        var template = GeneratorInfo.GetEmbeddedTemplateFile<LocalizedStringProvider>();
+        var template = EmbeddedSourceFile.Get<LocalizedStringProvider>();
         var code = template.Content
             .Replace($"namespace {template.Namespace};", $"namespace {GeneratorInfo.RootNamespace};")
             .Replace($"class {nameof(LocalizedStringProvider)}", $"class {nameof(LocalizedStringProvider)}_{typeName}")

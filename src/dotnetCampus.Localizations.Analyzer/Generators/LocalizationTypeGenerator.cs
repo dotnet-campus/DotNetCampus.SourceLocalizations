@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using dotnetCampus.Localizations.Assets.Templates;
 using dotnetCampus.Localizations.Generators.ModelProviding;
+using dotnetCampus.Localizations.IO;
 using dotnetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -53,8 +54,8 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
 
         // 生成 Localization.g.cs
         var localizationFile = supportsNotifyChanged
-            ? GeneratorInfo.GetEmbeddedTemplateFile<NotifiableLocalization>()
-            : GeneratorInfo.GetEmbeddedTemplateFile<ImmutableLocalization>();
+            ? EmbeddedSourceFile.Get<NotifiableLocalization>()
+            : EmbeddedSourceFile.Get<ImmutableLocalization>();
         var originalText = ReplaceNamespaceAndTypeName(localizationFile.Content, typeNamespace, typeName);
         var localizedValuesTypeName = supportsNotifyChanged ? nameof(NotifiableLocalizedValues) : nameof(ImmutableLocalizedValues);
         var defaultCode = originalText
