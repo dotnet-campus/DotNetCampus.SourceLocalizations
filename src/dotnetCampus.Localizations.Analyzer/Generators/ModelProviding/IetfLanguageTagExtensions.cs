@@ -80,7 +80,7 @@ public static class IetfLanguageTagExtensions
     /// <returns>如果能从文件名中猜测出 IETF 语言标签，则返回它，否则返回 null。</returns>
     public static string GuessIetfLanguageTagFromFileName(string fileNameWithoutExtension)
     {
-        var parts = fileNameWithoutExtension.Split([' ', '.', '_', ',', ';'], StringSplitOptions.RemoveEmptyEntries).Reverse();
+        var parts = ((IEnumerable<string>)fileNameWithoutExtension.Split([' ', '.', '_', ',', ';'], StringSplitOptions.RemoveEmptyEntries)).Reverse();
         return parts.FirstOrDefault(IsIetfLanguageTag) ?? fileNameWithoutExtension;
     }
 
