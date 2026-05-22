@@ -2,7 +2,7 @@ using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace dotnetCampus.Localizations.Utils.CodeAnalysis;
+namespace DotNetCampus.Localizations.Utils.CodeAnalysis;
 
 internal static class AnalyzerConfigOptionsExtensions
 {

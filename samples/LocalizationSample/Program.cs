@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using dotnetCampus.Localizations;
+using DotNetCampus.Localizations;
 
 namespace LocalizationSample;
 

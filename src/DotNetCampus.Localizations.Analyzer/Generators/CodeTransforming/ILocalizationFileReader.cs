@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace dotnetCampus.Localizations.Generators.CodeTransforming;
+namespace DotNetCampus.Localizations.Generators.CodeTransforming;
 
 /// <summary>
 /// 将不同格式的本地化文件转换为统一的本地化项。

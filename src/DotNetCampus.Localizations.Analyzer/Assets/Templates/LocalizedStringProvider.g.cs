@@ -1,6 +1,6 @@
 ﻿#nullable enable
 
-namespace dotnetCampus.Localizations.Assets.Templates;
+namespace DotNetCampus.Localizations.Assets.Templates;
 
 /// <inheritdoc />
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]

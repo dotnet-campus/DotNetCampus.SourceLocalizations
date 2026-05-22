@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace dotnetCampus.Localizations.Generators;
+namespace DotNetCampus.Localizations.Generators;
 
 [Generator]
 public class IetfLanguageTagsGenerator : IIncrementalGenerator
@@ -27,7 +27,7 @@ public class IetfLanguageTagsGenerator : IIncrementalGenerator
     }
 
     private string GenerateIetfLanguageTagsCode(CultureInfo[] allCultures) => $$"""
-namespace dotnetCampus.Localizations.Ietf;
+namespace DotNetCampus.Localizations.Ietf;
 
 partial class IetfLanguageTags
 {
@@ -37,7 +37,7 @@ partial class IetfLanguageTags
 """;
 
     private string GenerateIetfLanguageTagDictionaryCode(CultureInfo[] allCultures) => $$"""
-namespace dotnetCampus.Localizations.Ietf;
+namespace DotNetCampus.Localizations.Ietf;
 
 partial class IetfLanguageTags
 {

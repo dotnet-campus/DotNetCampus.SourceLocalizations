@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using dotnetCampus.Localizations.Assets.Templates;
-using dotnetCampus.Localizations.Generators.ModelProviding;
-using dotnetCampus.Localizations.IO;
-using dotnetCampus.Localizations.Utils.CodeAnalysis;
+using DotNetCampus.Localizations.Assets.Templates;
+using DotNetCampus.Localizations.Generators.ModelProviding;
+using DotNetCampus.Localizations.IO;
+using DotNetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using static dotnetCampus.Localizations.Generators.ModelProviding.IetfLanguageTagExtensions;
+using static DotNetCampus.Localizations.Generators.ModelProviding.IetfLanguageTagExtensions;
 
-namespace dotnetCampus.Localizations.Generators.CodeTransforming;
+namespace DotNetCampus.Localizations.Generators.CodeTransforming;
 
 /// <summary>
 /// 提供一个与语言文件格式无关的本地化项到 C# 代码的转换器。
@@ -56,7 +56,7 @@ public class LocalizationCodeTransformer
     public string ToInterfaceCodeText(LocalizationGeneratingModel model)
     {
         return EmbeddedSourceFile.Get<ILocalizedValues>().Content
-            .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
+            .Replace("namespace DotNetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
             .FlagReplace(string.Join("\n\n", string.Join("\n\n", GenerateInterfacePropertyLines(Tree))))
             .Flag2Replace(string.Concat(Tree.Children.Select(RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode)));
     }
@@ -139,7 +139,7 @@ public interface ILocalizedValues_{{nodeTypeName}}
             : EmbeddedSourceFile.Get<ImmutableLocalizedValues>().Content;
         return content
             .Replace("LOCALIZATION_TYPE_NAME", model.TypeName)
-            .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
+            .Replace("namespace DotNetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
             .FlagReplace(string.Join("\n", GenerateImplementationPropertyLines(Tree, typePrefix)))
             .Flag2Replace(string.Concat(Tree.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, model.TypeName, typePrefix, isNotifiable))))
             .Flag3Replace(GenerateSetProvider(Tree, typePrefix));

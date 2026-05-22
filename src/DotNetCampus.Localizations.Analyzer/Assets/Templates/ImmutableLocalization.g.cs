@@ -1,9 +1,9 @@
 #nullable enable
-using global::dotnetCampus.Localizations;
+using global::DotNetCampus.Localizations;
 using StringComparison = global::System.StringComparison;
 using System;
 
-namespace dotnetCampus.Localizations.Assets.Templates;
+namespace DotNetCampus.Localizations.Assets.Templates;
 
 /// <summary>
 /// 不可变的本地化字符串实现。
@@ -124,7 +124,7 @@ partial class ImmutableLocalization
         {
             return provider;
         }
-        var fallbackTag = global::dotnetCampus.Localizations.Helpers.LocalizationHelper.MatchWithFallback(languageTag, SupportedLanguageTags);
+        var fallbackTag = global::DotNetCampus.Localizations.Helpers.LocalizationHelper.MatchWithFallback(languageTag, SupportedLanguageTags);
         provider = fallbackTag is null ? null : CreateLocalizedStringProviderCore(fallbackTag);
         if (provider is not null)
         {

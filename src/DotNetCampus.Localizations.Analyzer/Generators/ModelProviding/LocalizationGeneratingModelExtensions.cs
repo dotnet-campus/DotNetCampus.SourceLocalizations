@@ -2,12 +2,12 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using dotnetCampus.Localizations.Utils.CodeAnalysis;
+using DotNetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace dotnetCampus.Localizations.Generators.ModelProviding;
+namespace DotNetCampus.Localizations.Generators.ModelProviding;
 
 /// <summary>
 /// 为 <see cref="LocalizationGeneratingModel"/> 提供扩展方法。

@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using dotnetCampus.Localizations.Assets.Templates;
-using dotnetCampus.Localizations.Generators.ModelProviding;
-using dotnetCampus.Localizations.IO;
-using dotnetCampus.Localizations.Utils.CodeAnalysis;
+using DotNetCampus.Localizations.Assets.Templates;
+using DotNetCampus.Localizations.Generators.ModelProviding;
+using DotNetCampus.Localizations.IO;
+using DotNetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 
-using static dotnetCampus.Localizations.Generators.ModelProviding.IetfLanguageTagExtensions;
+using static DotNetCampus.Localizations.Generators.ModelProviding.IetfLanguageTagExtensions;
 
-namespace dotnetCampus.Localizations.Generators;
+namespace DotNetCampus.Localizations.Generators;
 
 /// <summary>
 /// 为静态的本地化中心类生成分部实现。
@@ -96,7 +96,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
     private static string ReplaceNamespaceAndTypeName(string sourceText, string rootNamespace, string typeName)
     {
         return sourceText
-            .Replace("namespace dotnetCampus.Localizations.Assets.Templates;", $"namespace {rootNamespace};")
+            .Replace("namespace DotNetCampus.Localizations.Assets.Templates;", $"namespace {rootNamespace};")
             .Replace("partial class ImmutableLocalization", $"partial class {typeName}")
             .Replace("partial class NotifiableLocalization", $"partial class {typeName}")
             .Replace("static ImmutableLocalization()", $"static {typeName}()")

@@ -1,10 +1,10 @@
-# dotnetCampus.SourceLocalizations
+# DotNetCampus.SourceLocalizations
 
 | Build | NuGet |
 |--|--|
-|![](https://github.com/dotnet-campus/dotnetCampus.SourceLocalizations/workflows/.NET%20Core/badge.svg)|[![](https://img.shields.io/nuget/v/dotnetCampus.SourceLocalizations.svg)](https://www.nuget.org/packages/dotnetCampus.SourceLocalizations)|
+|![](https://github.com/dotnet-campus/DotNetCampus.SourceLocalizations/workflows/.NET%20Core/badge.svg)|[![](https://img.shields.io/nuget/v/DotNetCampus.SourceLocalizations.svg)](https://www.nuget.org/packages/DotNetCampus.SourceLocalizations)|
 
-dotnetCampus.SourceLocalizations is a source generator that can convert text localization files (e.g. .toml) into C# code and provide strong type support for localization keys.
+DotNetCampus.SourceLocalizations is a source generator that can convert text localization files (e.g. .toml) into C# code and provide strong type support for localization keys.
 
 ## Features
 
@@ -13,7 +13,7 @@ static void Main()
 {
     Console.WriteLine(LocalizedText.Current.App.Title);         // "Hello, World!"
     Console.WriteLine(LocalizedText.Current.App.Description);   // "This is a sample application."
-    Console.WriteLine(LocalizedText.Current.Cli.Usage);         // "Usage: dotnetCampus.SourceLocalizations [options]"
+    Console.WriteLine(LocalizedText.Current.Cli.Usage);         // "Usage: DotNetCampus.SourceLocalizations [options]"
     Console.WriteLine(LocalizedText.Current.PressAnyKeyToExit); // "Press any key to exit..."
 }
 ```
@@ -38,10 +38,10 @@ static void Main()
 
 ## Installation
 
-[![](https://img.shields.io/nuget/v/dotnetCampus.SourceLocalizations.svg)](https://www.nuget.org/packages/dotnetCampus.SourceLocalizations)
+[![](https://img.shields.io/nuget/v/DotNetCampus.SourceLocalizations.svg)](https://www.nuget.org/packages/DotNetCampus.SourceLocalizations)
 
 ```shell
-dotnet add package dotnetCampus.SourceLocalizations
+dotnet add package DotNetCampus.SourceLocalizations
 ```
 
 ## Usage
@@ -52,7 +52,7 @@ dotnet add package dotnetCampus.SourceLocalizations
 // Localizations/en.toml
 App.Title = "Hello, World!"
 App.Description = "This is a sample application."
-Cli.Usage = "Usage: dotnetCampus.SourceLocalizations [options]"
+Cli.Usage = "Usage: DotNetCampus.SourceLocalizations [options]"
 PressAnyKeyToExit = "Press any key to exit..."
 ```
 
@@ -70,7 +70,7 @@ The file name must conform to the [IETF BCP 47 standard](https://en.wikipedia.or
 
 ```csharp
 // LocalizedText.cs
-using dotnetCampus.SourceLocalizations;
+using DotNetCampus.SourceLocalizations;
 
 namespace SampleApp;
 
@@ -91,7 +91,7 @@ static void Main()
 {
     Console.WriteLine(LocalizedText.Current.App.Title);         // "Hello, World!"
     Console.WriteLine(LocalizedText.Current.App.Description);   // "This is a sample application."
-    Console.WriteLine(LocalizedText.Current.Cli.Usage);         // "Usage: dotnetCampus.SourceLocalizations [options]"
+    Console.WriteLine(LocalizedText.Current.Cli.Usage);         // "Usage: DotNetCampus.SourceLocalizations [options]"
     Console.WriteLine(LocalizedText.Current.PressAnyKeyToExit); // "Press any key to exit..."
 }
 ```
@@ -128,13 +128,13 @@ Uno Platform:
 
 ```csharp
 // Uno Platform MainPage.xaml.cs
-using dotnetCampus.Localizations;
-namespace dotnetCampus.SampleUnoApp;
+using DotNetCampus.Localizations;
+namespace DotNetCampus.SampleUnoApp;
 public sealed partial class MainPage : Page
 {
     public MainPage() => InitializeComponent();
     // IMPORTANT: The Lang property must be public.
-    public ILocalizedValues Lang => global::dotnetCampus.SampleUnoApp.Localizations.LocalizedText.Current;
+    public ILocalizedValues Lang => global::DotNetCampus.SampleUnoApp.Localizations.LocalizedText.Current;
 }
 ```
 

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace dotnetCampus.Localizations.Helpers;
+namespace DotNetCampus.Localizations.Helpers;
 
 /// <summary>
 /// 提供本地化相关的帮助方法。

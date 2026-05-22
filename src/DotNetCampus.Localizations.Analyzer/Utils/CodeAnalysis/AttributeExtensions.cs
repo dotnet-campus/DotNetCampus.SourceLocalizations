@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace dotnetCampus.Localizations.Utils.CodeAnalysis;
+namespace DotNetCampus.Localizations.Utils.CodeAnalysis;
 
 public static class AttributeExtensions
 {

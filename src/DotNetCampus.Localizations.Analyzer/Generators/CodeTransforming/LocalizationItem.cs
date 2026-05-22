@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace dotnetCampus.Localizations.Generators.CodeTransforming;
+namespace DotNetCampus.Localizations.Generators.CodeTransforming;
 
 /// <summary>
 /// 本地化项。

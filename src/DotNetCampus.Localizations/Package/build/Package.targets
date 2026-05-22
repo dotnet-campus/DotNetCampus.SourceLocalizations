@@ -5,10 +5,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <CompileLocalizationFileTaskFilePath Condition=" '$(CompileLocalizationFileTaskFilePath)' == '' ">$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\dotnetCampus.Localizations.Tasks.dll</CompileLocalizationFileTaskFilePath>
+    <CompileLocalizationFileTaskFilePath Condition=" '$(CompileLocalizationFileTaskFilePath)' == '' ">$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\DotNetCampus.Localizations.Tasks.dll</CompileLocalizationFileTaskFilePath>
   </PropertyGroup>
 
-  <UsingTask TaskName="dotnetCampus.Localizations.Tasks.CompileLocalizationFile" AssemblyFile="$(CompileLocalizationFileTaskFilePath)" />
+  <UsingTask TaskName="DotNetCampus.Localizations.Tasks.CompileLocalizationFile" AssemblyFile="$(CompileLocalizationFileTaskFilePath)" />
 
   <PropertyGroup>
     <_DLangRootNamespace>$(RootNamespace)</_DLangRootNamespace>

@@ -1,13 +1,13 @@
 ﻿#nullable enable
-using ILocalizedStringProvider = global::dotnetCampus.Localizations.ILocalizedStringProvider;
+using ILocalizedStringProvider = global::DotNetCampus.Localizations.ILocalizedStringProvider;
 using INotifyPropertyChanged = global::System.ComponentModel.INotifyPropertyChanged;
-using LocalizedString = global::dotnetCampus.Localizations.LocalizedString;
+using LocalizedString = global::DotNetCampus.Localizations.LocalizedString;
 using PropertyChangedEventArgs = global::System.ComponentModel.PropertyChangedEventArgs;
 using PropertyChangedEventHandler = global::System.ComponentModel.PropertyChangedEventHandler;
 using System;
 using ArgumentNullException = global::System.ArgumentNullException;
 
-namespace dotnetCampus.Localizations.Assets.Templates;
+namespace DotNetCampus.Localizations.Assets.Templates;
 
 [global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] LOCALIZATION_TYPE_NAME.???")]
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]

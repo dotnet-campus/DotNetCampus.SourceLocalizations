@@ -2,16 +2,16 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using dotnetCampus.Localizations.Assets.Templates;
-using dotnetCampus.Localizations.Generators.CodeTransforming;
-using dotnetCampus.Localizations.Generators.ModelProviding;
-using dotnetCampus.Localizations.Utils.CodeAnalysis;
+using DotNetCampus.Localizations.Assets.Templates;
+using DotNetCampus.Localizations.Generators.CodeTransforming;
+using DotNetCampus.Localizations.Generators.ModelProviding;
+using DotNetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Generic;
 
-namespace dotnetCampus.Localizations.Generators;
+namespace DotNetCampus.Localizations.Generators;
 
 /// <summary>
 /// 为所有通过 LocalizationFile 指定的文件生成对应的 C# 代码。

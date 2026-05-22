@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace dotnetCampus.Localizations.Helpers;
+namespace DotNetCampus.Localizations.Helpers;
 
 /// <summary>
 /// 提供符合 BCP-47 标准的区域性回退匹配服务。<br/>

@@ -2,7 +2,7 @@ using System.Linq;
 // ReSharper disable once CheckNamespace
 using System.Collections.Generic;
 
-namespace dotnetCampus.Localizations.Helpers;
+namespace DotNetCampus.Localizations.Helpers;
 
 public static class LocalizationHelper
 {

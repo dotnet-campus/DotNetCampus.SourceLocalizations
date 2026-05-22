@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace dotnetCampus.Localizations.Native.Windows;
+namespace DotNetCampus.Localizations.Native.Windows;
 
 internal class Kernel32
 {

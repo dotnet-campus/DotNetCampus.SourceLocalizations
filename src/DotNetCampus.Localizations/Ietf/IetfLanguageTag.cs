@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 
-namespace dotnetCampus.Localizations.Ietf;
+namespace DotNetCampus.Localizations.Ietf;
 
 /// <summary>
 /// 表示符合 IETF BCP 47 标准的语言标签。

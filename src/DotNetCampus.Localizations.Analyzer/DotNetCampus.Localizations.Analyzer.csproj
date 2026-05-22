@@ -5,7 +5,7 @@
     <IsPackable>false</IsPackable>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
-    <RootNamespace>dotnetCampus.Localizations</RootNamespace>
+    <RootNamespace>DotNetCampus.Localizations</RootNamespace>
     <DefineConstants>$(DefineConstants);IN_ANALYZER</DefineConstants>
   </PropertyGroup>
 
@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <!-- 提供给分析器使用（主要是为了避免使用常量字符串），或单纯为了让分析器项目编译通过。 -->
-    <Compile Include="..\dotnetCampus.Localizations\*.cs" Link="Assets\Sources\%(FileName).g.cs" />
+    <Compile Include="..\DotNetCampus.Localizations\*.cs" Link="Assets\Sources\%(FileName).g.cs" />
 
     <!-- 提供给源生成器使用。 -->
     <EmbeddedResource Include="Assets\Sources\**\*.cs" />

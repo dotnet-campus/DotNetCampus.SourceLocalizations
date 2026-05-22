@@ -1,6 +1,6 @@
-﻿using dotnetCampus.Localizations.Helpers;
+﻿using DotNetCampus.Localizations.Helpers;
 
-namespace dotnetCampus.Localizations.Tests;
+namespace DotNetCampus.Localizations.Tests;
 
 [TestClass]
 public class LocalizationMatcherTests

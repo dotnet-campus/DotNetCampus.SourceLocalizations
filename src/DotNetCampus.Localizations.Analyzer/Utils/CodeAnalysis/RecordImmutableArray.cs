@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace dotnetCampus.Localizations.Utils.CodeAnalysis;
+namespace DotNetCampus.Localizations.Utils.CodeAnalysis;
 
 public readonly record struct RecordImmutableArray<T> : IReadOnlyList<T>, IList<T>, IEqualityComparer<RecordImmutableArray<T>>, IEqualityComparer
 {

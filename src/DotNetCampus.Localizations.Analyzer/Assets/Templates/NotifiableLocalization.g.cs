@@ -1,7 +1,7 @@
 #nullable enable
-using global::dotnetCampus.Localizations;
+using global::DotNetCampus.Localizations;
 
-namespace dotnetCampus.Localizations.Assets.Templates;
+namespace DotNetCampus.Localizations.Assets.Templates;
 
 /// <summary>
 /// 支持属性变更通知的本地化字符串实现。
@@ -95,7 +95,7 @@ partial class NotifiableLocalization
         {
             return provider;
         }
-        var fallbackTag = global::dotnetCampus.Localizations.Helpers.LocalizationHelper.MatchWithFallback(languageTag, SupportedLanguageTags);
+        var fallbackTag = global::DotNetCampus.Localizations.Helpers.LocalizationHelper.MatchWithFallback(languageTag, SupportedLanguageTags);
         provider = fallbackTag is null ? null : CreateLocalizedStringProviderCore(fallbackTag);
         if (provider is not null)
         {

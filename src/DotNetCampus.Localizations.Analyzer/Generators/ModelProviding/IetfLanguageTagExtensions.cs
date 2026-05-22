@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace dotnetCampus.Localizations.Generators.ModelProviding;
+namespace DotNetCampus.Localizations.Generators.ModelProviding;
 
 /// <summary>
 /// IETF 语言标签扩展方法。

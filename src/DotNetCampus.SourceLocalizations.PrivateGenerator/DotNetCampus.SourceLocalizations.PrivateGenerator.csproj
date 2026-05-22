@@ -5,7 +5,7 @@
     <IsPackable>false</IsPackable>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <IsRoslynComponent>true</IsRoslynComponent>
-    <RootNamespace>dotnetCampus.Localizations</RootNamespace>
+    <RootNamespace>DotNetCampus.Localizations</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace dotnetCampus.Localizations;
+namespace DotNetCampus.Localizations;
 
 /// <summary>
 /// 在一个分部类上标记，可以为此类生成本地化语言项。

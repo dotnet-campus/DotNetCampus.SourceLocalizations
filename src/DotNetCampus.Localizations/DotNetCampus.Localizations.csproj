@@ -9,7 +9,7 @@
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Deterministic>true</Deterministic>
-    <PackageId>dotnetCampus.SourceLocalizations</PackageId>
+    <PackageId>DotNetCampus.SourceLocalizations</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -38,12 +38,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\artifacts\bin\dotnetCampus.Localizations.Analyzer\$(Configuration)\**\*" Link="Package\analyzers\dotnet\cs\%(RecursiveDir)%(Filename)%(Extension)" />
-    <None Include="..\..\artifacts\bin\dotnetCampus.Localizations.Tasks\$(Configuration)\**\*" Link="Package\tasks\netstandard2.0\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\..\artifacts\bin\DotNetCampus.Localizations.Analyzer\$(Configuration)\**\*" Link="Package\analyzers\dotnet\cs\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\..\artifacts\bin\DotNetCampus.Localizations.Tasks\$(Configuration)\**\*" Link="Package\tasks\netstandard2.0\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\dotnetCampus.SourceLocalizations.PrivateGenerator\dotnetCampus.SourceLocalizations.PrivateGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\DotNetCampus.SourceLocalizations.PrivateGenerator\DotNetCampus.SourceLocalizations.PrivateGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <!-- 生成 NuGet 包。 -->
@@ -52,7 +52,7 @@
       <None Include="$(RepositoryRoot)README.md" Pack="true" PackagePath="\"/>
       <None Include="Package\build\Package.props" Pack="True" PackagePath="build\$(PackageId).props" />
       <None Include="Package\build\Package.targets" Pack="True" PackagePath="build\$(PackageId).targets" />
-      <None Include="..\..\artifacts\bin\dotnetCampus.Localizations.Analyzer\$(Configuration)\**\*" Pack="True" PackagePath="analyzers\dotnet\cs" />
+      <None Include="..\..\artifacts\bin\DotNetCampus.Localizations.Analyzer\$(Configuration)\**\*" Pack="True" PackagePath="analyzers\dotnet\cs" />
       <None Include="$(PKGSamboy063_Tomlet)\lib\netstandard2.0\Tomlet.dll" Pack="True" PackagePath="analyzers\dotnet\cs\Tomlet.dll" />
       <None Include="$(PKGYamlDotNet)\lib\netstandard2.0\YamlDotNet.dll" Pack="True" PackagePath="analyzers\dotnet\cs\YamlDotNet.dll" />
     </ItemGroup>

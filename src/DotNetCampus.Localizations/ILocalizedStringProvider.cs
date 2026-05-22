@@ -1,4 +1,4 @@
-namespace dotnetCampus.Localizations;
+namespace DotNetCampus.Localizations;
 
 /// <summary>
 /// 为源生成器生成的本地化字符串提供统一的访问接口。

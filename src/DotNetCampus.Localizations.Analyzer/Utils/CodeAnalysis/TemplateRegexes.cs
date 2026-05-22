@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace dotnetCampus.Localizations.Utils.CodeAnalysis;
+namespace DotNetCampus.Localizations.Utils.CodeAnalysis;
 
 /// <summary>
 /// 为生成源代码提供正则表达式。

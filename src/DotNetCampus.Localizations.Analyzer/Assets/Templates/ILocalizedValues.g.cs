@@ -1,9 +1,9 @@
 ﻿#nullable enable
-using global::dotnetCampus.Localizations;
-using ILocalizedStringProvider = global::dotnetCampus.Localizations.ILocalizedStringProvider;
-using LocalizedString = global::dotnetCampus.Localizations.LocalizedString;
+using global::DotNetCampus.Localizations;
+using ILocalizedStringProvider = global::DotNetCampus.Localizations.ILocalizedStringProvider;
+using LocalizedString = global::DotNetCampus.Localizations.LocalizedString;
 
-namespace dotnetCampus.Localizations.Assets.Templates;
+namespace DotNetCampus.Localizations.Assets.Templates;
 
 [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
 public partial interface ILocalizedValues : ILocalizedStringProvider

@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <RootNamespace>dotnetCampus.Localizations.Tests</RootNamespace>
+    <RootNamespace>DotNetCampus.Localizations.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,8 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\dotnetCampus.Localizations.Analyzer\dotnetCampus.Localizations.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\..\src\dotnetCampus.Localizations\dotnetCampus.Localizations.csproj" />
+    <ProjectReference Include="..\..\src\DotNetCampus.Localizations.Analyzer\DotNetCampus.Localizations.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\src\DotNetCampus.Localizations\DotNetCampus.Localizations.csproj" />
   </ItemGroup>
 
 </Project>

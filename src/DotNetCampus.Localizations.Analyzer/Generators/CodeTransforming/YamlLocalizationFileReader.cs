@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using YamlDotNet.RepresentationModel;
 
-namespace dotnetCampus.Localizations.Generators.CodeTransforming;
+namespace DotNetCampus.Localizations.Generators.CodeTransforming;
 
 /// <summary>
 /// 读取单一层级 YAML 格式语言文件。

@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using Tomlet;
 using Tomlet.Models;
 
-namespace dotnetCampus.Localizations.Generators.CodeTransforming;
+namespace DotNetCampus.Localizations.Generators.CodeTransforming;
 
 /// <summary>
 /// 读取 TOML 格式的本地化文件。

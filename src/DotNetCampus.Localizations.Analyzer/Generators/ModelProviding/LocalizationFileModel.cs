@@ -1,4 +1,4 @@
-namespace dotnetCampus.Localizations.Generators.ModelProviding;
+namespace DotNetCampus.Localizations.Generators.ModelProviding;
 
 /// <summary>
 /// 本地化语言文件模型。

@@ -1,4 +1,4 @@
-namespace dotnetCampus.Localizations;
+namespace DotNetCampus.Localizations;
 
 /// <summary>
 /// 为 <see cref="ILocalizedStringProvider"/> 提供带有本地化类型返回值的扩展方法。
