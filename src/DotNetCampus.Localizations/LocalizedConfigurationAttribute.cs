@@ -30,7 +30,7 @@ public class LocalizedConfigurationAttribute : Attribute
     /// 指定运行时的当前语言。
     /// </summary>
     /// <remarks>
-    /// 如果没有指定，则会在使用运行时目标计算机的当前语言文化。
+    /// 如果没有指定，则会在运行时使用目标计算机的当前语言文化。
     /// </remarks>
     public string? Current { get; init; }
 
@@ -38,7 +38,7 @@ public class LocalizedConfigurationAttribute : Attribute
     /// 指定开发时预览语言项文字所用的语言。指定后可在语言项的文档注释中查看此语言项的文本，方便开发时人工检查语言项的正确性。
     /// </summary>
     /// <remarks>
-    /// 一般不需指定。如果没有指定，则会使用编译时当前计算机的语言文化。
+    /// 一般无需指定。如果没有指定，则会使用编译时当前计算机的语言文化。
     /// </remarks>
     public string? Preview { get; init; }
 
@@ -60,7 +60,7 @@ public class LocalizedConfigurationAttribute : Attribute
     /// <summary>
     /// 指定本地化文件的格式。
     /// </summary>
-    public LocalizationFileFormat FileFormat { get; set; }
+    public LocalizationFileFormat FileFormat { get; init; }
 
     /// <summary>
     /// 默认情况下，DotNetCampus.SourceLocalizations 会自动在项目中寻找看起来像本地化文件的文件（.toml/.yaml/.yml，且文件名或文件夹名中包含语言文化名称）。<br/>
@@ -125,7 +125,7 @@ public enum GenerationMode
 public enum NotificationMode
 {
     /// <summary>
-    /// 自初始化完成后，语言项不再可变，因此也不会发起变更通知。
+    /// 自初始化完成后，当前语言文化和任何语言项不再变化，因此也不会发起变更通知。
     /// </summary>
     InitOnly,
 
@@ -133,6 +133,11 @@ public enum NotificationMode
     /// 各语言项不可变，但改变当前语言文化时，会发出属性变更通知。
     /// </summary>
     CurrentCulturePropertyChanged,
+
+    /// <summary>
+    /// 改变当前语言文化或任何语言项时，都会发出属性变更通知。基本没有什么业务场景会有改变单个语言项的需求，因此此类别也没什么用。
+    /// </summary>
+    LocalizationItemPropertyChanged,
 }
 
 /// <summary>
