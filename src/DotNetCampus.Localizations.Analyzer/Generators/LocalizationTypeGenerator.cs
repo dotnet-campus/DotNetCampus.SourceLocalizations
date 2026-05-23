@@ -46,6 +46,20 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         SourceProductionContext context,
         ((LocalizationGeneratingModel Left, AnalyzerConfigOptionsProvider Right) Left, ImmutableArray<LocalizationFileModel> Right) values)
     {
+        try
+        {
+            ExecuteCore(context, values);
+        }
+        catch (Exception ex)
+        {
+            context.ReportUnknownError(ex.Message);
+        }
+    }
+
+    private void ExecuteCore(
+        SourceProductionContext context,
+        ((LocalizationGeneratingModel Left, AnalyzerConfigOptionsProvider Right) Left, ImmutableArray<LocalizationFileModel> Right) values)
+    {
         var ((model, options), localizationFiles) = values;
 
         var isIncludedByPackageReference = options.GlobalOptions.GetBoolean("LocalizationIsIncludedByPackageReference");

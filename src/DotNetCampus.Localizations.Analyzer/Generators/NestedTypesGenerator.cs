@@ -38,6 +38,20 @@ public class NestedTypesGenerator : IIncrementalGenerator
         SourceProductionContext context,
         (LocalizationGeneratingModel Left, AnalyzerConfigOptionsProvider Right) values)
     {
+        try
+        {
+            ExecuteCore(context, values);
+        }
+        catch (Exception ex)
+        {
+            context.ReportUnknownError(ex.Message);
+        }
+    }
+
+    private void ExecuteCore(
+        SourceProductionContext context,
+        (LocalizationGeneratingModel Left, AnalyzerConfigOptionsProvider Right) values)
+    {
         var (model, options) = values;
 
         if (model.DependencyMode != DependencyMode.NestedSource)

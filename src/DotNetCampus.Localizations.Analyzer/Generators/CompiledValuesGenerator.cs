@@ -45,6 +45,20 @@ public class CompiledValuesGenerator : IIncrementalGenerator
         SourceProductionContext context,
         ((AnalyzerConfigOptionsProvider Left, ImmutableArray<LocalizationFileModel> Right) Left, ImmutableArray<LocalizationGeneratingModel> Right) values)
     {
+        try
+        {
+            ExecuteCore(context, values);
+        }
+        catch (Exception ex)
+        {
+            context.ReportUnknownError(ex.Message);
+        }
+    }
+
+    private void ExecuteCore(
+        SourceProductionContext context,
+        ((AnalyzerConfigOptionsProvider Left, ImmutableArray<LocalizationFileModel> Right) Left, ImmutableArray<LocalizationGeneratingModel> Right) values)
+    {
         var ((options, localizationFiles), localizationTypes) = values;
         var localizationType = localizationTypes.FirstOrDefault();
 
