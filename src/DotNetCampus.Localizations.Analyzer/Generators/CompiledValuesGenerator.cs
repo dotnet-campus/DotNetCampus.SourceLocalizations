@@ -72,6 +72,11 @@ public class CompiledValuesGenerator : IIncrementalGenerator
             return;
         }
 
+        if (localizationType.NotificationMode == NotificationMode.LocalizationItemPropertyChanged)
+        {
+            return;
+        }
+
         var isIncludedByPackageReference = options.GlobalOptions.GetBoolean("LocalizationIsIncludedByPackageReference");
         var supportsNonIetfLanguageTag = options.GlobalOptions.GetBoolean("LocalizationSupportsNonIetfLanguageTag");
 
