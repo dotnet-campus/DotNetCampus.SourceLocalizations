@@ -83,6 +83,13 @@ public class InterfaceTreeGenerator : IIncrementalGenerator
             return;
         }
 
+        if (localizationType.CurrentLanguage is { } currentLanguage && !allTags.Contains(currentLanguage))
+        {
+            context.ReportCurrentLanguageTagNotFound(
+                currentLanguage,
+                string.Join(", ", allTags));
+        }
+
         if (localizationType.EnsureKeysIdentical && allLocalizationModels.Count > 1)
         {
             CompareLanguageKeys(context, localizationType.DefaultLanguage, allLocalizationModels);
