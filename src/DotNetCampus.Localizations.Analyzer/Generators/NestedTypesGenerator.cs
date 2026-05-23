@@ -84,7 +84,8 @@ public class NestedTypesGenerator : IIncrementalGenerator
 
     private string GenerateLocalizedStringTypes(LocalizationGeneratingModel model)
     {
-        using var builder = new SourceTextBuilder(model.Namespace);
+        using var builder = new SourceTextBuilder(model.Namespace)
+            .AddRawText("#pragma warning disable CS0809");
 
         builder.AddTypeDeclaration($"partial class {model.TypeName}", wrapper =>
         {
