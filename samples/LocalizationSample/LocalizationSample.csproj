@@ -15,9 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- 现在，多语言文件会被自动引入并合并。 -->
-    <!-- <LocalizationFile Include="Localizations\**\*.yaml" /> -->
-    <!-- <LocalizationFile Include="Localizations\**\*.toml" /> -->
+    <Compile Remove="Designing\**" />
+    <None Include="Designing\**" />
   </ItemGroup>
 
   <Import Project="..\..\src\DotNetCampus.Localizations\Package\build\Package.targets" />
