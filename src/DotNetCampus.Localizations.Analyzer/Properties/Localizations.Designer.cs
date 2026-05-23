@@ -140,5 +140,23 @@ namespace DotNetCampus.Localizations.Properties {
                 return ResourceManager.GetString("DLA003_Message", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   查找类似 Invalid configuration combination 的本地化字符串。
+        /// </summary>
+        public static string DLA004 {
+            get {
+                return ResourceManager.GetString("DLA004", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   查找类似 Compiled mode does not support LocalizationItemPropertyChanged notification mode. 的本地化字符串。
+        /// </summary>
+        public static string DLA004_Message {
+            get {
+                return ResourceManager.GetString("DLA004_Message", resourceCulture);
+            }
+        }
     }
 }

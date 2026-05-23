@@ -153,9 +153,12 @@ public class LocalizationCodeTransformer
         using var builder = isNestedSource
             ? new SourceTextBuilder(model.Namespace)
             : new SourceTextBuilder(GeneratorInfo.RootNamespace);
-        builder
-            .UsingTypeAlias("ILocalizedStringProvider", "DotNetCampus.Localizations.ILocalizedStringProvider")
-            .UsingTypeAlias("LocalizedString", "DotNetCampus.Localizations.LocalizedString");
+        if (!isNestedSource)
+        {
+            builder
+                .UsingTypeAlias("ILocalizedStringProvider", "DotNetCampus.Localizations.ILocalizedStringProvider")
+                .UsingTypeAlias("LocalizedString", "DotNetCampus.Localizations.LocalizedString");
+        }
 
         Action<IAllowTypeDeclaration> addTypes = target =>
         {
@@ -181,11 +184,15 @@ public class LocalizationCodeTransformer
             ? new SourceTextBuilder(model.Namespace) { RemoveIndentForPreprocessorLines = true }
             : new SourceTextBuilder(GeneratorInfo.RootNamespace) { RemoveIndentForPreprocessorLines = true };
         builder
-            .UsingTypeAlias("ILocalizedStringProvider", "DotNetCampus.Localizations.ILocalizedStringProvider")
             .UsingTypeAlias("INotifyPropertyChanged", "System.ComponentModel.INotifyPropertyChanged")
-            .UsingTypeAlias("LocalizedString", "DotNetCampus.Localizations.LocalizedString")
             .UsingTypeAlias("PropertyChangedEventArgs", "System.ComponentModel.PropertyChangedEventArgs")
             .UsingTypeAlias("PropertyChangedEventHandler", "System.ComponentModel.PropertyChangedEventHandler");
+        if (!isNestedSource)
+        {
+            builder
+                .UsingTypeAlias("ILocalizedStringProvider", "DotNetCampus.Localizations.ILocalizedStringProvider")
+                .UsingTypeAlias("LocalizedString", "DotNetCampus.Localizations.LocalizedString");
+        }
 
         Action<IAllowTypeDeclaration> addTypes = target =>
         {

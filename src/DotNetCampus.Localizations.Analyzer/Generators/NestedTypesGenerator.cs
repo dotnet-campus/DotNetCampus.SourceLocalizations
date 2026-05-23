@@ -51,8 +51,14 @@ public class NestedTypesGenerator : IIncrementalGenerator
             return;
         }
 
-        var code = GenerateLocalizedStringTypes(model);
-        context.AddSource($"{model.TypeName}.LocalizedString.g.cs", SourceText.From(code, Encoding.UTF8));
+        context.AddSource($"{model.TypeName}.LocalizedString.g.cs",
+            SourceText.From(GenerateLocalizedStringTypes(model), Encoding.UTF8));
+
+        if (model.GenerationMode == GenerationMode.Dictionary)
+        {
+            context.AddSource($"{model.TypeName}.ILocalizedStringProvider.g.cs",
+                SourceText.From(GenerateILocalizedStringProvider(model), Encoding.UTF8));
+        }
     }
 
     private string GenerateLocalizedStringTypes(LocalizationGeneratingModel model)
@@ -102,6 +108,32 @@ public class NestedTypesGenerator : IIncrementalGenerator
                         """)
                 );
             }
+        });
+
+        return builder.ToString();
+    }
+
+    private string GenerateILocalizedStringProvider(LocalizationGeneratingModel model)
+    {
+        using var builder = new SourceTextBuilder(model.Namespace);
+
+        builder.AddTypeDeclaration($"partial class {model.TypeName}", wrapper =>
+        {
+            wrapper.AddTypeDeclaration("internal interface ILocalizedStringProvider", t =>
+            {
+                t.AddRawMembers(
+                    "string IetfLanguageTag { get; }",
+                    "string this[string key] { get; }");
+                // Default interface methods to replace extension methods (can't use extensions in nested classes)
+                t.AddRawMembers(
+                    """LocalizedString Get0(string key) => new LocalizedString(key, this[key]);""");
+                for (var arity = 1; arity <= MaxGenericArity; arity++)
+                {
+                    var typeParams = string.Join(", ", Enumerable.Range(1, arity).Select(i => $"T{i}"));
+                    t.AddRawMembers(
+                        $"LocalizedString<{typeParams}> Get{arity}<{typeParams}>(string key) => new LocalizedString<{typeParams}>(key, this[key]);");
+                }
+            });
         });
 
         return builder.ToString();

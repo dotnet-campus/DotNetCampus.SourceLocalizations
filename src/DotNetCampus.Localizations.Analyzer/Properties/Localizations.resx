@@ -144,4 +144,10 @@
   <data name="DLA003_Message" xml:space="preserve">
     <value>Language key inconsistent. {0}</value>
   </data>
+  <data name="DLA004" xml:space="preserve">
+    <value>Invalid configuration combination</value>
+  </data>
+  <data name="DLA004_Message" xml:space="preserve">
+    <value>Compiled mode does not support LocalizationItemPropertyChanged notification mode. Use InitOnly or CurrentCulturePropertyChanged instead.</value>
+  </data>
 </root>

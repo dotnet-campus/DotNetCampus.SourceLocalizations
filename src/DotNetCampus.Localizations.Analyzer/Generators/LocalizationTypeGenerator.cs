@@ -59,6 +59,13 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         var allLocalizationModels = localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag)
             .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models);
 
+        if (model.GenerationMode == GenerationMode.Compiled
+            && model.NotificationMode == NotificationMode.LocalizationItemPropertyChanged)
+        {
+            context.ReportInvalidConfigurationCombination();
+            return;
+        }
+
         string code;
         if (model.GenerationMode == GenerationMode.Dictionary)
         {
@@ -76,29 +83,35 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         LocalizationGeneratingModel model,
         ImmutableSortedDictionary<string, IReadOnlyList<LocalizationFileModel>> allLocalizationModels)
     {
+        var isNestedSource = model.DependencyMode == DependencyMode.NestedSource;
         var supportsNotifyChanged = model.NotificationMode is not NotificationMode.InitOnly;
         var localizationFile = supportsNotifyChanged
             ? EmbeddedSourceFile.Get<NotifiableLocalization>()
             : EmbeddedSourceFile.Get<ImmutableLocalization>();
         var originalText = ReplaceNamespaceAndTypeName(localizationFile.Content, model.Namespace, model.TypeName);
         var localizedValuesTypeName = supportsNotifyChanged ? nameof(NotifiableLocalizedValues) : nameof(ImmutableLocalizedValues);
+        var typePrefix = isNestedSource ? "" : $"global::{GeneratorInfo.RootNamespace}.";
         var defaultCode = originalText
             .Replace("DEFAULT_IETF_LANGUAGE_TAG", model.DefaultLanguage.ToLowerInvariant())
             .Replace("\"CURRENT_IETF_LANGUAGE_TAG\"", model.CurrentLanguage is null
                 ? "global::System.Globalization.CultureInfo.CurrentUICulture.Name"
                 : $"\"{model.CurrentLanguage.ToLowerInvariant()}\"")
-            .FlagReplace(GenerateCreateLocalizedStringProviderCore(model.DefaultLanguage, allLocalizationModels))
+            .FlagReplace(GenerateCreateLocalizedStringProviderCore(model.DefaultLanguage, allLocalizationModels, typePrefix))
             .Flag2Replace(GenerateIetfLanguageTagList(allLocalizationModels.Keys))
-            .Replace("ILocalizedValues", $"global::{GeneratorInfo.RootNamespace}.ILocalizedValues")
-            .Replace("PlaceholderLocalizedValues", $" global::{GeneratorInfo.RootNamespace}.{localizedValuesTypeName}");
+            .Replace("ILocalizedValues", $"{typePrefix}ILocalizedValues")
+            .Replace("PlaceholderLocalizedValues", $" {typePrefix}{localizedValuesTypeName}");
         if (supportsNotifyChanged)
         {
             defaultCode = defaultCode.Replace(
                 "ILocalizedStringProvider Wrap(ILocalizedStringProvider rawProvider) => rawProvider",
-                $"global::{GeneratorInfo.RootNamespace}.MutableLocalizedStringProvider Wrap(ILocalizedStringProvider rawProvider) => new global::{GeneratorInfo.RootNamespace}.MutableLocalizedStringProvider{{ Provider = rawProvider}}");
+                $"{typePrefix}MutableLocalizedStringProvider Wrap(ILocalizedStringProvider rawProvider) => new {typePrefix}MutableLocalizedStringProvider{{ Provider = rawProvider}}");
             defaultCode = defaultCode
                 .Replace("public static async global::System.Threading.Tasks.ValueTask SetCurrent", "public static void SetCurrent")
                 .Replace("await _current.SetProvider(CreateLocalizedStringProvider(languageTag));", "_current.SetProvider(CreateLocalizedStringProvider(languageTag));");
+        }
+        if (isNestedSource)
+        {
+            defaultCode = defaultCode.Replace("using global::DotNetCampus.Localizations;\n", "");
         }
         return defaultCode;
     }
@@ -214,18 +227,19 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
 
     private string GenerateCreateLocalizedStringProviderCore(
         string defaultIetfTag,
-        IReadOnlyDictionary<string, IReadOnlyList<LocalizationFileModel>> models) => $"""
-{string.Join("\n", models.Select(x => ConvertModelToProviderPatternMatch(defaultIetfTag, x.Key)))}
+        IReadOnlyDictionary<string, IReadOnlyList<LocalizationFileModel>> models,
+        string typePrefix) => $"""
+{string.Join("\n", models.Select(x => ConvertModelToProviderPatternMatch(defaultIetfTag, x.Key, typePrefix)))}
 """;
 
-    private string ConvertModelToProviderPatternMatch(string defaultIetfTag, string ietfTag)
+    private string ConvertModelToProviderPatternMatch(string defaultIetfTag, string ietfTag, string typePrefix)
     {
         var tagIdentifier = IetfLanguageTagToIdentifier(ietfTag);
         var defaultProvider = ietfTag == defaultIetfTag
             ? "null"
             : "_default.LocalizedStringProvider";
         return $"""
-            "{ietfTag.ToLowerInvariant()}" => new global::{GeneratorInfo.RootNamespace}.{nameof(LocalizedStringProvider)}_{tagIdentifier}({defaultProvider}),
+            "{ietfTag.ToLowerInvariant()}" => new {typePrefix}{nameof(LocalizedStringProvider)}_{tagIdentifier}({defaultProvider}),
 """;
     }
 

@@ -144,4 +144,10 @@
   <data name="DLA003_Message" xml:space="preserve">
     <value>语言项不一致。{0}</value>
   </data>
+  <data name="DLA004" xml:space="preserve">
+    <value>配置组合无效</value>
+  </data>
+  <data name="DLA004_Message" xml:space="preserve">
+    <value>Compiled 模式不支持 LocalizationItemPropertyChanged 通知模式。请改用 InitOnly 或 CurrentCulturePropertyChanged。</value>
+  </data>
 </root>

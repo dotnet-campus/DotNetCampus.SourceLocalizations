@@ -19,4 +19,11 @@ public static class DiagnosticExtensions
             null,
             message));
     }
+
+    public static void ReportInvalidConfigurationCombination(this SourceProductionContext context)
+    {
+        context.ReportDiagnostic(Diagnostic.Create(
+            Diagnostics.DL0004_InvalidConfigurationCombination,
+            null));
+    }
 }

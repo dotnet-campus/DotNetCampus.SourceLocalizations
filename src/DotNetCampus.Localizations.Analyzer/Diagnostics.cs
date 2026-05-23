@@ -42,6 +42,14 @@ public class Diagnostics
         DiagnosticSeverity.Error,
         true);
 
+    public static DiagnosticDescriptor DL0004_InvalidConfigurationCombination { get; } = new(
+        nameof(DLA004),
+        Localize(nameof(DLA004)),
+        Localize(nameof(DLA004_Message)),
+        Categories.Mechanism,
+        DiagnosticSeverity.Error,
+        true);
+
     private static class Categories
     {
         /// <summary>
