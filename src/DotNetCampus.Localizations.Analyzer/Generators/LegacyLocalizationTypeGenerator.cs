@@ -25,8 +25,8 @@ namespace DotNetCampus.Localizations.Generators;
 /// public static partial class Lang;
 /// </code>
 /// </example>
-[Generator]
-public class LocalizationTypeGenerator : IIncrementalGenerator
+// [Generator]
+public class LegacyLocalizationTypeGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
