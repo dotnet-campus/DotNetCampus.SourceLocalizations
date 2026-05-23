@@ -398,10 +398,11 @@ public class LocalizationCodeTransformer
                 t.AddRawMembers($"public static LocalizedValues_{tagIdentifier} Instance {{ get; }} = new();");
                 if (!isNestedSource)
                 {
-                    // Library 模式下 ILocalizedValues : ILocalizedStringProvider，需要实现 IetfLanguageTag 和 indexer
+                    // Library 模式下 ILocalizedValues : ILocalizedStringProvider，需要实现 IetfLanguageTag 和 indexer。
+                    // Compiled 模式下无法高效实现索引器（所有 key 都是字面量属性，没有字典），抛异常以明确告知误用。
                     t.AddRawMembers(
                         $"""public string IetfLanguageTag => "{ietfLanguageTag}";""",
-                        """public string this[string key] => "";""");
+                        """public string this[string key] => throw new global::System.NotSupportedException("Compiled 模式不支持基于字符串 key 的动态索引，请使用类型化属性。");""");
                 }
                 t.AddRawMembers(GenerateCompiledExplicitMembers(referenceTransformer.Tree, this));
             });
