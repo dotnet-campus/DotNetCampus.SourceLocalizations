@@ -32,5 +32,5 @@ internal class Program
 [LocalizedConfiguration(Default = "zh-Hans",
     DependencyMode = DependencyMode.Library,
     GenerationMode = GenerationMode.Dictionary,
-    NotificationMode = NotificationMode.InitOnly)]
+    NotificationMode = NotificationMode.CurrentCulturePropertyChanged)]
 internal partial class Lang;
