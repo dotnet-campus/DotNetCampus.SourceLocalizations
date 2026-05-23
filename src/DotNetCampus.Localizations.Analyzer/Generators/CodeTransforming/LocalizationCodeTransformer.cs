@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using DotNetCampus.Localizations.Assets.Templates;
+using DotNetCampus.Localizations.Generators.Builders;
 using DotNetCampus.Localizations.Generators.ModelProviding;
 using DotNetCampus.Localizations.IO;
 using DotNetCampus.Localizations.Utils.CodeAnalysis;
@@ -55,103 +56,80 @@ public class LocalizationCodeTransformer
 
     public string ToInterfaceCodeText(LocalizationGeneratingModel model)
     {
-        return EmbeddedSourceFile.Get<ILocalizedValues>().Content
-            .Replace("namespace DotNetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
-            .FlagReplace(string.Join("\n\n", string.Join("\n\n", GenerateInterfacePropertyLines(Tree))))
-            .Flag2Replace(string.Concat(Tree.Children.Select(RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode)));
+        using var builder = new SourceTextBuilder(GeneratorInfo.RootNamespace);
+        builder
+            .Using("DotNetCampus.Localizations")
+            .UsingTypeAlias("ILocalizedStringProvider", "DotNetCampus.Localizations.ILocalizedStringProvider")
+            .UsingTypeAlias("LocalizedString", "DotNetCampus.Localizations.LocalizedString");
+        AddInterfaceDeclarations(builder, "public", includeBaseInterface: true);
+        return builder.ToString();
     }
 
     public string ToNestedInterfaceCodeText(LocalizationGeneratingModel model)
     {
-        return $$"""
-#nullable enable
-
-namespace {{model.Namespace}};
-
-partial class {{model.TypeName}}
-{
-    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-    internal interface ILocalizedValues
-    {
-{{string.Join("\n\n", GenerateInterfacePropertyLines(Tree, "    "))}}
-    }
-{{string.Concat(Tree.Children.Select(x => RecursiveConvertNestedInterfaceCode(x)))}}
-}
-""";
-    }
-
-    private string RecursiveConvertNestedInterfaceCode(LocalizationTreeNode node)
-    {
-        if (node.Children.Count is 0)
+        using var builder = new SourceTextBuilder(model.Namespace);
+        builder.AddTypeDeclaration($"partial class {model.TypeName}", wrapper =>
         {
-            return "";
-        }
-
-        var nodeTypeName = node.GetFullIdentifierKey("_");
-        return $$"""
-
-    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-    internal interface ILocalizedValues_{{nodeTypeName}}
-    {
-{{string.Join("\n\n", GenerateInterfacePropertyLines(node, "    "))}}
-    }
-{{string.Concat(node.Children.Select(x => RecursiveConvertNestedInterfaceCode(x)))}}
-""";
+            AddInterfaceDeclarations(wrapper, "internal", includeBaseInterface: false);
+        });
+        return builder.ToString();
     }
 
-    private string RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(LocalizationTreeNode node)
+    private void AddInterfaceDeclarations(IAllowTypeDeclaration builder, string accessibility, bool includeBaseInterface)
     {
-        if (node.Children.Count is 0)
+        builder.AddTypeDeclaration($"{accessibility} partial interface ILocalizedValues", t => t
+            .AddGeneratedToolAndEditorBrowsingAttributes()
+            .If(includeBaseInterface, t => t.AddBaseTypes("ILocalizedStringProvider"))
+            .AddRawMembers(GenerateInterfacePropertyMembers(Tree))
+        );
+
+        foreach (var node in EnumerateAllNonLeafDescendants(Tree))
         {
-            return "";
+            var nodeTypeName = node.GetFullIdentifierKey("_");
+            builder.AddTypeDeclaration($"{accessibility} interface ILocalizedValues_{nodeTypeName}", t => t
+                .AddGeneratedToolAndEditorBrowsingAttributes()
+                .AddRawMembers(GenerateInterfacePropertyMembers(node))
+            );
         }
-
-        var nodeTypeName = node.GetFullIdentifierKey("_");
-        return $$"""
-
-[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-public interface ILocalizedValues_{{nodeTypeName}}
-{
-{{string.Join("\n\n", GenerateInterfacePropertyLines(node))}}
-}
-{{string.Concat(node.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(x)))}}
-""";
     }
 
-    private IEnumerable<string> GenerateInterfacePropertyLines(LocalizationTreeNode node, string extraIndent = "")
+    private IEnumerable<string> GenerateInterfacePropertyMembers(LocalizationTreeNode node)
     {
         return node.Children.Select(x =>
         {
             var identifierKey = x.GetFullIdentifierKey("_");
             if (x.Children.Count is 0)
             {
-                if (x.Item.ValueArgumentTypes.Length is 0)
-                {
-                    return $$"""
-{{extraIndent}}    /// <summary>
-{{extraIndent}}    /// {{ConvertValueToComment(x.Item.SampleValue)}}
-{{extraIndent}}    /// </summary>
-{{extraIndent}}    LocalizedString {{x.IdentifierKey}} { get; }
-""";
-                }
-                else
-                {
-                    var genericTypes = string.Join(", ", x.Item.ValueArgumentTypes);
-                    return $$"""
-{{extraIndent}}    /// <summary>
-{{extraIndent}}    /// {{ConvertValueToComment(x.Item.SampleValue)}}
-{{extraIndent}}    /// </summary>
-{{extraIndent}}    LocalizedString<{{genericTypes}}> {{x.IdentifierKey}} { get; }
-""";
-                }
+                var typeName = x.Item.ValueArgumentTypes.Length is 0
+                    ? "LocalizedString"
+                    : $"LocalizedString<{string.Join(", ", x.Item.ValueArgumentTypes)}>";
+                return $$"""
+                    /// <summary>
+                    /// {{ConvertValueToComment(x.Item.SampleValue)}}
+                    /// </summary>
+                    {{typeName}} {{x.IdentifierKey}} { get; }
+                    """;
             }
             else
             {
-                return $$"""
-{{extraIndent}}    ILocalizedValues_{{identifierKey}} {{x.IdentifierKey}} { get; }
-""";
+                return $"ILocalizedValues_{identifierKey} {x.IdentifierKey} {{ get; }}";
             }
         });
+    }
+
+    private IEnumerable<LocalizationTreeNode> EnumerateAllNonLeafDescendants(LocalizationTreeNode root)
+    {
+        foreach (var child in root.Children)
+        {
+            if (child.Children.Count > 0)
+            {
+                yield return child;
+                foreach (var descendant in EnumerateAllNonLeafDescendants(child))
+                {
+                    yield return descendant;
+                }
+            }
+        }
     }
 
     private string ConvertValueToComment(string? value)
@@ -300,6 +278,61 @@ internal sealed partial class {{typePrefix}}LocalizedValues_{{nodeTypeName}}(ILo
 
     #region Language Value Provider
 
+    public string ToProviderCodeText(LocalizationGeneratingModel model, string ietfLanguageTag)
+    {
+        var isNestedSource = model.DependencyMode == DependencyMode.NestedSource;
+        using var builder = isNestedSource
+            ? new SourceTextBuilder(model.Namespace)
+            : new SourceTextBuilder(GeneratorInfo.RootNamespace);
+
+        var typeName = IetfLanguageTagToIdentifier(ietfLanguageTag);
+        var dictionaryEntries = string.Join("\n", LocalizationItems.Select(x => ConvertKeyValueToValueCodeLine(x.Key, x.Value)));
+
+        Action<TypeDeclarationSourceTextBuilder> buildProvider = t => t
+            .AddGeneratedToolAndEditorBrowsingAttributes()
+            .AddBaseTypes("ILocalizedStringProvider")
+            .AddRawMembers(
+                $"""public string IetfLanguageTag => "{ietfLanguageTag}";""",
+                $$"""
+                public string this[string key]
+                {
+                    get
+                    {
+                        if (_strings.TryGetValue(key, out var value) && value != null)
+                        {
+                            return value;
+                        }
+                        if (fallback != null)
+                        {
+                            return fallback[key];
+                        }
+                        return "";
+                    }
+                }
+                """,
+                $$"""
+                private readonly global::System.Collections.Generic.Dictionary<string, string> _strings = new global::System.Collections.Generic.Dictionary<string, string>
+                {
+                {{dictionaryEntries}}
+                };
+                """
+            );
+
+        if (isNestedSource)
+        {
+            builder.AddTypeDeclaration($"partial class {model.TypeName}", wrapper =>
+            {
+                wrapper.AddTypeDeclaration($"internal class {nameof(LocalizedStringProvider)}_{typeName}(ILocalizedStringProvider? fallback)", buildProvider);
+            });
+        }
+        else
+        {
+            builder.AddTypeDeclaration($"internal class {nameof(LocalizedStringProvider)}_{typeName}(ILocalizedStringProvider? fallback)", buildProvider);
+        }
+
+        return builder.ToString();
+    }
+
     public string ToProviderCodeText(string rootNamespace, string ietfLanguageTag)
     {
         var typeName = IetfLanguageTagToIdentifier(ietfLanguageTag);
@@ -315,32 +348,7 @@ internal sealed partial class {{typePrefix}}LocalizedValues_{{nodeTypeName}}(ILo
     private string ConvertKeyValueToValueCodeLine(string key, string value)
     {
         var escapedValue = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value)).ToFullString();
-        return $"        {{ \"{key}\", {escapedValue} }},";
-    }
-
-    private string ConvertKeyValueToProperty(string key, string value)
-    {
-        return "";
-    }
-
-    private IEnumerable<string> EnumerateConvertTreeNodeToInterfaceNames(IEnumerable<LocalizationTreeNode> nodes)
-    {
-        foreach (var node in nodes)
-        {
-            if (node.Children.Count is 0)
-            {
-                // 叶子节点，不提供接口。
-            }
-            else
-            {
-                // 非叶子节点，提供接口。
-                yield return node.GetFullIdentifierKey("_");
-                foreach (var child in EnumerateConvertTreeNodeToInterfaceNames(node.Children))
-                {
-                    yield return child;
-                }
-            }
-        }
+        return $"    {{ \"{key}\", {escapedValue} }},";
     }
 
     #endregion

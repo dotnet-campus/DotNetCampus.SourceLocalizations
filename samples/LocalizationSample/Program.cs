@@ -29,5 +29,8 @@ internal class Program
     }
 }
 
-[LocalizedConfiguration(Default = "zh-Hans", DependencyMode = DependencyMode.Library)]
+[LocalizedConfiguration(Default = "zh-Hans",
+    DependencyMode = DependencyMode.Library,
+    GenerationMode = GenerationMode.Dictionary,
+    NotificationMode = NotificationMode.InitOnly)]
 internal partial class Lang;
