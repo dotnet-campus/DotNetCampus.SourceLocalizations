@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
@@ -60,6 +61,11 @@ public class InterfaceTreeGenerator : IIncrementalGenerator
             .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models);
         var allTags = allLocalizationModels.Keys.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
+        if (localizationType.EnsureKeysIdentical && allLocalizationModels.Count > 1)
+        {
+            CompareLanguageKeys(context, allLocalizationModels);
+        }
+
         var referenceLanguageTag = allTags.Contains(localizationType.DefaultLanguage)
             ? localizationType.DefaultLanguage
             : allTags.FirstOrDefault() ?? null;
@@ -76,5 +82,38 @@ public class InterfaceTreeGenerator : IIncrementalGenerator
             : transformer.ToInterfaceCodeText(localizationType);
 
         context.AddSource("ILocalizedValues.g.cs", SourceText.From(code, Encoding.UTF8));
+    }
+
+    private static void CompareLanguageKeys(
+        SourceProductionContext context,
+        ImmutableSortedDictionary<string, IReadOnlyList<LocalizationFileModel>> allLocalizationModels)
+    {
+        var transformers = allLocalizationModels
+            .Select(pair => (Tag: pair.Key, Transformer: new LocalizationCodeTransformer(pair.Value)))
+            .ToImmutableArray();
+
+        var first = transformers[0];
+        var firstKeys = new HashSet<string>(first.Transformer.LocalizationItems.Select(i => i.Key));
+
+        foreach (var (tag, transformer) in transformers.Skip(1))
+        {
+            if (transformer.LocalizationItems.Length != first.Transformer.LocalizationItems.Length)
+            {
+                var message = string.Join(", ", transformers.Select(t => $"{t.Tag}:{t.Transformer.LocalizationItems.Length}"));
+                context.ReportLanguageKeyInconsistent($"Language keys count is not same. {message}");
+                return;
+            }
+        }
+
+        foreach (var (tag, transformer) in transformers.Skip(1))
+        {
+            foreach (var item in transformer.LocalizationItems)
+            {
+                if (!firstKeys.Contains(item.Key))
+                {
+                    context.ReportLanguageKeyInconsistent($"\"{item.Key}\" not exist in \"{first.Tag}\"");
+                }
+            }
+        }
     }
 }
