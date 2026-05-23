@@ -364,6 +364,263 @@ public class LocalizationCodeTransformer
 
     #endregion
 
+    #region Language Value Implementations (Compiled)
+
+    public string ToCompiledValuesCodeText(LocalizationGeneratingModel model, string ietfLanguageTag, LocalizationCodeTransformer referenceTransformer)
+    {
+        var isNestedSource = model.DependencyMode == DependencyMode.NestedSource;
+        using var builder = isNestedSource
+            ? new SourceTextBuilder(model.Namespace)
+            : new SourceTextBuilder(GeneratorInfo.RootNamespace);
+        builder.UsingTypeAlias("LocalizedString", "DotNetCampus.Localizations.LocalizedString");
+
+        var tagIdentifier = IetfLanguageTagToIdentifier(ietfLanguageTag);
+        var allInterfaces = new List<string> { "ILocalizedValues" };
+        allInterfaces.AddRange(referenceTransformer.EnumerateAllNonLeafDescendants(referenceTransformer.Tree)
+            .Select(n => $"ILocalizedValues_{n.GetFullIdentifierKey("_")}"));
+
+        Action<IAllowTypeDeclaration> addType = target =>
+        {
+            target.AddTypeDeclaration($"internal sealed class LocalizedValues_{tagIdentifier}", t =>
+            {
+                t.AddGeneratedToolAndEditorBrowsingAttributes();
+                t.AddBaseTypes(allInterfaces.ToArray());
+                t.AddRawMembers($"public static LocalizedValues_{tagIdentifier} Instance {{ get; }} = new();");
+                if (!isNestedSource)
+                {
+                    // Library 模式下 ILocalizedValues : ILocalizedStringProvider，需要实现 IetfLanguageTag 和 indexer
+                    t.AddRawMembers(
+                        $"""public string IetfLanguageTag => "{ietfLanguageTag}";""",
+                        """public string this[string key] => "";""");
+                }
+                t.AddRawMembers(GenerateCompiledExplicitMembers(referenceTransformer.Tree, this));
+            });
+        };
+
+        if (isNestedSource)
+        {
+            builder.AddTypeDeclaration($"partial class {model.TypeName}", wrapper => addType(wrapper));
+        }
+        else
+        {
+            addType(builder);
+        }
+
+        return builder.ToString();
+    }
+
+    public string ToCompiledNotifiableValuesCodeText(LocalizationGeneratingModel model)
+    {
+        var isNestedSource = model.DependencyMode == DependencyMode.NestedSource;
+        using var builder = isNestedSource
+            ? new SourceTextBuilder(model.Namespace) { RemoveIndentForPreprocessorLines = true }
+            : new SourceTextBuilder(GeneratorInfo.RootNamespace) { RemoveIndentForPreprocessorLines = true };
+        builder
+            .UsingTypeAlias("INotifyPropertyChanged", "System.ComponentModel.INotifyPropertyChanged")
+            .UsingTypeAlias("LocalizedString", "DotNetCampus.Localizations.LocalizedString")
+            .UsingTypeAlias("PropertyChangedEventArgs", "System.ComponentModel.PropertyChangedEventArgs")
+            .UsingTypeAlias("PropertyChangedEventHandler", "System.ComponentModel.PropertyChangedEventHandler");
+
+        var allInterfaces = new List<string> { "ILocalizedValues" };
+        allInterfaces.AddRange(EnumerateAllNonLeafDescendants(Tree)
+            .Select(n => $"ILocalizedValues_{n.GetFullIdentifierKey("_")}"));
+        allInterfaces.Add("INotifyPropertyChanged");
+
+        // Collect all non-leaf descendants for _inner fields
+        var nonLeafNodes = EnumerateAllNonLeafDescendants(Tree).ToList();
+
+        Action<IAllowTypeDeclaration> addType = target =>
+        {
+            target.AddTypeDeclaration("internal sealed class NotifiableLocalizedValues", t =>
+            {
+                t.AddGeneratedToolAndEditorBrowsingAttributes();
+                t.AddBaseTypes(allInterfaces.ToArray());
+                t.AddRawMembers(GenerateNotifiableCompiledFields(nonLeafNodes));
+                t.AddRawMembers(GenerateNotifiableCompiledConstructor(nonLeafNodes));
+                t.AddRawMembers(GenerateCompiledExplicitMembersForNotifiable(Tree));
+                t.AddRawMembers(
+                    GenerateCompiledSetInnerMethod(nonLeafNodes),
+                    """
+                    #pragma warning disable CS0067
+                    public event PropertyChangedEventHandler? PropertyChanged;
+                    #pragma warning restore CS0067
+                    """);
+            });
+        };
+
+        if (isNestedSource)
+        {
+            builder.AddTypeDeclaration($"partial class {model.TypeName}", wrapper => addType(wrapper));
+        }
+        else
+        {
+            addType(builder);
+        }
+
+        return builder.ToString();
+    }
+
+    private IEnumerable<string> GenerateCompiledExplicitMembers(LocalizationTreeNode root, LocalizationCodeTransformer valueSource)
+    {
+        // Build a dictionary of key -> value from valueSource for quick lookup
+        var valueMap = valueSource.LocalizationItems.ToDictionary(x => x.Key, x => x.Value);
+
+        return GenerateExplicitMembersForNode(root, "ILocalizedValues", valueMap);
+    }
+
+    private IEnumerable<string> GenerateExplicitMembersForNode(LocalizationTreeNode node, string interfaceName, Dictionary<string, string> valueMap)
+    {
+        var members = new List<string>();
+        foreach (var child in node.Children)
+        {
+            if (child.Children.Count > 0)
+            {
+                // Navigation property → returns this
+                var childInterfaceName = $"ILocalizedValues_{child.GetFullIdentifierKey("_")}";
+                members.Add($"{childInterfaceName} {interfaceName}.{child.IdentifierKey} => this;");
+            }
+            else
+            {
+                // Leaf property → returns literal
+                var escapedValue = SyntaxFactory.LiteralExpression(
+                    SyntaxKind.StringLiteralExpression,
+                    SyntaxFactory.Literal(valueMap.TryGetValue(child.Item.Key, out var v) ? v : "")).ToFullString();
+                if (child.Item.ValueArgumentTypes.Length is 0)
+                {
+                    members.Add($"""LocalizedString {interfaceName}.{child.IdentifierKey} => new("{child.Item.Key}", {escapedValue});""");
+                }
+                else
+                {
+                    var genericTypes = string.Join(", ", child.Item.ValueArgumentTypes);
+                    members.Add($"""LocalizedString<{genericTypes}> {interfaceName}.{child.IdentifierKey} => new("{child.Item.Key}", {escapedValue});""");
+                }
+            }
+        }
+
+        // Recurse into non-leaf children
+        foreach (var child in node.Children.Where(c => c.Children.Count > 0))
+        {
+            var childInterfaceName = $"ILocalizedValues_{child.GetFullIdentifierKey("_")}";
+            members.AddRange(GenerateExplicitMembersForNode(child, childInterfaceName, valueMap));
+        }
+
+        return members;
+    }
+
+    private IEnumerable<string> GenerateNotifiableCompiledFields(List<LocalizationTreeNode> nonLeafNodes)
+    {
+        var fields = new List<string> { "private ILocalizedValues _inner;" };
+        foreach (var node in nonLeafNodes)
+        {
+            var fieldName = "_inner" + node.GetFullIdentifierKey("");
+            var interfaceName = $"ILocalizedValues_{node.GetFullIdentifierKey("_")}";
+            fields.Add($"private {interfaceName} {fieldName};");
+        }
+        return fields;
+    }
+
+    private string GenerateNotifiableCompiledConstructor(List<LocalizationTreeNode> nonLeafNodes)
+    {
+        var assignments = new List<string> { "_inner = inner;" };
+        foreach (var node in nonLeafNodes)
+        {
+            var fieldName = "_inner" + node.GetFullIdentifierKey("");
+            var accessPath = "inner." + node.GetFullIdentifierKey(".");
+            assignments.Add($"{fieldName} = {accessPath};");
+        }
+
+        return $$"""
+            public NotifiableLocalizedValues(ILocalizedValues inner)
+            {
+            {{string.Join("\n", assignments.Select(a => $"    {a}"))}}
+            }
+            """;
+    }
+
+    private IEnumerable<string> GenerateCompiledExplicitMembersForNotifiable(LocalizationTreeNode root)
+    {
+        return GenerateNotifiableExplicitMembersForNode(root, "ILocalizedValues");
+    }
+
+    private IEnumerable<string> GenerateNotifiableExplicitMembersForNode(LocalizationTreeNode node, string interfaceName)
+    {
+        var members = new List<string>();
+        var fieldName = node == Tree ? "_inner" : "_inner" + node.GetFullIdentifierKey("");
+
+        foreach (var child in node.Children)
+        {
+            if (child.Children.Count > 0)
+            {
+                var childInterfaceName = $"ILocalizedValues_{child.GetFullIdentifierKey("_")}";
+                members.Add($"{childInterfaceName} {interfaceName}.{child.IdentifierKey} => this;");
+            }
+            else
+            {
+                if (child.Item.ValueArgumentTypes.Length is 0)
+                {
+                    members.Add($"LocalizedString {interfaceName}.{child.IdentifierKey} => {fieldName}.{child.IdentifierKey};");
+                }
+                else
+                {
+                    var genericTypes = string.Join(", ", child.Item.ValueArgumentTypes);
+                    members.Add($"LocalizedString<{genericTypes}> {interfaceName}.{child.IdentifierKey} => {fieldName}.{child.IdentifierKey};");
+                }
+            }
+        }
+
+        foreach (var child in node.Children.Where(c => c.Children.Count > 0))
+        {
+            var childInterfaceName = $"ILocalizedValues_{child.GetFullIdentifierKey("_")}";
+            members.AddRange(GenerateNotifiableExplicitMembersForNode(child, childInterfaceName));
+        }
+
+        return members;
+    }
+
+    private string GenerateCompiledSetInnerMethod(List<LocalizationTreeNode> nonLeafNodes)
+    {
+        var lines = new List<string> { "_inner = newInner;" };
+        foreach (var node in nonLeafNodes)
+        {
+            var fieldName = "_inner" + node.GetFullIdentifierKey("");
+            var accessPath = "newInner." + node.GetFullIdentifierKey(".");
+            lines.Add($"{fieldName} = {accessPath};");
+        }
+
+        var allLeafNames = EnumerateAllLeaves(Tree).Select(l => l.IdentifierKey).ToList();
+        foreach (var leafName in allLeafNames)
+        {
+            lines.Add($"""PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("{leafName}"));""");
+        }
+
+        return $$"""
+            internal void SetInner(ILocalizedValues newInner)
+            {
+            {{string.Join("\n", lines.Select(l => $"    {l}"))}}
+            }
+            """;
+    }
+
+    private IEnumerable<LocalizationTreeNode> EnumerateAllLeaves(LocalizationTreeNode root)
+    {
+        foreach (var child in root.Children)
+        {
+            if (child.Children.Count is 0)
+            {
+                yield return child;
+            }
+            else
+            {
+                foreach (var leaf in EnumerateAllLeaves(child))
+                {
+                    yield return leaf;
+                }
+            }
+        }
+    }
+
+    #endregion
+
     #region Language Value Implementations (Legacy)
 
     public string ToImplementationCodeText(LocalizationGeneratingModel model, bool isNotifiable)

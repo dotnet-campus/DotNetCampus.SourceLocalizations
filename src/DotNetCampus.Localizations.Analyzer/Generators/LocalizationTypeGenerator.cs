@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using DotNetCampus.Localizations.Assets.Templates;
+using DotNetCampus.Localizations.Generators.Builders;
 using DotNetCampus.Localizations.Generators.ModelProviding;
 using DotNetCampus.Localizations.IO;
 using DotNetCampus.Localizations.Utils.CodeAnalysis;
@@ -106,8 +107,105 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         LocalizationGeneratingModel model,
         ImmutableSortedDictionary<string, IReadOnlyList<LocalizationFileModel>> allLocalizationModels)
     {
-        // 任务 5 实现
-        return $"// TODO: Compiled main class for {model.TypeName}";
+        var isNestedSource = model.DependencyMode == DependencyMode.NestedSource;
+        var supportsNotifyChanged = model.NotificationMode is not NotificationMode.InitOnly;
+        using var builder = new SourceTextBuilder(model.Namespace);
+
+        var allTags = allLocalizationModels.Keys.ToList();
+        var currentLanguageExpr = model.CurrentLanguage is null
+            ? "global::System.Globalization.CultureInfo.CurrentUICulture.Name"
+            : $"\"{model.CurrentLanguage.ToLowerInvariant()}\"";
+
+        var tagListLiteral = string.Join("\n", allTags.Select(t => $"    \"{t}\","));
+        var switchArms = string.Join("\n", allTags.Select(t =>
+            $"    \"{t.ToLowerInvariant()}\" => {(isNestedSource ? "" : $"global::{GeneratorInfo.RootNamespace}.")}LocalizedValues_{IetfLanguageTagToIdentifier(t)}.Instance,"));
+        var defaultArm = "    _ => _default,";
+        var switchBody = $"{switchArms}\n{defaultArm}";
+
+        var defaultTagIdentifier = IetfLanguageTagToIdentifier(model.DefaultLanguage);
+        var defaultExpr = $"{(isNestedSource ? "" : $"global::{GeneratorInfo.RootNamespace}.")}LocalizedValues_{defaultTagIdentifier}.Instance";
+        var interfacePrefix = isNestedSource ? "" : $"global::{GeneratorInfo.RootNamespace}.";
+
+        if (supportsNotifyChanged)
+        {
+            builder.AddTypeDeclaration($"partial class {model.TypeName}", t => t
+                .AddRawMembers(
+                    $"private static readonly {interfacePrefix}ILocalizedValues _default = {defaultExpr};",
+                    $$"""
+                    private static readonly {{interfacePrefix}}NotifiableLocalizedValues _current;
+
+                    static {{model.TypeName}}()
+                    {
+                        var initialLang = Create({{currentLanguageExpr}});
+                        _current = new {{interfacePrefix}}NotifiableLocalizedValues(initialLang);
+                    }
+                    """,
+                    $$"""
+                    public static global::System.Collections.Generic.IReadOnlyList<string> SupportedLanguageTags { get; } =
+                    [
+                    {{tagListLiteral}}
+                    ];
+                    """,
+                    $"public static {interfacePrefix}ILocalizedValues Default => _default;",
+                    $"public static {interfacePrefix}NotifiableLocalizedValues Current => _current;",
+                    $$"""
+                    public static void SetCurrent(string languageTag)
+                    {
+                        var newInner = Create(languageTag);
+                        _current.SetInner(newInner);
+                    }
+                    """,
+                    $$"""
+                    public static {{interfacePrefix}}ILocalizedValues Create(string languageTag)
+                    {
+                        return languageTag.ToLowerInvariant() switch
+                        {
+                    {{switchBody}}
+                        };
+                    }
+                    """)
+            );
+        }
+        else
+        {
+            builder.AddTypeDeclaration($"partial class {model.TypeName}", t => t
+                .AddRawMembers(
+                    $"private static readonly {interfacePrefix}ILocalizedValues _default = {defaultExpr};",
+                    $$"""
+                    private static {{interfacePrefix}}ILocalizedValues _current;
+
+                    static {{model.TypeName}}()
+                    {
+                        _current = Create({{currentLanguageExpr}});
+                    }
+                    """,
+                    $$"""
+                    public static global::System.Collections.Generic.IReadOnlyList<string> SupportedLanguageTags { get; } =
+                    [
+                    {{tagListLiteral}}
+                    ];
+                    """,
+                    $"public static {interfacePrefix}ILocalizedValues Default => _default;",
+                    $"public static {interfacePrefix}ILocalizedValues Current => _current;",
+                    $$"""
+                    public static void SetCurrent(string languageTag)
+                    {
+                        _current = Create(languageTag);
+                    }
+                    """,
+                    $$"""
+                    public static {{interfacePrefix}}ILocalizedValues Create(string languageTag)
+                    {
+                        return languageTag.ToLowerInvariant() switch
+                        {
+                    {{switchBody}}
+                        };
+                    }
+                    """)
+            );
+        }
+
+        return builder.ToString();
     }
 
     private string GenerateIetfLanguageTagList(IEnumerable<string> languageTags) => $"""
