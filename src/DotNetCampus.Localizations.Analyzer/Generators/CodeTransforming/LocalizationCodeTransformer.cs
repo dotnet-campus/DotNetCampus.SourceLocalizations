@@ -534,7 +534,7 @@ public class LocalizationCodeTransformer
         var fields = new List<string> { "private ILocalizedValues _inner;" };
         foreach (var node in nonLeafNodes)
         {
-            var fieldName = "_inner" + node.GetFullIdentifierKey("");
+            var fieldName = "_inner_" + node.GetFullIdentifierKey("_");
             var interfaceName = $"ILocalizedValues_{node.GetFullIdentifierKey("_")}";
             fields.Add($"private {interfaceName} {fieldName};");
         }
@@ -546,7 +546,7 @@ public class LocalizationCodeTransformer
         var assignments = new List<string> { "_inner = inner;" };
         foreach (var node in nonLeafNodes)
         {
-            var fieldName = "_inner" + node.GetFullIdentifierKey("");
+            var fieldName = "_inner_" + node.GetFullIdentifierKey("_");
             var accessPath = "inner." + node.GetFullIdentifierKey(".");
             assignments.Add($"{fieldName} = {accessPath};");
         }
@@ -567,7 +567,7 @@ public class LocalizationCodeTransformer
     private IEnumerable<string> GenerateNotifiableExplicitMembersForNode(LocalizationTreeNode node, string interfaceName)
     {
         var members = new List<string>();
-        var fieldName = node == Tree ? "_inner" : "_inner" + node.GetFullIdentifierKey("");
+        var fieldName = node == Tree ? "_inner" : "_inner_" + node.GetFullIdentifierKey("_");
 
         foreach (var child in node.Children)
         {
@@ -604,7 +604,7 @@ public class LocalizationCodeTransformer
         var lines = new List<string> { "_inner = newInner;" };
         foreach (var node in nonLeafNodes)
         {
-            var fieldName = "_inner" + node.GetFullIdentifierKey("");
+            var fieldName = "_inner_" + node.GetFullIdentifierKey("_");
             var accessPath = "newInner." + node.GetFullIdentifierKey(".");
             lines.Add($"{fieldName} = {accessPath};");
         }

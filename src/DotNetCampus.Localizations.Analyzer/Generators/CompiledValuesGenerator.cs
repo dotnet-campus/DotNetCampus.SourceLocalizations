@@ -86,7 +86,7 @@ public class CompiledValuesGenerator : IIncrementalGenerator
         }
 
         var allLocalizationModels = localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag)
-            .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models);
+            .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models, StringComparer.OrdinalIgnoreCase);
         var allTags = allLocalizationModels.Keys.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
         if (!allTags.Contains(localizationType.DefaultLanguage))

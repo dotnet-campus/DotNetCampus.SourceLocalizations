@@ -71,7 +71,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         }
 
         var allLocalizationModels = localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag)
-            .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models);
+            .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models, StringComparer.OrdinalIgnoreCase);
 
         if (!allLocalizationModels.ContainsKey(model.DefaultLanguage))
         {
@@ -257,7 +257,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
     private string ConvertModelToProviderPatternMatch(string defaultIetfTag, string ietfTag, string typePrefix)
     {
         var tagIdentifier = IetfLanguageTagToIdentifier(ietfTag);
-        var defaultProvider = ietfTag == defaultIetfTag
+        var defaultProvider = string.Equals(ietfTag, defaultIetfTag, StringComparison.OrdinalIgnoreCase)
             ? "null"
             : "_default.LocalizedStringProvider";
         return $"""
