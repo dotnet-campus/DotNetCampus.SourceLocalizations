@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Globalization;
 
 namespace DotNetCampus.Localizations.Helpers;
 
@@ -17,22 +16,5 @@ public static class LocalizationHelper
     public static string? MatchWithFallback(string requestedIetfLanguageTag, IEnumerable<string> availableIetfLanguageTags)
     {
         return LocalizationFallbackProvider.FindBestMatch(requestedIetfLanguageTag, availableIetfLanguageTags);
-    }
-
-    /// <summary>
-    /// 获取用户首选的语言列表。
-    /// </summary>
-    /// <returns>用户首选的语言列表。</returns>
-    public static IReadOnlyList<string> GetUserPreferredLanguages()
-    {
-        // if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        // {
-        //     return RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64)
-        //         .OpenSubKey(@"Control Panel\International\User Profile", false)?
-        //         .GetValue("Languages", null) is not IReadOnlyList<string> languageNames
-        //         ? []
-        //         : [..languageNames];
-        // }
-        return [CultureInfo.CurrentUICulture.Name];
     }
 }

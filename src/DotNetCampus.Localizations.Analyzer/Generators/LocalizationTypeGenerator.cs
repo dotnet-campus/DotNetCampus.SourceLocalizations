@@ -146,7 +146,10 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         var tagListLiteral = string.Join("\n", allTags.Select(t => $"    \"{t}\","));
         var switchArms = string.Join("\n", allTags.Select(t =>
             $"    \"{t.ToLowerInvariant()}\" => {(isNestedSource ? "" : $"global::{GeneratorInfo.RootNamespace}.")}LocalizedValues_{IetfLanguageTagToIdentifier(t)}.Instance,"));
-        var defaultArm = "    _ => _default,";
+        var fallbackExpr = isNestedSource
+            ? "LocalizationFallbackHelper.FindBestMatch(languageTag, SupportedLanguageTags)"
+            : "global::DotNetCampus.Localizations.Helpers.LocalizationHelper.MatchWithFallback(languageTag, SupportedLanguageTags)";
+        var defaultArm = $"    _ => {fallbackExpr} is {{ }} fallback ? Create(fallback) : _default,";
         var switchBody = $"{switchArms}\n{defaultArm}";
 
         var defaultTagIdentifier = IetfLanguageTagToIdentifier(model.DefaultLanguage);

@@ -23,9 +23,10 @@
   <ItemGroup>
     <!-- 提供给分析器使用（主要是为了避免使用常量字符串），或单纯为了让分析器项目编译通过。 -->
     <Compile Include="..\DotNetCampus.Localizations\*.cs" Link="Assets\Sources\%(FileName).g.cs" />
+    <Compile Include="..\DotNetCampus.Localizations\Helpers\*.cs" Link="Assets\Sources\Helpers\%(FileName).g.cs" />
 
     <!-- 提供给源生成器使用。 -->
-    <EmbeddedResource Include="Assets\Sources\**\*.cs" />
+    <EmbeddedResource Include="..\DotNetCampus.Localizations\Helpers\*.cs" Link="Assets\Helpers\%(FileName).g.cs" />
     <EmbeddedResource Include="Assets\Templates\**\*.cs" />
   </ItemGroup>
 

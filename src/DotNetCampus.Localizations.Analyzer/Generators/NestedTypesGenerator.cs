@@ -5,6 +5,7 @@ using System.Text;
 using DotNetCampus.Localizations.Generators.Builders;
 using DotNetCampus.Localizations.Generators.CodeTransforming;
 using DotNetCampus.Localizations.Generators.ModelProviding;
+using DotNetCampus.Localizations.IO;
 using DotNetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -72,6 +73,12 @@ public class NestedTypesGenerator : IIncrementalGenerator
         {
             context.AddSource($"{model.TypeName}.ILocalizedStringProvider.g.cs",
                 SourceText.From(GenerateILocalizedStringProvider(model), Encoding.UTF8));
+        }
+
+        if (model.GenerationMode == GenerationMode.Compiled)
+        {
+            context.AddSource($"{model.TypeName}.LocalizationFallbackHelper.g.cs",
+                SourceText.From(GenerateLocalizationFallbackHelper(model), Encoding.UTF8));
         }
     }
 
@@ -151,5 +158,15 @@ public class NestedTypesGenerator : IIncrementalGenerator
         });
 
         return builder.ToString();
+    }
+
+    private string GenerateLocalizationFallbackHelper(LocalizationGeneratingModel model)
+    {
+        var template = EmbeddedSourceFile.Get("Assets/Helpers/LocalizationFallbackProvider.g.cs");
+        var code = template.Content
+            .Replace("namespace DotNetCampus.Localizations.Helpers;", $"#nullable enable\nnamespace {model.Namespace};")
+            .Replace("internal static class LocalizationFallbackProvider", $"partial class {model.TypeName}\n{{\n    private static class LocalizationFallbackHelper")
+            + "\n}";
+        return code;
     }
 }
