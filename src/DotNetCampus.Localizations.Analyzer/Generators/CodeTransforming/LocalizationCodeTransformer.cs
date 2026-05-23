@@ -61,6 +61,44 @@ public class LocalizationCodeTransformer
             .Flag2Replace(string.Concat(Tree.Children.Select(RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode)));
     }
 
+    public string ToNestedInterfaceCodeText(LocalizationGeneratingModel model)
+    {
+        return $$"""
+#nullable enable
+
+namespace {{model.Namespace}};
+
+partial class {{model.TypeName}}
+{
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    internal interface ILocalizedValues
+    {
+{{string.Join("\n\n", GenerateInterfacePropertyLines(Tree, "    "))}}
+    }
+{{string.Concat(Tree.Children.Select(x => RecursiveConvertNestedInterfaceCode(x)))}}
+}
+""";
+    }
+
+    private string RecursiveConvertNestedInterfaceCode(LocalizationTreeNode node)
+    {
+        if (node.Children.Count is 0)
+        {
+            return "";
+        }
+
+        var nodeTypeName = node.GetFullIdentifierKey("_");
+        return $$"""
+
+    [global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
+    internal interface ILocalizedValues_{{nodeTypeName}}
+    {
+{{string.Join("\n\n", GenerateInterfacePropertyLines(node, "    "))}}
+    }
+{{string.Concat(node.Children.Select(x => RecursiveConvertNestedInterfaceCode(x)))}}
+""";
+    }
+
     private string RecursiveConvertLocalizationTreeNodeToKeyInterfaceCode(LocalizationTreeNode node)
     {
         if (node.Children.Count is 0)
@@ -80,7 +118,7 @@ public interface ILocalizedValues_{{nodeTypeName}}
 """;
     }
 
-    private IEnumerable<string> GenerateInterfacePropertyLines(LocalizationTreeNode node)
+    private IEnumerable<string> GenerateInterfacePropertyLines(LocalizationTreeNode node, string extraIndent = "")
     {
         return node.Children.Select(x =>
         {
@@ -90,27 +128,27 @@ public interface ILocalizedValues_{{nodeTypeName}}
                 if (x.Item.ValueArgumentTypes.Length is 0)
                 {
                     return $$"""
-    /// <summary>
-    /// {{ConvertValueToComment(x.Item.SampleValue)}}
-    /// </summary>
-    LocalizedString {{x.IdentifierKey}} { get; }
+{{extraIndent}}    /// <summary>
+{{extraIndent}}    /// {{ConvertValueToComment(x.Item.SampleValue)}}
+{{extraIndent}}    /// </summary>
+{{extraIndent}}    LocalizedString {{x.IdentifierKey}} { get; }
 """;
                 }
                 else
                 {
                     var genericTypes = string.Join(", ", x.Item.ValueArgumentTypes);
                     return $$"""
-    /// <summary>
-    /// {{ConvertValueToComment(x.Item.SampleValue)}}
-    /// </summary>
-    LocalizedString<{{genericTypes}}> {{x.IdentifierKey}} { get; }
+{{extraIndent}}    /// <summary>
+{{extraIndent}}    /// {{ConvertValueToComment(x.Item.SampleValue)}}
+{{extraIndent}}    /// </summary>
+{{extraIndent}}    LocalizedString<{{genericTypes}}> {{x.IdentifierKey}} { get; }
 """;
                 }
             }
             else
             {
                 return $$"""
-    ILocalizedValues_{{identifierKey}} {{x.IdentifierKey}} { get; }
+{{extraIndent}}    ILocalizedValues_{{identifierKey}} {{x.IdentifierKey}} { get; }
 """;
             }
         });

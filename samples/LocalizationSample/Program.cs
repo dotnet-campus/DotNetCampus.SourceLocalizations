@@ -9,18 +9,18 @@ internal class Program
 {
     public static async Task Main(string[] args)
     {
-        var tags = Lang.SupportedLanguageTags;
-        Console.WriteLine(string.Join(", ", tags));
-
-        var a = Lang.Current.A.A2.ToString(1);
-        Console.WriteLine(a);
-
-        if (Lang.Current is INotifyPropertyChanged changed)
-        {
-            changed.PropertyChanged += ChangedOnPropertyChanged;
-        }
-
-        await Lang.SetCurrent("en");
+        // var tags = Lang.SupportedLanguageTags;
+        // Console.WriteLine(string.Join(", ", tags));
+        //
+        // var a = Lang.Current.A.A2.ToString(1);
+        // Console.WriteLine(a);
+        //
+        // if (Lang.Current is INotifyPropertyChanged changed)
+        // {
+        //     changed.PropertyChanged += ChangedOnPropertyChanged;
+        // }
+        //
+        // await Lang.SetCurrent("en");
     }
 
     private static void ChangedOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -29,5 +29,5 @@ internal class Program
     }
 }
 
-[LocalizedConfiguration(Default = "zh-Hans", SupportsNotification = true)]
+[LocalizedConfiguration(Default = "zh-Hans", DependencyMode = DependencyMode.Library)]
 internal partial class Lang;
