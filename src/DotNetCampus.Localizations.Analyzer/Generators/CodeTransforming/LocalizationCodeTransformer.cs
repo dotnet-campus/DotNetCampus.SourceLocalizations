@@ -372,7 +372,10 @@ public class LocalizationCodeTransformer
         using var builder = isNestedSource
             ? new SourceTextBuilder(model.Namespace)
             : new SourceTextBuilder(GeneratorInfo.RootNamespace);
-        builder.UsingTypeAlias("LocalizedString", "DotNetCampus.Localizations.LocalizedString");
+        if (!isNestedSource)
+        {
+            builder.Using("DotNetCampus.Localizations");
+        }
 
         var tagIdentifier = IetfLanguageTagToIdentifier(ietfLanguageTag);
         var allInterfaces = new List<string> { "ILocalizedValues" };
@@ -417,9 +420,14 @@ public class LocalizationCodeTransformer
             : new SourceTextBuilder(GeneratorInfo.RootNamespace) { RemoveIndentForPreprocessorLines = true };
         builder
             .UsingTypeAlias("INotifyPropertyChanged", "System.ComponentModel.INotifyPropertyChanged")
-            .UsingTypeAlias("LocalizedString", "DotNetCampus.Localizations.LocalizedString")
             .UsingTypeAlias("PropertyChangedEventArgs", "System.ComponentModel.PropertyChangedEventArgs")
             .UsingTypeAlias("PropertyChangedEventHandler", "System.ComponentModel.PropertyChangedEventHandler");
+        if (!isNestedSource)
+        {
+            builder
+                .Using("DotNetCampus.Localizations")
+                .UsingTypeAlias("ILocalizedStringProvider", "DotNetCampus.Localizations.ILocalizedStringProvider");
+        }
 
         var allInterfaces = new List<string> { "ILocalizedValues" };
         allInterfaces.AddRange(EnumerateAllNonLeafDescendants(Tree)
@@ -437,6 +445,12 @@ public class LocalizationCodeTransformer
                 t.AddBaseTypes(allInterfaces.ToArray());
                 t.AddRawMembers(GenerateNotifiableCompiledFields(nonLeafNodes));
                 t.AddRawMembers(GenerateNotifiableCompiledConstructor(nonLeafNodes));
+                if (!isNestedSource)
+                {
+                    t.AddRawMembers(
+                        "public string IetfLanguageTag => (_inner as ILocalizedStringProvider)?.IetfLanguageTag ?? \"\";",
+                        "public string this[string key] => (_inner as ILocalizedStringProvider)?[key] ?? \"\";");
+                }
                 t.AddRawMembers(GenerateCompiledExplicitMembersForNotifiable(Tree));
                 t.AddRawMembers(
                     GenerateCompiledSetInnerMethod(nonLeafNodes),
