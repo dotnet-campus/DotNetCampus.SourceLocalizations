@@ -186,3 +186,25 @@ StringsProviderGenerator:（仅 GenerationMode = Dictionary 时）
 NestedTypesGenerator:（仅 DependencyMode = NestedSource 时）
 └─ 生成 LocalizedString / LocalizedString<T1> / ... 系列结构体（包裹在 partial class 内）
 ```
+
+---
+
+## 代码生成方式选择：模板 vs SourceTextBuilder
+
+### 判断规则
+
+| 条件 | 选择 | 原因 |
+|------|------|------|
+| 生成的代码**结构固定**，仅个别值（类型名、语言标签列表、switch 分支等）随配置变化 | **模板**（EmbeddedSourceFile + Replace/FlagReplace） | 代码可读性高，修改时直接改 `.g.cs` 模板文件即可，无需在 C# 中拼接大段逻辑 |
+| 生成的代码**结构由数据驱动**（类型数量、成员数量取决于输入数据如 key 树） | **SourceTextBuilder** | 避免递归拼字符串，天然管理缩进，且 Library/NestedSource 两种模式可通过 `IAllowTypeDeclaration` 共享同一段逻辑 |
+
+### 各 Generator 的选择
+
+| Generator | 方式 | 理由 |
+|-----------|------|------|
+| **LocalizationTypeGenerator** | 模板 | 主类结构固定（Default/Current/SetCurrent/Create/工厂），仅语言标签列表和少量分支随配置变化 |
+| **InterfaceTreeGenerator** | SourceTextBuilder | 接口数量完全由 key 树结构决定 |
+| **DictionaryValuesGenerator** | SourceTextBuilder | 实现类数量由 key 树决定，每类的成员也由子节点决定 |
+| **CompiledValuesGenerator** | SourceTextBuilder | 同上（虽然编译模式是单类，但显式接口成员数量仍由 key 树决定） |
+| **StringsProviderGenerator** | SourceTextBuilder | 虽然每文件结构固定，但内容简单且需要统一处理 NestedSource 包裹 |
+| **NestedTypesGenerator** | 模板或 SourceTextBuilder 均可 | 结构固定且简单，取决于实现便利性 |
