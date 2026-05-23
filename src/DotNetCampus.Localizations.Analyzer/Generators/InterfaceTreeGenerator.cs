@@ -75,18 +75,20 @@ public class InterfaceTreeGenerator : IIncrementalGenerator
             .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models);
         var allTags = allLocalizationModels.Keys.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
+        if (!allTags.Contains(localizationType.DefaultLanguage))
+        {
+            context.ReportDefaultLanguageTagNotFound(
+                localizationType.DefaultLanguage,
+                string.Join(", ", allTags));
+            return;
+        }
+
         if (localizationType.EnsureKeysIdentical && allLocalizationModels.Count > 1)
         {
             CompareLanguageKeys(context, localizationType.DefaultLanguage, allLocalizationModels);
         }
 
-        var referenceLanguageTag = allTags.Contains(localizationType.DefaultLanguage)
-            ? localizationType.DefaultLanguage
-            : allTags.FirstOrDefault() ?? null;
-        if (referenceLanguageTag is null)
-        {
-            return;
-        }
+        var referenceLanguageTag = localizationType.DefaultLanguage;
 
         var group = allLocalizationModels[referenceLanguageTag];
         var transformer = new LocalizationCodeTransformer(group);

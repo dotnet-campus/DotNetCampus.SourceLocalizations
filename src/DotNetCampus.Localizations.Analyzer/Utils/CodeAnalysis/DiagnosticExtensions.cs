@@ -12,6 +12,15 @@ public static class DiagnosticExtensions
             message));
     }
 
+    public static void ReportDefaultLanguageTagNotFound(this SourceProductionContext context, string defaultTag, string availableTags)
+    {
+        context.ReportDiagnostic(Diagnostic.Create(
+            Diagnostics.DL0001_DefaultLanguageTagIsNotInTheTagList,
+            null,
+            defaultTag,
+            availableTags));
+    }
+
     public static void ReportLanguageKeyInconsistent(this SourceProductionContext context, string message)
     {
         context.ReportDiagnostic(Diagnostic.Create(

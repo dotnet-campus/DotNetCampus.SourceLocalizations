@@ -89,13 +89,12 @@ public class CompiledValuesGenerator : IIncrementalGenerator
             .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models);
         var allTags = allLocalizationModels.Keys.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
-        var referenceLanguageTag = allTags.Contains(localizationType.DefaultLanguage)
-            ? localizationType.DefaultLanguage
-            : allTags.FirstOrDefault() ?? null;
-        if (referenceLanguageTag is null)
+        if (!allTags.Contains(localizationType.DefaultLanguage))
         {
             return;
         }
+
+        var referenceLanguageTag = localizationType.DefaultLanguage;
 
         // 使用 reference 语言的 tree 结构（所有语言共享相同的 key 结构）
         var referenceTransformer = new LocalizationCodeTransformer(allLocalizationModels[referenceLanguageTag]);

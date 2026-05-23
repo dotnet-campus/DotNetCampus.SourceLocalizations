@@ -77,6 +77,11 @@ public class StringsProviderGenerator : IIncrementalGenerator
         var allLocalizationModels = localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag)
             .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models);
 
+        if (!allLocalizationModels.ContainsKey(localizationType.DefaultLanguage))
+        {
+            return;
+        }
+
         foreach (var pair in allLocalizationModels)
         {
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);

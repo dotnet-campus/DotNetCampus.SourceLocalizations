@@ -80,13 +80,12 @@ public class DictionaryValuesGenerator : IIncrementalGenerator
             .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models);
         var allTags = allLocalizationModels.Keys.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
-        var referenceLanguageTag = allTags.Contains(localizationType.DefaultLanguage)
-            ? localizationType.DefaultLanguage
-            : allTags.FirstOrDefault() ?? null;
-        if (referenceLanguageTag is null)
+        if (!allTags.Contains(localizationType.DefaultLanguage))
         {
             return;
         }
+
+        var referenceLanguageTag = localizationType.DefaultLanguage;
 
         var group = allLocalizationModels[referenceLanguageTag];
         var transformer = new LocalizationCodeTransformer(group);

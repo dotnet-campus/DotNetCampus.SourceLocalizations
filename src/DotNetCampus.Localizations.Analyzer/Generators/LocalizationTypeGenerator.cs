@@ -73,6 +73,11 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         var allLocalizationModels = localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag)
             .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models);
 
+        if (!allLocalizationModels.ContainsKey(model.DefaultLanguage))
+        {
+            return;
+        }
+
         if (model.GenerationMode == GenerationMode.Compiled
             && model.NotificationMode == NotificationMode.LocalizationItemPropertyChanged)
         {
