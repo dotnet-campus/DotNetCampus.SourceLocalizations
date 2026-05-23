@@ -70,10 +70,26 @@ public static class LocalizationGeneratingModelExtensions
             var namedArguments = attribute!.NamedArguments.ToImmutableDictionary();
             var defaultLanguage = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.Default)).Value?.ToString()!;
             var currentLanguage = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.Current)).Value?.ToString();
-            var supportsNotification = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.SupportsNotification)).Value is true;
+            var generationMode = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.GenerationMode)).Value is int gm ? (GenerationMode)gm : GenerationMode.Dictionary;
+            var notificationMode = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.NotificationMode)).Value is int nm ? (NotificationMode)nm : NotificationMode.InitOnly;
+            var dependencyMode = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.DependencyMode)).Value is int dm ? (DependencyMode)dm : DependencyMode.Library;
             var ensureKeysIdentical = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.EnsureKeysIdentical)).Value is true;
 
-            // 创建模型时，分析器确保了这些值不为空。
-            return new LocalizationGeneratingModel(rootNamespace, typeName, defaultLanguage, currentLanguage, supportsNotification, ensureKeysIdentical);
+            // 兼容旧属性：仅当未显式设置 NotificationMode 时，SupportsNotification = true 才生效。
+            if (notificationMode == NotificationMode.InitOnly
+                && namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.SupportsNotification)).Value is true)
+            {
+                notificationMode = NotificationMode.CurrentCulturePropertyChanged;
+            }
+
+            return new LocalizationGeneratingModel(rootNamespace, typeName)
+            {
+                DefaultLanguage = defaultLanguage,
+                CurrentLanguage = currentLanguage,
+                GenerationMode = generationMode,
+                NotificationMode = notificationMode,
+                DependencyMode = dependencyMode,
+                EnsureKeysIdentical = ensureKeysIdentical,
+            };
         });
 }

@@ -38,7 +38,12 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
 
     private void Execute(SourceProductionContext context, ((LocalizationGeneratingModel Left, AnalyzerConfigOptionsProvider Right) Left, ImmutableArray<LocalizationFileModel> Right) values)
     {
-        var (((typeNamespace, typeName, defaultLanguage, currentLanguage, supportsNotifyChanged, ensureKeysIdentical), options), localizationFiles) = values;
+        var ((model, options), localizationFiles) = values;
+        var typeNamespace = model.Namespace;
+        var typeName = model.TypeName;
+        var defaultLanguage = model.DefaultLanguage;
+        var currentLanguage = model.CurrentLanguage;
+        var supportsNotifyChanged = model.NotificationMode is not NotificationMode.InitOnly;
 
         var isIncludedByPackageReference = options.GlobalOptions.GetBoolean("LocalizationIsIncludedByPackageReference");
         var supportsNonIetfLanguageTag = options.GlobalOptions.GetBoolean("LocalizationSupportsNonIetfLanguageTag");
