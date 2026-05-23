@@ -63,7 +63,7 @@ public class InterfaceTreeGenerator : IIncrementalGenerator
 
         if (localizationType.EnsureKeysIdentical && allLocalizationModels.Count > 1)
         {
-            CompareLanguageKeys(context, allLocalizationModels);
+            CompareLanguageKeys(context, localizationType.DefaultLanguage, allLocalizationModels);
         }
 
         var referenceLanguageTag = allTags.Contains(localizationType.DefaultLanguage)
@@ -86,34 +86,50 @@ public class InterfaceTreeGenerator : IIncrementalGenerator
 
     private static void CompareLanguageKeys(
         SourceProductionContext context,
+        string defaultTag,
         ImmutableSortedDictionary<string, IReadOnlyList<LocalizationFileModel>> allLocalizationModels)
     {
-        var transformers = allLocalizationModels
-            .Select(pair => (Tag: pair.Key, Transformer: new LocalizationCodeTransformer(pair.Value)))
-            .ToImmutableArray();
+        var defaultModels = allLocalizationModels.GetValueOrDefault(defaultTag) ?? allLocalizationModels.Values.First();
+        var defaultTransformer = new LocalizationCodeTransformer(defaultModels);
+        var defaultKeys = new HashSet<string>(defaultTransformer.LocalizationItems.Select(i => i.Key));
 
-        var first = transformers[0];
-        var firstKeys = new HashSet<string>(first.Transformer.LocalizationItems.Select(i => i.Key));
+        var diffs = new List<string>();
 
-        foreach (var (tag, transformer) in transformers.Skip(1))
+        foreach (var pair in allLocalizationModels)
         {
-            if (transformer.LocalizationItems.Length != first.Transformer.LocalizationItems.Length)
+            if (string.Equals(pair.Key, defaultTag, StringComparison.OrdinalIgnoreCase))
             {
-                var message = string.Join(", ", transformers.Select(t => $"{t.Tag}:{t.Transformer.LocalizationItems.Length}"));
-                context.ReportLanguageKeyInconsistent($"Language keys count is not same. {message}");
-                return;
+                continue;
             }
+
+            var transformer = new LocalizationCodeTransformer(pair.Value);
+            var otherKeys = new HashSet<string>(transformer.LocalizationItems.Select(i => i.Key));
+
+            var missing = defaultKeys.Where(k => !otherKeys.Contains(k)).ToList();
+            var extra = otherKeys.Where(k => !defaultKeys.Contains(k)).ToList();
+
+            if (missing.Count == 0 && extra.Count == 0)
+            {
+                continue;
+            }
+
+            var parts = new List<string> { $"{pair.Key} {transformer.LocalizationItems.Length} 项" };
+            if (missing.Count > 0)
+            {
+                parts.Add($"缺少 {string.Join(", ", missing.Select(k => $"\"{k}\""))}");
+            }
+            if (extra.Count > 0)
+            {
+                parts.Add($"多了 {string.Join(", ", extra.Select(k => $"\"{k}\""))}");
+            }
+
+            diffs.Add(string.Join("，", parts));
         }
 
-        foreach (var (tag, transformer) in transformers.Skip(1))
+        if (diffs.Count > 0)
         {
-            foreach (var item in transformer.LocalizationItems)
-            {
-                if (!firstKeys.Contains(item.Key))
-                {
-                    context.ReportLanguageKeyInconsistent($"\"{item.Key}\" not exist in \"{first.Tag}\"");
-                }
-            }
+            var message = $"默认（{defaultTag}）{defaultTransformer.LocalizationItems.Length} 项。但是：{string.Join("；", diffs)}。";
+            context.ReportLanguageKeyInconsistent(message);
         }
     }
 }
