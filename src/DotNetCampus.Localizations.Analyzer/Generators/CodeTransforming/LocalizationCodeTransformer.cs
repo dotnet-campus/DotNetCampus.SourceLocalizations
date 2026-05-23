@@ -178,8 +178,8 @@ public class LocalizationCodeTransformer
     {
         var isNestedSource = model.DependencyMode == DependencyMode.NestedSource;
         using var builder = isNestedSource
-            ? new SourceTextBuilder(model.Namespace)
-            : new SourceTextBuilder(GeneratorInfo.RootNamespace);
+            ? new SourceTextBuilder(model.Namespace) { RemoveIndentForPreprocessorLines = true }
+            : new SourceTextBuilder(GeneratorInfo.RootNamespace) { RemoveIndentForPreprocessorLines = true };
         builder
             .UsingTypeAlias("ILocalizedStringProvider", "DotNetCampus.Localizations.ILocalizedStringProvider")
             .UsingTypeAlias("INotifyPropertyChanged", "System.ComponentModel.INotifyPropertyChanged")
@@ -248,7 +248,11 @@ public class LocalizationCodeTransformer
             .AddRawMembers(GenerateNotifiablePropertyMembers(root))
             .AddRawMembers(
                 GenerateSetProviderMethod(root),
-                "public event PropertyChangedEventHandler? PropertyChanged;")
+                """
+                #pragma warning disable CS0067
+                public event PropertyChangedEventHandler? PropertyChanged;
+                #pragma warning restore CS0067
+                """)
         );
 
         // Child classes
@@ -266,7 +270,11 @@ public class LocalizationCodeTransformer
                 .AddRawMembers(GenerateNotifiablePropertyMembers(node))
                 .AddRawMembers(
                     GenerateSetProviderMethod(node),
-                    "public event PropertyChangedEventHandler? PropertyChanged;")
+                    """
+                    #pragma warning disable CS0067
+                    public event PropertyChangedEventHandler? PropertyChanged;
+                    #pragma warning restore CS0067
+                    """)
             );
         }
     }

@@ -77,7 +77,9 @@ public static class LocalizationGeneratingModelExtensions
 
             // 兼容旧属性：仅当未显式设置 NotificationMode 时，SupportsNotification = true 才生效。
             if (notificationMode == NotificationMode.InitOnly
+#pragma warning disable CS0618
                 && namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.SupportsNotification)).Value is true)
+#pragma warning restore CS0618
             {
                 notificationMode = NotificationMode.CurrentCulturePropertyChanged;
             }
