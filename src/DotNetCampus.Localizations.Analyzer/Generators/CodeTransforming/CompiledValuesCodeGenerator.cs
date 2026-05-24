@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotNetCampus.Localizations.Generators.Builders;
@@ -124,7 +125,7 @@ internal class CompiledValuesCodeGenerator(LocalizationCodeTransformer transform
 
     private IEnumerable<string> GenerateCompiledExplicitMembers(LocalizationTreeNode root, LocalizationCodeTransformer valueSource)
     {
-        var valueMap = valueSource.LocalizationItems.ToDictionary(x => x.Key, x => x.Value);
+        var valueMap = valueSource.LocalizationItems.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
         return GenerateExplicitMembersForNode(root, "ILocalizedValues", valueMap);
     }
 

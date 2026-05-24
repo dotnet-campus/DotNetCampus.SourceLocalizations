@@ -114,7 +114,7 @@ public class InterfaceTreeGenerator
     {
         var defaultModels = allLocalizationModels[defaultTag];
         var defaultTransformer = new LocalizationCodeTransformer(defaultModels);
-        var defaultKeys = new HashSet<string>(defaultTransformer.LocalizationItems.Select(i => i.Key));
+        var defaultKeys = new HashSet<string>(defaultTransformer.LocalizationItems.Select(i => i.Key), StringComparer.OrdinalIgnoreCase);
 
         var diffs = new List<string>();
 
@@ -126,7 +126,7 @@ public class InterfaceTreeGenerator
             }
 
             var transformer = new LocalizationCodeTransformer(pair.Value);
-            var otherKeys = new HashSet<string>(transformer.LocalizationItems.Select(i => i.Key));
+            var otherKeys = new HashSet<string>(transformer.LocalizationItems.Select(i => i.Key), StringComparer.OrdinalIgnoreCase);
 
             var missing = defaultKeys.Where(k => !otherKeys.Contains(k)).ToList();
             var extra = otherKeys.Where(k => !defaultKeys.Contains(k)).ToList();
