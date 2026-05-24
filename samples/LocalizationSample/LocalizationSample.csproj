@@ -14,11 +14,6 @@
     <ProjectReference Include="..\..\src\DotNetCampus.Localizations\DotNetCampus.Localizations.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="Designing\**" />
-    <None Include="Designing\**" />
-  </ItemGroup>
-
   <Import Project="..\..\src\DotNetCampus.Localizations\Package\build\Package.targets" />
 
 </Project>
