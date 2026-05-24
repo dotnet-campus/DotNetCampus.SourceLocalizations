@@ -59,4 +59,28 @@ public static class LocalizedStringProviderExtensions
     /// <returns>有四个参数的本地化字符串。</returns>
     public static LocalizedString<T1, T2, T3, T4> Get4<T1, T2, T3, T4>(this ILocalizedStringProvider provider, string key) =>
         new LocalizedString<T1, T2, T3, T4>(key, provider[key]);
+
+    /// <summary>
+    /// 获取指定键的有五个参数的本地化字符串。
+    /// </summary>
+    public static LocalizedString<T1, T2, T3, T4, T5> Get5<T1, T2, T3, T4, T5>(this ILocalizedStringProvider provider, string key) =>
+        new LocalizedString<T1, T2, T3, T4, T5>(key, provider[key]);
+
+    /// <summary>
+    /// 获取指定键的有六个参数的本地化字符串。
+    /// </summary>
+    public static LocalizedString<T1, T2, T3, T4, T5, T6> Get6<T1, T2, T3, T4, T5, T6>(this ILocalizedStringProvider provider, string key) =>
+        new LocalizedString<T1, T2, T3, T4, T5, T6>(key, provider[key]);
+
+    /// <summary>
+    /// 获取指定键的有七个参数的本地化字符串。
+    /// </summary>
+    public static LocalizedString<T1, T2, T3, T4, T5, T6, T7> Get7<T1, T2, T3, T4, T5, T6, T7>(this ILocalizedStringProvider provider, string key) =>
+        new LocalizedString<T1, T2, T3, T4, T5, T6, T7>(key, provider[key]);
+
+    /// <summary>
+    /// 获取指定键的有八个参数的本地化字符串。
+    /// </summary>
+    public static LocalizedString<T1, T2, T3, T4, T5, T6, T7, T8> Get8<T1, T2, T3, T4, T5, T6, T7, T8>(this ILocalizedStringProvider provider, string key) =>
+        new LocalizedString<T1, T2, T3, T4, T5, T6, T7, T8>(key, provider[key]);
 }

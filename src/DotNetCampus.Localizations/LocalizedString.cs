@@ -195,3 +195,157 @@ public readonly record struct LocalizedString<T1, T2, T3, T4>
     [Obsolete("请使用带参数的 ToString 方法。", true)]
     public override string ToString() => _value;
 }
+
+/// <summary>
+/// 表示一个带有五个参数的本地化字符串。
+/// </summary>
+/// <typeparam name="T1">第一个参数类型。</typeparam>
+/// <typeparam name="T2">第二个参数类型。</typeparam>
+/// <typeparam name="T3">第三个参数类型。</typeparam>
+/// <typeparam name="T4">第四个参数类型。</typeparam>
+/// <typeparam name="T5">第五个参数类型。</typeparam>
+[DebuggerDisplay("{_key} = \"{_value}\"")]
+public readonly record struct LocalizedString<T1, T2, T3, T4, T5>
+{
+    private readonly string _key;
+    private readonly string _value;
+
+    /// <summary>
+    /// 初始化一个新的本地化字符串实例。
+    /// </summary>
+    /// <param name="key">多语言键。</param>
+    /// <param name="value">多语言值。</param>
+    public LocalizedString(string key, string value)
+    {
+        _key = key;
+        _value = value;
+    }
+
+    /// <summary>
+    /// 格式化本地化字符串。
+    /// </summary>
+    public string ToString(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5) => string.Format(_value, arg1, arg2, arg3, arg4, arg5);
+
+    /// <summary>
+    /// 不要使用！请使用带参数的 ToString 方法。
+    /// </summary>
+    [Obsolete("请使用带参数的 ToString 方法。", true)]
+    public override string ToString() => _value;
+}
+
+/// <summary>
+/// 表示一个带有六个参数的本地化字符串。
+/// </summary>
+/// <typeparam name="T1">第一个参数类型。</typeparam>
+/// <typeparam name="T2">第二个参数类型。</typeparam>
+/// <typeparam name="T3">第三个参数类型。</typeparam>
+/// <typeparam name="T4">第四个参数类型。</typeparam>
+/// <typeparam name="T5">第五个参数类型。</typeparam>
+/// <typeparam name="T6">第六个参数类型。</typeparam>
+[DebuggerDisplay("{_key} = \"{_value}\"")]
+public readonly record struct LocalizedString<T1, T2, T3, T4, T5, T6>
+{
+    private readonly string _key;
+    private readonly string _value;
+
+    /// <summary>
+    /// 初始化一个新的本地化字符串实例。
+    /// </summary>
+    /// <param name="key">多语言键。</param>
+    /// <param name="value">多语言值。</param>
+    public LocalizedString(string key, string value)
+    {
+        _key = key;
+        _value = value;
+    }
+
+    /// <summary>
+    /// 格式化本地化字符串。
+    /// </summary>
+    public string ToString(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6) => string.Format(_value, arg1, arg2, arg3, arg4, arg5, arg6);
+
+    /// <summary>
+    /// 不要使用！请使用带参数的 ToString 方法。
+    /// </summary>
+    [Obsolete("请使用带参数的 ToString 方法。", true)]
+    public override string ToString() => _value;
+}
+
+/// <summary>
+/// 表示一个带有七个参数的本地化字符串。
+/// </summary>
+/// <typeparam name="T1">第一个参数类型。</typeparam>
+/// <typeparam name="T2">第二个参数类型。</typeparam>
+/// <typeparam name="T3">第三个参数类型。</typeparam>
+/// <typeparam name="T4">第四个参数类型。</typeparam>
+/// <typeparam name="T5">第五个参数类型。</typeparam>
+/// <typeparam name="T6">第六个参数类型。</typeparam>
+/// <typeparam name="T7">第七个参数类型。</typeparam>
+[DebuggerDisplay("{_key} = \"{_value}\"")]
+public readonly record struct LocalizedString<T1, T2, T3, T4, T5, T6, T7>
+{
+    private readonly string _key;
+    private readonly string _value;
+
+    /// <summary>
+    /// 初始化一个新的本地化字符串实例。
+    /// </summary>
+    /// <param name="key">多语言键。</param>
+    /// <param name="value">多语言值。</param>
+    public LocalizedString(string key, string value)
+    {
+        _key = key;
+        _value = value;
+    }
+
+    /// <summary>
+    /// 格式化本地化字符串。
+    /// </summary>
+    public string ToString(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7) => string.Format(_value, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+
+    /// <summary>
+    /// 不要使用！请使用带参数的 ToString 方法。
+    /// </summary>
+    [Obsolete("请使用带参数的 ToString 方法。", true)]
+    public override string ToString() => _value;
+}
+
+/// <summary>
+/// 表示一个带有八个参数的本地化字符串。
+/// </summary>
+/// <typeparam name="T1">第一个参数类型。</typeparam>
+/// <typeparam name="T2">第二个参数类型。</typeparam>
+/// <typeparam name="T3">第三个参数类型。</typeparam>
+/// <typeparam name="T4">第四个参数类型。</typeparam>
+/// <typeparam name="T5">第五个参数类型。</typeparam>
+/// <typeparam name="T6">第六个参数类型。</typeparam>
+/// <typeparam name="T7">第七个参数类型。</typeparam>
+/// <typeparam name="T8">第八个参数类型。</typeparam>
+[DebuggerDisplay("{_key} = \"{_value}\"")]
+public readonly record struct LocalizedString<T1, T2, T3, T4, T5, T6, T7, T8>
+{
+    private readonly string _key;
+    private readonly string _value;
+
+    /// <summary>
+    /// 初始化一个新的本地化字符串实例。
+    /// </summary>
+    /// <param name="key">多语言键。</param>
+    /// <param name="value">多语言值。</param>
+    public LocalizedString(string key, string value)
+    {
+        _key = key;
+        _value = value;
+    }
+
+    /// <summary>
+    /// 格式化本地化字符串。
+    /// </summary>
+    public string ToString(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, T7 arg7, T8 arg8) => string.Format(_value, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+
+    /// <summary>
+    /// 不要使用！请使用带参数的 ToString 方法。
+    /// </summary>
+    [Obsolete("请使用带参数的 ToString 方法。", true)]
+    public override string ToString() => _value;
+}

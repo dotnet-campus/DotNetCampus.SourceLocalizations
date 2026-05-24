@@ -24,7 +24,7 @@ namespace DotNetCampus.Localizations.Generators;
 [Generator]
 public class NestedTypesGenerator : IIncrementalGenerator
 {
-    private const int MaxGenericArity = 4;
+    private const int MaxGenericArity = 8;
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
