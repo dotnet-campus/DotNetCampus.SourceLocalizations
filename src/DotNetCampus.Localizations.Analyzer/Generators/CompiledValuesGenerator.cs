@@ -101,13 +101,14 @@ public class CompiledValuesGenerator
         {
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);
             var transformer = new LocalizationCodeTransformer(group);
-            var code = transformer.ToCompiledValuesCodeText(model, ietfLanguageTag, referenceTransformer);
+            var compiledGen = new CompiledValuesCodeGenerator(transformer);
+            var code = compiledGen.Generate(model, ietfLanguageTag, referenceTransformer);
             context.AddSource($"DotNetCampus.Localizations/LocalizedValues_{IetfLanguageTagToIdentifier(ietfLanguageTag)}.g.cs", SourceText.From(code, Encoding.UTF8));
         }
 
         if (model.NotificationMode != NotificationMode.InitOnly)
         {
-            var code = referenceTransformer.ToCompiledNotifiableValuesCodeText(model);
+            var code = new CompiledValuesCodeGenerator(referenceTransformer).GenerateNotifiable(model);
             context.AddSource("DotNetCampus.Localizations/NotifiableLocalizedValues.g.cs", SourceText.From(code, Encoding.UTF8));
         }
     }

@@ -99,9 +99,10 @@ public class InterfaceTreeGenerator
         var group = allLocalizationModels[referenceLanguageTag];
         var transformer = new LocalizationCodeTransformer(group);
 
+        var interfaceGen = new InterfaceCodeGenerator(transformer);
         var code = model.DependencyMode == DependencyMode.NestedSource
-            ? transformer.ToNestedInterfaceCodeText(model)
-            : transformer.ToInterfaceCodeText(model);
+            ? interfaceGen.GenerateNested(model)
+            : interfaceGen.Generate(model);
 
         context.AddSource($"{model.Namespace}.Localizations/ILocalizedValues.g.cs", SourceText.From(code, Encoding.UTF8));
     }

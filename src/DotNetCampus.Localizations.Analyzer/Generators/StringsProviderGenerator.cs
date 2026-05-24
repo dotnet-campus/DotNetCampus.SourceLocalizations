@@ -85,7 +85,8 @@ public class StringsProviderGenerator
         {
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);
             var transformer = new LocalizationCodeTransformer(group);
-            var code = transformer.ToProviderCodeText(model, ietfLanguageTag);
+            var providerGen = new ProviderCodeGenerator(transformer);
+            var code = providerGen.Generate(model, ietfLanguageTag);
             context.AddSource($"DotNetCampus.Localizations/Strings.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
         }
     }

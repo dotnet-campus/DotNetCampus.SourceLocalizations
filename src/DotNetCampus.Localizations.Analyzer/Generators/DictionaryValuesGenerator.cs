@@ -89,12 +89,13 @@ public class DictionaryValuesGenerator
         var group = allLocalizationModels[referenceLanguageTag];
         var transformer = new LocalizationCodeTransformer(group);
 
-        var immutableCode = transformer.ToDictionaryImmutableValuesCodeText(model);
+        var valuesGen = new DictionaryValuesCodeGenerator(transformer);
+        var immutableCode = valuesGen.GenerateImmutable(model);
         context.AddSource("DotNetCampus.Localizations/LocalizedValues.immutable.g.cs", SourceText.From(immutableCode, Encoding.UTF8));
 
         if (model.NotificationMode != NotificationMode.InitOnly)
         {
-            var notifiableCode = transformer.ToDictionaryNotifiableValuesCodeText(model);
+            var notifiableCode = valuesGen.GenerateNotifiable(model);
             context.AddSource("DotNetCampus.Localizations/LocalizedValues.notifiable.g.cs", SourceText.From(notifiableCode, Encoding.UTF8));
         }
     }
