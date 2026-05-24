@@ -86,7 +86,8 @@ public class LocalizationCodeTransformer
         var escaped = value!
             .Replace("&", "&amp;")
             .Replace("<", "&lt;")
-            .Replace(">", "&gt;");
+            .Replace(">", "&gt;")
+            .Replace("*/", "*&#47;");
 
         if (!escaped.Contains('\n'))
         {

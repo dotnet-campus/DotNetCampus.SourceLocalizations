@@ -194,7 +194,7 @@ public class NestedTypesGenerator
         {
             if (startIndex < 0)
             {
-                if (lines[i].Contains("class ") && lines[i + 1].Trim() == "{")
+                if (i + 1 < lines.Length && lines[i].Contains("class ") && lines[i + 1].Trim() == "{")
                 {
                     startIndex = i + 2;
                     braceDepth = 1;

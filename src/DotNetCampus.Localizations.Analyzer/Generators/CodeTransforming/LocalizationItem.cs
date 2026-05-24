@@ -34,7 +34,7 @@ public readonly record struct LocalizationItem(
 
         public int GetHashCode(LocalizationItem obj)
         {
-            return obj.Key.ToLowerInvariant().GetHashCode();
+            return StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Key);
         }
     }
 }
