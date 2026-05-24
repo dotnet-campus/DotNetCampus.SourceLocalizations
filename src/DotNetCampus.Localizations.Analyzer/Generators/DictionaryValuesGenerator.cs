@@ -55,15 +55,15 @@ public class DictionaryValuesGenerator : IIncrementalGenerator
         SourceProductionContext context,
         ((AnalyzerConfigOptionsProvider Left, ImmutableArray<LocalizationFileModel> Right) Left, ImmutableArray<LocalizationGeneratingModel> Right) values)
     {
-        var ((options, localizationFiles), localizationTypes) = values;
-        var localizationType = localizationTypes.FirstOrDefault();
+        var ((options, localizationFiles), models) = values;
+        var model = models.FirstOrDefault();
 
-        if (localizationType == default)
+        if (model == default)
         {
             return;
         }
 
-        if (localizationType.GenerationMode != GenerationMode.Dictionary)
+        if (model.GenerationMode != GenerationMode.Dictionary)
         {
             return;
         }
@@ -80,22 +80,22 @@ public class DictionaryValuesGenerator : IIncrementalGenerator
             .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models, StringComparer.OrdinalIgnoreCase);
         var allTags = allLocalizationModels.Keys.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
-        if (!allTags.Contains(localizationType.DefaultLanguage))
+        if (!allTags.Contains(model.DefaultLanguage))
         {
             return;
         }
 
-        var referenceLanguageTag = localizationType.DefaultLanguage;
+        var referenceLanguageTag = model.DefaultLanguage;
 
         var group = allLocalizationModels[referenceLanguageTag];
         var transformer = new LocalizationCodeTransformer(group);
 
-        var immutableCode = transformer.ToDictionaryImmutableValuesCodeText(localizationType);
+        var immutableCode = transformer.ToDictionaryImmutableValuesCodeText(model);
         context.AddSource("LocalizedValues.immutable.g.cs", SourceText.From(immutableCode, Encoding.UTF8));
 
-        if (localizationType.NotificationMode != NotificationMode.InitOnly)
+        if (model.NotificationMode != NotificationMode.InitOnly)
         {
-            var notifiableCode = transformer.ToDictionaryNotifiableValuesCodeText(localizationType);
+            var notifiableCode = transformer.ToDictionaryNotifiableValuesCodeText(model);
             context.AddSource("LocalizedValues.notifiable.g.cs", SourceText.From(notifiableCode, Encoding.UTF8));
         }
     }

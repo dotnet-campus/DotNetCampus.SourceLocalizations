@@ -59,20 +59,20 @@ public class CompiledValuesGenerator : IIncrementalGenerator
         SourceProductionContext context,
         ((AnalyzerConfigOptionsProvider Left, ImmutableArray<LocalizationFileModel> Right) Left, ImmutableArray<LocalizationGeneratingModel> Right) values)
     {
-        var ((options, localizationFiles), localizationTypes) = values;
-        var localizationType = localizationTypes.FirstOrDefault();
+        var ((options, localizationFiles), models) = values;
+        var model = models.FirstOrDefault();
 
-        if (localizationType == default)
+        if (model == default)
         {
             return;
         }
 
-        if (localizationType.GenerationMode != GenerationMode.Compiled)
+        if (model.GenerationMode != GenerationMode.Compiled)
         {
             return;
         }
 
-        if (localizationType.NotificationMode == NotificationMode.LocalizationItemPropertyChanged)
+        if (model.NotificationMode == NotificationMode.LocalizationItemPropertyChanged)
         {
             return;
         }
@@ -89,29 +89,26 @@ public class CompiledValuesGenerator : IIncrementalGenerator
             .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models, StringComparer.OrdinalIgnoreCase);
         var allTags = allLocalizationModels.Keys.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
-        if (!allTags.Contains(localizationType.DefaultLanguage))
+        if (!allTags.Contains(model.DefaultLanguage))
         {
             return;
         }
 
-        var referenceLanguageTag = localizationType.DefaultLanguage;
+        var referenceLanguageTag = model.DefaultLanguage;
 
-        // 使用 reference 语言的 tree 结构（所有语言共享相同的 key 结构）
         var referenceTransformer = new LocalizationCodeTransformer(allLocalizationModels[referenceLanguageTag]);
 
-        // 为每种语言生成一个编译实现类
         foreach (var pair in allLocalizationModels)
         {
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);
             var transformer = new LocalizationCodeTransformer(group);
-            var code = transformer.ToCompiledValuesCodeText(localizationType, ietfLanguageTag, referenceTransformer);
+            var code = transformer.ToCompiledValuesCodeText(model, ietfLanguageTag, referenceTransformer);
             context.AddSource($"LocalizedValues_{IetfLanguageTagToIdentifier(ietfLanguageTag)}.g.cs", SourceText.From(code, Encoding.UTF8));
         }
 
-        // INPC 时额外生成 NotifiableLocalizedValues 包装类
-        if (localizationType.NotificationMode != NotificationMode.InitOnly)
+        if (model.NotificationMode != NotificationMode.InitOnly)
         {
-            var code = referenceTransformer.ToCompiledNotifiableValuesCodeText(localizationType);
+            var code = referenceTransformer.ToCompiledNotifiableValuesCodeText(model);
             context.AddSource("NotifiableLocalizedValues.g.cs", SourceText.From(code, Encoding.UTF8));
         }
     }

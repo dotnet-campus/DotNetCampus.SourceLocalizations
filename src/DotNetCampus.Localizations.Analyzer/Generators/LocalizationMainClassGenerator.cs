@@ -28,7 +28,7 @@ namespace DotNetCampus.Localizations.Generators;
 /// </para>
 /// </remarks>
 [Generator]
-public class LocalizationTypeGenerator : IIncrementalGenerator
+public class LocalizationMainClassGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -266,34 +266,34 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         using var builder = new SourceTextBuilder(model.Namespace);
 
         var allTags = allLocalizationModels.Keys.ToList();
-        var currentLanguageExpr = model.CurrentLanguage is null
+        var currentLanguageExpression = model.CurrentLanguage is null
             ? "global::System.Globalization.CultureInfo.CurrentUICulture.Name"
             : $"\"{model.CurrentLanguage.ToLowerInvariant()}\"";
 
         var tagListLiteral = string.Join("\n", allTags.Select(t => $"    \"{t}\","));
         var switchArms = string.Join("\n", allTags.Select(t =>
             $"    \"{t.ToLowerInvariant()}\" => {(isNestedSource ? "" : $"global::{GeneratorInfo.RootNamespace}.")}LocalizedValues_{IetfLanguageTagToIdentifier(t)}.Instance,"));
-        var fallbackExpr = isNestedSource
+        var fallbackExpression = isNestedSource
             ? "LocalizationFallbackHelper.FindBestMatch(languageTag, SupportedLanguageTags)"
             : "global::DotNetCampus.Localizations.Helpers.LocalizationHelper.MatchWithFallback(languageTag, SupportedLanguageTags)";
-        var defaultArm = $"    _ => {fallbackExpr} is {{ }} fallback ? Create(fallback) : _default,";
+        var defaultArm = $"    _ => {fallbackExpression} is {{ }} fallback ? Create(fallback) : _default,";
         var switchBody = $"{switchArms}\n{defaultArm}";
 
         var defaultTagIdentifier = IetfLanguageTagToIdentifier(model.DefaultLanguage);
-        var defaultExpr = $"{(isNestedSource ? "" : $"global::{GeneratorInfo.RootNamespace}.")}LocalizedValues_{defaultTagIdentifier}.Instance";
+        var defaultExpression = $"{(isNestedSource ? "" : $"global::{GeneratorInfo.RootNamespace}.")}LocalizedValues_{defaultTagIdentifier}.Instance";
         var interfacePrefix = isNestedSource ? "" : $"global::{GeneratorInfo.RootNamespace}.";
 
         if (supportsNotifyChanged)
         {
             builder.AddTypeDeclaration($"partial class {model.TypeName}", t => t
                 .AddRawMembers(
-                    $"private static readonly {interfacePrefix}ILocalizedValues _default = {defaultExpr};",
+                    $"private static readonly {interfacePrefix}ILocalizedValues _default = {defaultExpression};",
                     $$"""
                     private static readonly {{interfacePrefix}}NotifiableLocalizedValues _current;
 
                     static {{model.TypeName}}()
                     {
-                        var initialLang = Create({{currentLanguageExpr}});
+                        var initialLang = Create({{currentLanguageExpression}});
                         _current = new {{interfacePrefix}}NotifiableLocalizedValues(initialLang);
                     }
                     """,
@@ -327,13 +327,13 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         {
             builder.AddTypeDeclaration($"partial class {model.TypeName}", t => t
                 .AddRawMembers(
-                    $"private static readonly {interfacePrefix}ILocalizedValues _default = {defaultExpr};",
+                    $"private static readonly {interfacePrefix}ILocalizedValues _default = {defaultExpression};",
                     $$"""
                     private static {{interfacePrefix}}ILocalizedValues _current;
 
                     static {{model.TypeName}}()
                     {
-                        _current = Create({{currentLanguageExpr}});
+                        _current = Create({{currentLanguageExpression}});
                     }
                     """,
                     $$"""

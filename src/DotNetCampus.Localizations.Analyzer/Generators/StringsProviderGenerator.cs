@@ -53,15 +53,15 @@ public class StringsProviderGenerator : IIncrementalGenerator
         SourceProductionContext context,
         ((AnalyzerConfigOptionsProvider Left, ImmutableArray<LocalizationFileModel> Right) Left, ImmutableArray<LocalizationGeneratingModel> Right) values)
     {
-        var ((options, localizationFiles), localizationTypes) = values;
-        var localizationType = localizationTypes.FirstOrDefault();
+        var ((options, localizationFiles), models) = values;
+        var model = models.FirstOrDefault();
 
-        if (localizationType == default)
+        if (model == default)
         {
             return;
         }
 
-        if (localizationType.GenerationMode != GenerationMode.Dictionary)
+        if (model.GenerationMode != GenerationMode.Dictionary)
         {
             return;
         }
@@ -77,7 +77,7 @@ public class StringsProviderGenerator : IIncrementalGenerator
         var allLocalizationModels = localizationFiles.GroupByIetfLanguageTag(supportsNonIetfLanguageTag)
             .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models, StringComparer.OrdinalIgnoreCase);
 
-        if (!allLocalizationModels.ContainsKey(localizationType.DefaultLanguage))
+        if (!allLocalizationModels.ContainsKey(model.DefaultLanguage))
         {
             return;
         }
@@ -86,7 +86,7 @@ public class StringsProviderGenerator : IIncrementalGenerator
         {
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);
             var transformer = new LocalizationCodeTransformer(group);
-            var code = transformer.ToProviderCodeText(localizationType, ietfLanguageTag);
+            var code = transformer.ToProviderCodeText(model, ietfLanguageTag);
             context.AddSource($"Strings.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
         }
     }

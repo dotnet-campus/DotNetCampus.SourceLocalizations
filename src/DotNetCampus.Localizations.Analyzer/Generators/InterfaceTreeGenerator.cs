@@ -55,10 +55,10 @@ public class InterfaceTreeGenerator : IIncrementalGenerator
         SourceProductionContext context,
         ((AnalyzerConfigOptionsProvider Left, ImmutableArray<LocalizationFileModel> Right) Left, ImmutableArray<LocalizationGeneratingModel> Right) values)
     {
-        var ((options, localizationFiles), localizationTypes) = values;
-        var localizationType = localizationTypes.FirstOrDefault();
+        var ((options, localizationFiles), models) = values;
+        var model = models.FirstOrDefault();
 
-        if (localizationType == default)
+        if (model == default)
         {
             return;
         }
@@ -75,34 +75,34 @@ public class InterfaceTreeGenerator : IIncrementalGenerator
             .ToImmutableSortedDictionary(x => x.IetfLanguageTag, x => x.Models, StringComparer.OrdinalIgnoreCase);
         var allTags = allLocalizationModels.Keys.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
 
-        if (!allTags.Contains(localizationType.DefaultLanguage))
+        if (!allTags.Contains(model.DefaultLanguage))
         {
             context.ReportDefaultLanguageTagNotFound(
-                localizationType.DefaultLanguage,
+                model.DefaultLanguage,
                 string.Join(", ", allTags));
             return;
         }
 
-        if (localizationType.CurrentLanguage is { } currentLanguage && !allTags.Contains(currentLanguage))
+        if (model.CurrentLanguage is { } currentLanguage && !allTags.Contains(currentLanguage))
         {
             context.ReportCurrentLanguageTagNotFound(
                 currentLanguage,
                 string.Join(", ", allTags));
         }
 
-        if (localizationType.EnsureKeysIdentical && allLocalizationModels.Count > 1)
+        if (model.EnsureKeysIdentical && allLocalizationModels.Count > 1)
         {
-            CompareLanguageKeys(context, localizationType.DefaultLanguage, allLocalizationModels);
+            CompareLanguageKeys(context, model.DefaultLanguage, allLocalizationModels);
         }
 
-        var referenceLanguageTag = localizationType.DefaultLanguage;
+        var referenceLanguageTag = model.DefaultLanguage;
 
         var group = allLocalizationModels[referenceLanguageTag];
         var transformer = new LocalizationCodeTransformer(group);
 
-        var code = localizationType.DependencyMode == DependencyMode.NestedSource
-            ? transformer.ToNestedInterfaceCodeText(localizationType)
-            : transformer.ToInterfaceCodeText(localizationType);
+        var code = model.DependencyMode == DependencyMode.NestedSource
+            ? transformer.ToNestedInterfaceCodeText(model)
+            : transformer.ToInterfaceCodeText(model);
 
         context.AddSource("ILocalizedValues.g.cs", SourceText.From(code, Encoding.UTF8));
     }
