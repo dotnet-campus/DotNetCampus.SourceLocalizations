@@ -158,5 +158,23 @@ namespace DotNetCampus.Localizations.Properties {
                 return ResourceManager.GetString("DLA004_Message", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   查找类似 Compiled mode requires EnsureKeysIdentical 的本地化字符串。
+        /// </summary>
+        public static string DLA005 {
+            get {
+                return ResourceManager.GetString("DLA005", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   查找类似 Compiled mode requires EnsureKeysIdentical = true. 的本地化字符串。
+        /// </summary>
+        public static string DLA005_Message {
+            get {
+                return ResourceManager.GetString("DLA005_Message", resourceCulture);
+            }
+        }
     }
 }

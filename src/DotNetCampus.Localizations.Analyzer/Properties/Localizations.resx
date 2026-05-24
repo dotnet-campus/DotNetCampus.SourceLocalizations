@@ -150,4 +150,10 @@
   <data name="DLA004_Message" xml:space="preserve">
     <value>Compiled mode does not support LocalizationItemPropertyChanged notification mode. Use InitOnly or CurrentCulturePropertyChanged instead.</value>
   </data>
+  <data name="DLA005" xml:space="preserve">
+    <value>Compiled mode requires EnsureKeysIdentical</value>
+  </data>
+  <data name="DLA005_Message" xml:space="preserve">
+    <value>Compiled mode requires EnsureKeysIdentical = true. Without it, missing keys will silently return empty strings at runtime.</value>
+  </data>
 </root>

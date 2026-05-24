@@ -150,4 +150,10 @@
   <data name="DLA004_Message" xml:space="preserve">
     <value>Compiled 模式不支援 LocalizationItemPropertyChanged 通知模式。請改用 InitOnly 或 CurrentCulturePropertyChanged。</value>
   </data>
+  <data name="DLA005" xml:space="preserve">
+    <value>Compiled 模式要求啟用 EnsureKeysIdentical</value>
+  </data>
+  <data name="DLA005_Message" xml:space="preserve">
+    <value>Compiled 模式要求設定 EnsureKeysIdentical = true。否則，缺失的語言項將在執行時靜默返回空字串。</value>
+  </data>
 </root>

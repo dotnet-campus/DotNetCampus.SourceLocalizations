@@ -44,4 +44,11 @@ public static class DiagnosticExtensions
             Diagnostics.DLA004_InvalidConfigurationCombination,
             null));
     }
+
+    public static void ReportCompiledModeRequiresEnsureKeysIdentical(this SourceProductionContext context)
+    {
+        context.ReportDiagnostic(Diagnostic.Create(
+            Diagnostics.DLA005_CompiledModeRequiresEnsureKeysIdentical,
+            null));
+    }
 }

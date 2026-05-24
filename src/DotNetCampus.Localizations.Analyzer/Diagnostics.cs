@@ -50,6 +50,14 @@ public class Diagnostics
         DiagnosticSeverity.Error,
         true);
 
+    public static DiagnosticDescriptor DLA005_CompiledModeRequiresEnsureKeysIdentical { get; } = new(
+        nameof(DLA005),
+        Localize(nameof(DLA005)),
+        Localize(nameof(DLA005_Message)),
+        Categories.AvoidBugs,
+        DiagnosticSeverity.Warning,
+        true);
+
     private static class Categories
     {
         /// <summary>
