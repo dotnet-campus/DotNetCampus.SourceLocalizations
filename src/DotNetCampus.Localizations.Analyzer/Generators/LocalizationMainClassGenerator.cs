@@ -363,7 +363,7 @@ public class LocalizationMainClassGenerator
                     /// <summary>
                     /// 获取当前语言的本地化字符串集。切换语言时，此实例会通过属性变更通知更新绑定的 UI。
                     /// </summary>
-                    public static {interfacePrefix}NotifiableLocalizedValues Current => _current;
+                    public static {interfacePrefix}ILocalizedValues Current => _current;
                     """,
                     $$"""
                     /// <summary>
