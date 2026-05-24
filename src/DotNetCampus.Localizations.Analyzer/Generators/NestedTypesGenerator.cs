@@ -164,11 +164,11 @@ public class NestedTypesGenerator : IIncrementalGenerator
         var classBody = ExtractClassBody(template.Content);
 
         using var builder = new SourceTextBuilder(model.Namespace);
-        builder.AddRawText("#nullable enable");
-        builder.AddRawText("using System;");
-        builder.AddRawText("using System.Collections.Generic;");
-        builder.AddRawText("using System.Globalization;");
-        builder.AddRawText("using System.Linq;");
+        builder
+            .Using("System")
+            .Using("System.Collections.Generic")
+            .Using("System.Globalization")
+            .Using("System.Linq");
         builder.AddTypeDeclaration($"partial class {model.TypeName}", wrapper =>
         {
             wrapper.AddTypeDeclaration("private static class LocalizationFallbackHelper", type =>
