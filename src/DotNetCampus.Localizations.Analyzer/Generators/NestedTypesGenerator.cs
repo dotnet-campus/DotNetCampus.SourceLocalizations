@@ -87,6 +87,7 @@ public class NestedTypesGenerator
         {
             // LocalizedString（无参）
             wrapper.AddTypeDeclaration("public readonly record struct LocalizedString", t => t
+                .WithSummaryComment("表示一个本地化字符串，可隐式转换为字符串。")
                 .AddRawMembers(
                     "private readonly string _key;",
                     """
@@ -109,6 +110,7 @@ public class NestedTypesGenerator
                 var formatArgs = string.Join(", ", Enumerable.Range(1, arity).Select(i => $"arg{i}"));
 
                 wrapper.AddTypeDeclaration($"public readonly record struct LocalizedString<{typeParams}>", t => t
+                    .WithSummaryComment($"表示一个带有 {arity} 个格式化参数的本地化字符串。")
                     .AddRawMembers(
                         "private readonly string _key;",
                         "private readonly string _value;",
@@ -139,6 +141,7 @@ public class NestedTypesGenerator
         {
             wrapper.AddTypeDeclaration("public interface ILocalizedStringProvider", t =>
             {
+                t.WithSummaryComment("为源生成器生成的本地化字符串提供统一的访问接口。");
                 t.AddRawMembers(
                     "string IetfLanguageTag { get; }",
                     "string this[string key] { get; }");

@@ -252,6 +252,7 @@ public class LocalizationCodeTransformer
     {
         // Root class
         target.AddTypeDeclaration($"{accessibility} sealed class NotifiableLocalizedValues", t => t
+            .WithSummaryComment("提供可通知属性变更的本地化字符串集，当语言文化切换时会发出属性变更通知。")
             .AddGeneratedToolAndEditorBrowsingAttributes()
             .AddAttribute("[global::System.Diagnostics.DebuggerDisplay(\"[{LocalizedStringProvider.IetfLanguageTag}] " + typeName + ".???\")]")
             .AddBaseTypes("ILocalizedValues", "INotifyPropertyChanged")
@@ -458,6 +459,7 @@ public class LocalizationCodeTransformer
         {
             target.AddTypeDeclaration($"{accessibility} sealed class NotifiableLocalizedValues", t =>
             {
+                t.WithSummaryComment("提供可通知属性变更的本地化字符串集，当语言文化切换时会发出属性变更通知。");
                 t.AddGeneratedToolAndEditorBrowsingAttributes();
                 t.AddBaseTypes(allInterfaces.ToArray());
                 t.AddRawMembers(GenerateNotifiableCompiledFields(nonLeafNodes));
