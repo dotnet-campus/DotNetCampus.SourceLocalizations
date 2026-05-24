@@ -92,6 +92,7 @@ public static class LocalizationGeneratingModelExtensions
                 NotificationMode = notificationMode,
                 DependencyMode = dependencyMode,
                 EnsureKeysIdentical = ensureKeysIdentical,
+                TypeAccessibility = typeSymbol.DeclaredAccessibility == Accessibility.Public ? "public" : "internal",
             };
         });
 }

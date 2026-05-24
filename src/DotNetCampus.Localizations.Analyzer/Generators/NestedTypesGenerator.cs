@@ -87,7 +87,7 @@ public class NestedTypesGenerator : IIncrementalGenerator
         builder.AddTypeDeclaration($"partial class {model.TypeName}", wrapper =>
         {
             // LocalizedString（无参）
-            wrapper.AddTypeDeclaration("internal readonly record struct LocalizedString", t => t
+            wrapper.AddTypeDeclaration("public readonly record struct LocalizedString", t => t
                 .AddRawMembers(
                     "private readonly string _key;",
                     """
@@ -109,7 +109,7 @@ public class NestedTypesGenerator : IIncrementalGenerator
                 var methodParams = string.Join(", ", Enumerable.Range(1, arity).Select(i => $"T{i} arg{i}"));
                 var formatArgs = string.Join(", ", Enumerable.Range(1, arity).Select(i => $"arg{i}"));
 
-                wrapper.AddTypeDeclaration($"internal readonly record struct LocalizedString<{typeParams}>", t => t
+                wrapper.AddTypeDeclaration($"public readonly record struct LocalizedString<{typeParams}>", t => t
                     .AddRawMembers(
                         "private readonly string _key;",
                         "private readonly string _value;",
@@ -138,7 +138,7 @@ public class NestedTypesGenerator : IIncrementalGenerator
 
         builder.AddTypeDeclaration($"partial class {model.TypeName}", wrapper =>
         {
-            wrapper.AddTypeDeclaration("internal interface ILocalizedStringProvider", t =>
+            wrapper.AddTypeDeclaration("public interface ILocalizedStringProvider", t =>
             {
                 t.AddRawMembers(
                     "string IetfLanguageTag { get; }",

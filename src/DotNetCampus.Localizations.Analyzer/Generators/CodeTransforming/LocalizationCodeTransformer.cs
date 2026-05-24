@@ -60,7 +60,7 @@ public class LocalizationCodeTransformer
             .Using("DotNetCampus.Localizations")
             .UsingTypeAlias("ILocalizedStringProvider", "DotNetCampus.Localizations.ILocalizedStringProvider")
             .UsingTypeAlias("LocalizedString", "DotNetCampus.Localizations.LocalizedString");
-        AddInterfaceDeclarations(builder, "public", includeBaseInterface: true);
+        AddInterfaceDeclarations(builder, model.TypeAccessibility, includeBaseInterface: true);
         return builder.ToString();
     }
 
@@ -69,7 +69,7 @@ public class LocalizationCodeTransformer
         using var builder = new SourceTextBuilder(model.Namespace);
         builder.AddTypeDeclaration($"partial class {model.TypeName}", wrapper =>
         {
-            AddInterfaceDeclarations(wrapper, "internal", includeBaseInterface: false);
+            AddInterfaceDeclarations(wrapper, "public", includeBaseInterface: false);
         });
         return builder.ToString();
     }
@@ -187,6 +187,7 @@ public class LocalizationCodeTransformer
     public string ToDictionaryNotifiableValuesCodeText(LocalizationGeneratingModel model)
     {
         var isNestedSource = model.DependencyMode == DependencyMode.NestedSource;
+        var accessibility = isNestedSource ? "public" : model.TypeAccessibility;
         using var builder = isNestedSource
             ? new SourceTextBuilder(model.Namespace) { RemoveIndentForPreprocessorLines = true }
             : new SourceTextBuilder(GeneratorInfo.RootNamespace) { RemoveIndentForPreprocessorLines = true };
@@ -203,7 +204,7 @@ public class LocalizationCodeTransformer
 
         Action<IAllowTypeDeclaration> addTypes = target =>
         {
-            AddNotifiableValuesDeclarations(target, model.TypeName, Tree);
+            AddNotifiableValuesDeclarations(target, model.TypeName, accessibility, Tree);
         };
 
         if (isNestedSource)
@@ -247,10 +248,10 @@ public class LocalizationCodeTransformer
         }
     }
 
-    private void AddNotifiableValuesDeclarations(IAllowTypeDeclaration target, string typeName, LocalizationTreeNode root)
+    private void AddNotifiableValuesDeclarations(IAllowTypeDeclaration target, string typeName, string accessibility, LocalizationTreeNode root)
     {
         // Root class
-        target.AddTypeDeclaration("internal sealed class NotifiableLocalizedValues", t => t
+        target.AddTypeDeclaration($"{accessibility} sealed class NotifiableLocalizedValues", t => t
             .AddGeneratedToolAndEditorBrowsingAttributes()
             .AddAttribute("[global::System.Diagnostics.DebuggerDisplay(\"[{LocalizedStringProvider.IetfLanguageTag}] " + typeName + ".???\")]")
             .AddBaseTypes("ILocalizedValues", "INotifyPropertyChanged")
@@ -430,6 +431,7 @@ public class LocalizationCodeTransformer
     public string ToCompiledNotifiableValuesCodeText(LocalizationGeneratingModel model)
     {
         var isNestedSource = model.DependencyMode == DependencyMode.NestedSource;
+        var accessibility = isNestedSource ? "public" : model.TypeAccessibility;
         using var builder = isNestedSource
             ? new SourceTextBuilder(model.Namespace) { RemoveIndentForPreprocessorLines = true }
             : new SourceTextBuilder(GeneratorInfo.RootNamespace) { RemoveIndentForPreprocessorLines = true };
@@ -454,7 +456,7 @@ public class LocalizationCodeTransformer
 
         Action<IAllowTypeDeclaration> addType = target =>
         {
-            target.AddTypeDeclaration("internal sealed class NotifiableLocalizedValues", t =>
+            target.AddTypeDeclaration($"{accessibility} sealed class NotifiableLocalizedValues", t =>
             {
                 t.AddGeneratedToolAndEditorBrowsingAttributes();
                 t.AddBaseTypes(allInterfaces.ToArray());

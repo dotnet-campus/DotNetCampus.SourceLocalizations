@@ -6,6 +6,11 @@ namespace DotNetCampus.Localizations.Generators.ModelProviding;
 public readonly record struct LocalizationGeneratingModel(string Namespace, string TypeName)
 {
     /// <summary>
+    /// 用户声明的类型的可访问性修饰符（"public" 或 "internal"）。
+    /// </summary>
+    public required string TypeAccessibility { get; init; }
+
+    /// <summary>
     /// 默认语言的 IETF 语言标签。
     /// </summary>
     public required string DefaultLanguage { get; init; }
@@ -13,7 +18,7 @@ public readonly record struct LocalizationGeneratingModel(string Namespace, stri
     /// <summary>
     /// 当前语言的 IETF 语言标签。
     /// </summary>
-    public string? CurrentLanguage { get; init; }
+    public required string? CurrentLanguage { get; init; }
 
     /// <summary>
     /// 生成模式：Dictionary 或 Compiled。
