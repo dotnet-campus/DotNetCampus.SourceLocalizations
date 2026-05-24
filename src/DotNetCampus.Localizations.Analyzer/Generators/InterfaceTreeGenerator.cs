@@ -77,6 +77,7 @@ public class InterfaceTreeGenerator
         if (!allTags.Contains(model.DefaultLanguage))
         {
             context.ReportDefaultLanguageTagNotFound(
+                model.Location,
                 model.DefaultLanguage,
                 string.Join(", ", allTags));
             return;
@@ -85,13 +86,14 @@ public class InterfaceTreeGenerator
         if (model.CurrentLanguage is { } currentLanguage && !allTags.Contains(currentLanguage))
         {
             context.ReportCurrentLanguageTagNotFound(
+                model.Location,
                 currentLanguage,
                 string.Join(", ", allTags));
         }
 
         if (model.EnsureKeysIdentical && allLocalizationModels.Count > 1)
         {
-            CompareLanguageKeys(context, model.DefaultLanguage, allLocalizationModels);
+            CompareLanguageKeys(context, model.Location, model.DefaultLanguage, allLocalizationModels);
         }
 
         var referenceLanguageTag = model.DefaultLanguage;
@@ -109,6 +111,7 @@ public class InterfaceTreeGenerator
 
     private static void CompareLanguageKeys(
         SourceProductionContext context,
+        Location? location,
         string defaultTag,
         ImmutableSortedDictionary<string, IReadOnlyList<LocalizationFileModel>> allLocalizationModels)
     {
@@ -152,7 +155,7 @@ public class InterfaceTreeGenerator
         if (diffs.Count > 0)
         {
             var message = $"默认（{defaultTag}）{defaultTransformer.LocalizationItems.Length} 项。但是：{string.Join("；", diffs)}。";
-            context.ReportLanguageKeyInconsistent(message);
+            context.ReportLanguageKeyInconsistent(location, message);
         }
     }
 }

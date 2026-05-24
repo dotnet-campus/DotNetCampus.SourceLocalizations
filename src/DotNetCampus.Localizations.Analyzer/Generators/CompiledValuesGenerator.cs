@@ -73,7 +73,7 @@ public class CompiledValuesGenerator
 
         if (!model.EnsureKeysIdentical)
         {
-            context.ReportCompiledModeRequiresEnsureKeysIdentical();
+            context.ReportCompiledModeRequiresEnsureKeysIdentical(model.Location);
         }
 
         if (model.NotificationMode == NotificationMode.LocalizationItemPropertyChanged)

@@ -86,13 +86,14 @@ public static class LocalizationGeneratingModelExtensions
 
             return new LocalizationGeneratingModel(rootNamespace, typeName)
             {
+                Location = c.TargetNode.GetLocation(),
+                TypeAccessibility = typeSymbol.DeclaredAccessibility == Accessibility.Public ? "public" : "internal",
                 DefaultLanguage = defaultLanguage,
                 CurrentLanguage = currentLanguage,
                 GenerationMode = generationMode,
                 NotificationMode = notificationMode,
                 DependencyMode = dependencyMode,
                 EnsureKeysIdentical = ensureKeysIdentical,
-                TypeAccessibility = typeSymbol.DeclaredAccessibility == Accessibility.Public ? "public" : "internal",
             };
         });
 }

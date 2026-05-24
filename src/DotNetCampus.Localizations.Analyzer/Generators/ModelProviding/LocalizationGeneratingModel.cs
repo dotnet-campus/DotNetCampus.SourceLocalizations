@@ -1,3 +1,5 @@
+using Microsoft.CodeAnalysis;
+
 namespace DotNetCampus.Localizations.Generators.ModelProviding;
 
 /// <summary>
@@ -5,6 +7,11 @@ namespace DotNetCampus.Localizations.Generators.ModelProviding;
 /// </summary>
 public readonly record struct LocalizationGeneratingModel(string Namespace, string TypeName)
 {
+    /// <summary>
+    /// 用户标记了 <see cref="LocalizedConfigurationAttribute"/> 的类型声明的位置。
+    /// </summary>
+    public Location? Location { get; init; }
+
     /// <summary>
     /// 用户声明的类型的可访问性修饰符（"public" 或 "internal"）。
     /// </summary>

@@ -12,43 +12,43 @@ public static class DiagnosticExtensions
             message));
     }
 
-    public static void ReportDefaultLanguageTagNotFound(this SourceProductionContext context, string defaultTag, string availableTags)
+    public static void ReportDefaultLanguageTagNotFound(this SourceProductionContext context, Location? location, string defaultTag, string availableTags)
     {
         context.ReportDiagnostic(Diagnostic.Create(
             Diagnostics.DLA001_DefaultLanguageTagIsNotInTheTagList,
-            null,
+            location,
             defaultTag,
             availableTags));
     }
 
-    public static void ReportCurrentLanguageTagNotFound(this SourceProductionContext context, string currentTag, string availableTags)
+    public static void ReportCurrentLanguageTagNotFound(this SourceProductionContext context, Location? location, string currentTag, string availableTags)
     {
         context.ReportDiagnostic(Diagnostic.Create(
             Diagnostics.DLA002_CurrentLanguageTagIsNotInTheTagList,
-            null,
+            location,
             currentTag,
             availableTags));
     }
 
-    public static void ReportLanguageKeyInconsistent(this SourceProductionContext context, string message)
+    public static void ReportLanguageKeyInconsistent(this SourceProductionContext context, Location? location, string message)
     {
         context.ReportDiagnostic(Diagnostic.Create(
             Diagnostics.DLA003_LanguageKeyInconsistent,
-            null,
+            location,
             message));
     }
 
-    public static void ReportInvalidConfigurationCombination(this SourceProductionContext context)
+    public static void ReportInvalidConfigurationCombination(this SourceProductionContext context, Location? location)
     {
         context.ReportDiagnostic(Diagnostic.Create(
             Diagnostics.DLA004_InvalidConfigurationCombination,
-            null));
+            location));
     }
 
-    public static void ReportCompiledModeRequiresEnsureKeysIdentical(this SourceProductionContext context)
+    public static void ReportCompiledModeRequiresEnsureKeysIdentical(this SourceProductionContext context, Location? location)
     {
         context.ReportDiagnostic(Diagnostic.Create(
             Diagnostics.DLA005_CompiledModeRequiresEnsureKeysIdentical,
-            null));
+            location));
     }
 }

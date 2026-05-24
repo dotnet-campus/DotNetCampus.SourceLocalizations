@@ -78,7 +78,7 @@ public class LocalizationMainClassGenerator
         if (model.GenerationMode == GenerationMode.Compiled
             && model.NotificationMode == NotificationMode.LocalizationItemPropertyChanged)
         {
-            context.ReportInvalidConfigurationCombination();
+            context.ReportInvalidConfigurationCombination(model.Location);
             return;
         }
 
