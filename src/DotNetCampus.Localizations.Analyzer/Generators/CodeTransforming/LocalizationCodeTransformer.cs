@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -100,7 +100,7 @@ public class LocalizationCodeTransformer
         return node.Children.Select(x =>
         {
             var identifierKey = x.GetFullIdentifierKey("_");
-            if (x.Children.Count is 0)
+            if (x.Type == LocalizationTreeNodeType.Leaf)
             {
                 var typeName = x.Item.ValueArgumentTypes.Length is 0
                     ? "LocalizedString"
@@ -128,7 +128,7 @@ public class LocalizationCodeTransformer
     {
         foreach (var child in root.Children)
         {
-            if (child.Children.Count > 0)
+            if (child.Type == LocalizationTreeNodeType.Category)
             {
                 yield return child;
                 foreach (var descendant in EnumerateAllNonLeafDescendants(child))
@@ -310,7 +310,7 @@ public class LocalizationCodeTransformer
         return node.Children.Select(x =>
         {
             var identifierKey = x.GetFullIdentifierKey("_");
-            if (x.Children.Count is 0)
+            if (x.Type == LocalizationTreeNodeType.Leaf)
             {
                 return x.Item.ValueArgumentTypes.Length is 0
                     ? $"""public LocalizedString {x.IdentifierKey} => provider.Get0("{x.Item.Key}");"""
@@ -325,7 +325,7 @@ public class LocalizationCodeTransformer
 
     private string GenerateNotifiableConstructor(string className, LocalizationTreeNode node)
     {
-        var navChildren = node.Children.Where(x => x.Children.Count > 0).ToList();
+        var navChildren = node.Children.Where(x => x.Type == LocalizationTreeNodeType.Category).ToList();
         if (navChildren.Count == 0)
         {
             return $$"""
@@ -352,7 +352,7 @@ public class LocalizationCodeTransformer
         return node.Children.Select(x =>
         {
             var identifierKey = x.GetFullIdentifierKey("_");
-            if (x.Children.Count is 0)
+            if (x.Type == LocalizationTreeNodeType.Leaf)
             {
                 return x.Item.ValueArgumentTypes.Length is 0
                     ? $"""public LocalizedString {x.IdentifierKey} => LocalizedStringProvider.Get0("{x.Item.Key}");"""
@@ -370,7 +370,7 @@ public class LocalizationCodeTransformer
         var lines = new List<string> { "LocalizedStringProvider = newProvider;" };
         foreach (var child in node.Children)
         {
-            if (child.Children.Count is 0)
+            if (child.Type == LocalizationTreeNodeType.Leaf)
             {
                 lines.Add($"""PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("{child.IdentifierKey}"));""");
             }
@@ -521,7 +521,7 @@ public class LocalizationCodeTransformer
         var members = new List<string>();
         foreach (var child in node.Children)
         {
-            if (child.Children.Count > 0)
+            if (child.Type == LocalizationTreeNodeType.Category)
             {
                 // Navigation property → returns this
                 var childInterfaceName = $"ILocalizedValues_{child.GetFullIdentifierKey("_")}";
@@ -546,7 +546,7 @@ public class LocalizationCodeTransformer
         }
 
         // Recurse into non-leaf children
-        foreach (var child in node.Children.Where(c => c.Children.Count > 0))
+        foreach (var child in node.Children.Where(c => c.Type == LocalizationTreeNodeType.Category))
         {
             var childInterfaceName = $"ILocalizedValues_{child.GetFullIdentifierKey("_")}";
             members.AddRange(GenerateExplicitMembersForNode(child, childInterfaceName, valueMap));
@@ -597,7 +597,7 @@ public class LocalizationCodeTransformer
 
         foreach (var child in node.Children)
         {
-            if (child.Children.Count > 0)
+            if (child.Type == LocalizationTreeNodeType.Category)
             {
                 var childInterfaceName = $"ILocalizedValues_{child.GetFullIdentifierKey("_")}";
                 members.Add($"{childInterfaceName} {interfaceName}.{child.IdentifierKey} => this;");
@@ -616,7 +616,7 @@ public class LocalizationCodeTransformer
             }
         }
 
-        foreach (var child in node.Children.Where(c => c.Children.Count > 0))
+        foreach (var child in node.Children.Where(c => c.Type == LocalizationTreeNodeType.Category))
         {
             var childInterfaceName = $"ILocalizedValues_{child.GetFullIdentifierKey("_")}";
             members.AddRange(GenerateNotifiableExplicitMembersForNode(child, childInterfaceName));
@@ -653,7 +653,7 @@ public class LocalizationCodeTransformer
     {
         foreach (var child in root.Children)
         {
-            if (child.Children.Count is 0)
+            if (child.Type == LocalizationTreeNodeType.Leaf)
             {
                 yield return child;
             }
@@ -738,26 +738,60 @@ public class LocalizationCodeTransformer
 
     #region Helpers
 
+    private enum LocalizationTreeNodeType
+    {
+        Root,
+        Category,
+        Leaf,
+    }
+
     /// <summary>
     /// 格式无关的本地化项树节点。
     /// </summary>
-    /// <param name="item">本地化项。</param>
-    /// <param name="identifierKey">适用于 C# 标识符的当前节点的键。</param>
-    /// <param name="identifierKeyParts">适用于 C# 标识符的从根到当前节点的完整键。</param>
-    private class LocalizationTreeNode(LocalizationItem item, string identifierKey, ImmutableArray<string> identifierKeyParts)
+    /// <param name="item">本地化项。仅 Leaf 节点持有有效值，Root 和 Category 节点的 Item 为 default。</param>
+    /// <param name="identifierKey">适用于 C# 标识符的当前节点的键。Root 节点此值为空字符串。</param>
+    /// <param name="identifierKeyParts">适用于 C# 标识符的从根到当前节点的完整键。Root 节点此值为空数组。</param>
+    /// <param name="isRoot">是否为根节点。</param>
+    private class LocalizationTreeNode(LocalizationItem item, string identifierKey, ImmutableArray<string> identifierKeyParts, bool isRoot = false)
     {
-        /// <summary>
-        /// 本地化项。
-        /// </summary>
-        public LocalizationItem Item => item;
+        public LocalizationTreeNodeType Type => isRoot
+            ? LocalizationTreeNodeType.Root
+            : Children.Count > 0
+                ? LocalizationTreeNodeType.Category
+                : LocalizationTreeNodeType.Leaf;
 
         /// <summary>
-        /// 适用于 C# 标识符的当前节点的键。
+        /// 本地化项。仅 Leaf 节点可访问此属性。
         /// </summary>
-        public string IdentifierKey => identifierKey;
+        public LocalizationItem Item
+        {
+            get
+            {
+                if (Type is not LocalizationTreeNodeType.Leaf)
+                {
+                    throw new InvalidOperationException($"当前节点类型为 {Type}，不允许访问 Item 属性。只有 Leaf 节点才具有本地化项。");
+                }
+                return item;
+            }
+        }
 
         /// <summary>
-        /// 适用于 C# 标识符的当前节点的完整键（包含从根到此节点的完整键路径，以“<paramref name="separator"/>”分隔）。
+        /// 适用于 C# 标识符的当前节点的键。Root 节点不可访问此属性。
+        /// </summary>
+        public string IdentifierKey
+        {
+            get
+            {
+                if (Type is LocalizationTreeNodeType.Root)
+                {
+                    throw new InvalidOperationException($"当前节点类型为 Root，不允许访问 IdentifierKey 属性。");
+                }
+                return identifierKey;
+            }
+        }
+
+        /// <summary>
+        /// 适用于 C# 标识符的当前节点的完整键（包含从根到此节点的完整键路径，以"<paramref name="separator"/>"分隔）。
         /// </summary>
         public string GetFullIdentifierKey(string separator)
         {
@@ -781,10 +815,15 @@ public class LocalizationCodeTransformer
             for (var i = 0; i < parts.Length; i++)
             {
                 var part = parts[i];
-                var child = current.Children.FirstOrDefault(x => x.IdentifierKey == part);
+                var child = current.Children.FirstOrDefault(
+                    x => string.Equals(x.IdentifierKey, part, StringComparison.OrdinalIgnoreCase));
                 if (child is null)
                 {
-                    child = new LocalizationTreeNode(localizationItem, part, [..parts.Take(i + 1)]);
+                    var isLeaf = i == parts.Length - 1;
+                    child = new LocalizationTreeNode(
+                        isLeaf ? localizationItem : default,
+                        part,
+                        [..parts.Take(i + 1)]);
                     current.Children.Add(child);
                 }
                 current = child;
@@ -799,23 +838,15 @@ public class LocalizationCodeTransformer
         /// <returns>树的根节点。</returns>
         public static LocalizationTreeNode FromList(IReadOnlyList<LocalizationItem> localizationItemList)
         {
-            var root = new LocalizationTreeNode(default, default!, default!);
+            var root = new LocalizationTreeNode(default, "", [], isRoot: true);
             foreach (var item in localizationItemList)
             {
-                var keyParts = item.Key.Split(['.'], StringSplitOptions.RemoveEmptyEntries);
-
-                if (keyParts.Length is 0)
+                if (item.Key.Split(['.'], StringSplitOptions.RemoveEmptyEntries).Length is 0)
                 {
                     continue;
                 }
 
-                if (keyParts.Length is 1)
-                {
-                    root.Children.Add(new LocalizationTreeNode(item, item.Key, [item.Key]));
-                    continue;
-                }
-
-                _ = root.GetOrCreateDescendant(item);
+                root.GetOrCreateDescendant(item);
             }
             return root;
         }
