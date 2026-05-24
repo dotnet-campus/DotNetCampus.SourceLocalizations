@@ -27,7 +27,6 @@
 
     <!-- 提供给源生成器使用。 -->
     <EmbeddedResource Include="..\DotNetCampus.Localizations\Helpers\*.cs" Link="Assets\Helpers\%(FileName).g.cs" />
-    <EmbeddedResource Include="Assets\Templates\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,9 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using DotNetCampus.Localizations.Generators.Builders;
-using DotNetCampus.Localizations.Generators.CodeTransforming;
 using DotNetCampus.Localizations.Generators.ModelProviding;
 using DotNetCampus.Localizations.IO;
 using DotNetCampus.Localizations.Utils.CodeAnalysis;
@@ -75,11 +75,8 @@ public class NestedTypesGenerator : IIncrementalGenerator
                 SourceText.From(GenerateILocalizedStringProvider(model), Encoding.UTF8));
         }
 
-        if (model.GenerationMode == GenerationMode.Compiled)
-        {
-            context.AddSource($"{model.TypeName}.LocalizationFallbackHelper.g.cs",
-                SourceText.From(GenerateLocalizationFallbackHelper(model), Encoding.UTF8));
-        }
+        context.AddSource($"{model.TypeName}.LocalizationFallbackHelper.g.cs",
+            SourceText.From(GenerateLocalizationFallbackHelper(model), Encoding.UTF8));
     }
 
     private string GenerateLocalizedStringTypes(LocalizationGeneratingModel model)
@@ -164,10 +161,66 @@ public class NestedTypesGenerator : IIncrementalGenerator
     private string GenerateLocalizationFallbackHelper(LocalizationGeneratingModel model)
     {
         var template = EmbeddedSourceFile.Get("Assets/Helpers/LocalizationFallbackProvider.g.cs");
-        var code = template.Content
-            .Replace("namespace DotNetCampus.Localizations.Helpers;", $"#nullable enable\nnamespace {model.Namespace};")
-            .Replace("internal static class LocalizationFallbackProvider", $"partial class {model.TypeName}\n{{\n    private static class LocalizationFallbackHelper")
-            + "\n}";
-        return code;
+        var classBody = ExtractClassBody(template.Content);
+
+        using var builder = new SourceTextBuilder(model.Namespace);
+        builder.AddRawText("#nullable enable");
+        builder.AddRawText("using System;");
+        builder.AddRawText("using System.Collections.Generic;");
+        builder.AddRawText("using System.Globalization;");
+        builder.AddRawText("using System.Linq;");
+        builder.AddTypeDeclaration($"partial class {model.TypeName}", wrapper =>
+        {
+            wrapper.AddTypeDeclaration("private static class LocalizationFallbackHelper", type =>
+            {
+                type.AddRawMembers(classBody);
+            });
+        });
+        return builder.ToString();
+    }
+
+    private static string ExtractClassBody(string sourceText)
+    {
+        var lines = sourceText.Replace("\r\n", "\n").Split('\n');
+        var startIndex = -1;
+        var braceDepth = 0;
+        var bodyLines = new List<string>();
+
+        for (var i = 0; i < lines.Length; i++)
+        {
+            if (startIndex < 0)
+            {
+                if (lines[i].Contains("class ") && lines[i + 1].Trim() == "{")
+                {
+                    startIndex = i + 2;
+                    braceDepth = 1;
+                    i++;
+                    continue;
+                }
+                if (lines[i].Contains("class ") && lines[i].TrimEnd().EndsWith("{"))
+                {
+                    startIndex = i + 1;
+                    braceDepth = 1;
+                    continue;
+                }
+            }
+            else
+            {
+                foreach (var ch in lines[i])
+                {
+                    if (ch == '{') braceDepth++;
+                    else if (ch == '}') braceDepth--;
+                }
+
+                if (braceDepth <= 0)
+                {
+                    break;
+                }
+
+                bodyLines.Add(lines[i]);
+            }
+        }
+
+        return string.Join("\n", bodyLines);
     }
 }

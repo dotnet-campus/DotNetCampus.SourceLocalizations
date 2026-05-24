@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using DotNetCampus.Localizations.Assets.Templates;
 using DotNetCampus.Localizations.Generators.Builders;
 using DotNetCampus.Localizations.Generators.ModelProviding;
-using DotNetCampus.Localizations.IO;
 using DotNetCampus.Localizations.Utils.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -104,35 +102,159 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
     {
         var isNestedSource = model.DependencyMode == DependencyMode.NestedSource;
         var supportsNotifyChanged = model.NotificationMode is not NotificationMode.InitOnly;
-        var localizationFile = supportsNotifyChanged
-            ? EmbeddedSourceFile.Get<NotifiableLocalization>()
-            : EmbeddedSourceFile.Get<ImmutableLocalization>();
-        var originalText = ReplaceNamespaceAndTypeName(localizationFile.Content, model.Namespace, model.TypeName);
-        var localizedValuesTypeName = supportsNotifyChanged ? nameof(NotifiableLocalizedValues) : nameof(ImmutableLocalizedValues);
+        using var builder = new SourceTextBuilder(model.Namespace);
+
+        var allTags = allLocalizationModels.Keys.ToList();
         var typePrefix = isNestedSource ? "" : $"global::{GeneratorInfo.RootNamespace}.";
-        var defaultCode = originalText
-            .Replace("DEFAULT_IETF_LANGUAGE_TAG", model.DefaultLanguage.ToLowerInvariant())
-            .Replace("\"CURRENT_IETF_LANGUAGE_TAG\"", model.CurrentLanguage is null
-                ? "global::System.Globalization.CultureInfo.CurrentUICulture.Name"
-                : $"\"{model.CurrentLanguage.ToLowerInvariant()}\"")
-            .FlagReplace(GenerateCreateLocalizedStringProviderCore(model.DefaultLanguage, allLocalizationModels, typePrefix))
-            .Flag2Replace(GenerateIetfLanguageTagList(allLocalizationModels.Keys))
-            .Replace("ILocalizedValues", $"{typePrefix}ILocalizedValues")
-            .Replace("PlaceholderLocalizedValues", $" {typePrefix}{localizedValuesTypeName}");
+        var currentLanguageExpression = model.CurrentLanguage is null
+            ? "global::System.Globalization.CultureInfo.CurrentUICulture.Name"
+            : $"\"{model.CurrentLanguage.ToLowerInvariant()}\"";
+
+        var tagListLiteral = string.Join("\n", allTags.Select(tag => $"    \"{tag}\","));
+        var switchArms = string.Join("\n", allLocalizationModels.Select(pair =>
+            ConvertModelToProviderPatternMatch(model.DefaultLanguage, pair.Key, typePrefix)));
+        var fallbackExpression = isNestedSource
+            ? "LocalizationFallbackHelper.FindBestMatch(languageTag, SupportedLanguageTags)"
+            : "global::DotNetCampus.Localizations.Helpers.LocalizationHelper.MatchWithFallback(languageTag, SupportedLanguageTags)";
+
         if (supportsNotifyChanged)
         {
-            defaultCode = defaultCode.Replace(
-                "ILocalizedStringProvider Wrap(ILocalizedStringProvider rawProvider) => rawProvider",
-                $"{typePrefix}MutableLocalizedStringProvider Wrap(ILocalizedStringProvider rawProvider) => new {typePrefix}MutableLocalizedStringProvider{{ Provider = rawProvider}}");
-            defaultCode = defaultCode
-                .Replace("public static async global::System.Threading.Tasks.ValueTask SetCurrent", "public static void SetCurrent")
-                .Replace("await _current.SetProvider(CreateLocalizedStringProvider(languageTag));", "_current.SetProvider(CreateLocalizedStringProvider(languageTag));");
+            builder.AddTypeDeclaration($"partial class {model.TypeName}", type => type
+                .AddRawMembers(
+                    $"private static readonly {typePrefix}ImmutableLocalizedValues _default = new {typePrefix}ImmutableLocalizedValues(CreateLocalizedStringProvider(\"{model.DefaultLanguage.ToLowerInvariant()}\"));",
+                    $$"""
+                    private static readonly {{typePrefix}}NotifiableLocalizedValues _current;
+
+                    static {{model.TypeName}}()
+                    {
+                        _current = new {{typePrefix}}NotifiableLocalizedValues(CreateLocalizedStringProvider({{currentLanguageExpression}}));
+                    }
+                    """,
+                    $$"""
+                    public static global::System.Collections.Generic.IReadOnlyList<string> SupportedLanguageTags { get; } =
+                    [
+                    {{tagListLiteral}}
+                    ];
+                    """,
+                    $"public static {typePrefix}ILocalizedValues Default => _default;",
+                    $"public static {typePrefix}NotifiableLocalizedValues Current => _current;",
+                    $$"""
+                    public static void SetCurrent(string languageTag)
+                    {
+                        _current.SetProvider(CreateLocalizedStringProvider(languageTag));
+                    }
+                    """,
+                    $"public static {typePrefix}ILocalizedValues Create(string languageTag) => new {typePrefix}ImmutableLocalizedValues(CreateLocalizedStringProvider(languageTag));",
+                    $$"""
+                    private static {{typePrefix}}ILocalizedStringProvider CreateLocalizedStringProvider(string languageTag)
+                    {
+                        var provider = CreateLocalizedStringProviderCore(languageTag);
+                        if (provider is not null)
+                        {
+                            return provider;
+                        }
+                        var fallbackTag = {{fallbackExpression}};
+                        provider = fallbackTag is null ? null : CreateLocalizedStringProviderCore(fallbackTag);
+                        if (provider is not null)
+                        {
+                            return provider;
+                        }
+                        return _default.LocalizedStringProvider;
+                    }
+                    """,
+                    $$"""
+                    private static {{typePrefix}}ILocalizedStringProvider? CreateLocalizedStringProviderCore(string languageTag)
+                    {
+                        return languageTag.ToLowerInvariant() switch
+                        {
+                    {{switchArms}}
+                            _ => null,
+                        };
+                    }
+                    """)
+            );
         }
-        if (isNestedSource)
+        else
         {
-            defaultCode = defaultCode.Replace("using global::DotNetCampus.Localizations;\n", "");
+            builder.AddTypeDeclaration($"partial class {model.TypeName}", type => type
+                .AddRawMembers(
+                    $"private static readonly {typePrefix}ImmutableLocalizedValues _default = GetOrCreateLocalizedValues(\"{model.DefaultLanguage.ToLowerInvariant()}\");",
+                    $$"""
+                    private static {{typePrefix}}ImmutableLocalizedValues _current;
+
+                    static {{model.TypeName}}()
+                    {
+                        _current = GetOrCreateLocalizedValues({{currentLanguageExpression}});
+                    }
+                    """,
+                    $$"""
+                    public static global::System.Collections.Generic.IReadOnlyList<string> SupportedLanguageTags { get; } =
+                    [
+                    {{tagListLiteral}}
+                    ];
+                    """,
+                    $"public static {typePrefix}ILocalizedValues Default => _default;",
+                    $"public static {typePrefix}ILocalizedValues Current => _current;",
+                    $$"""
+                    public static void SetCurrent(string languageTag)
+                    {
+                        _current = ({{typePrefix}}ImmutableLocalizedValues)Create(languageTag);
+                    }
+                    """,
+                    $"public static {typePrefix}ILocalizedValues Create(string languageTag) => GetOrCreateLocalizedValues(languageTag);",
+                    $$"""
+                    private static {{typePrefix}}ImmutableLocalizedValues GetOrCreateLocalizedValues(string languageTag)
+                    {
+                        if (_default is { } @default && languageTag.Equals("{{model.DefaultLanguage.ToLowerInvariant()}}", global::System.StringComparison.OrdinalIgnoreCase))
+                        {
+                            return @default;
+                        }
+                        if (_current is { } current && languageTag.Equals(current.LocalizedStringProvider.IetfLanguageTag, global::System.StringComparison.OrdinalIgnoreCase))
+                        {
+                            return current;
+                        }
+                        return new {{typePrefix}}ImmutableLocalizedValues(GetOrCreateLocalizedStringProvider(languageTag));
+                    }
+                    """,
+                    $$"""
+                    private static {{typePrefix}}ILocalizedStringProvider GetOrCreateLocalizedStringProvider(string languageTag)
+                    {
+                        if (_default is { } @default && languageTag.ToLowerInvariant() == "{{model.DefaultLanguage.ToLowerInvariant()}}")
+                        {
+                            return @default.LocalizedStringProvider;
+                        }
+                        if (_current is { } current && languageTag.Equals(current.LocalizedStringProvider.IetfLanguageTag, global::System.StringComparison.OrdinalIgnoreCase))
+                        {
+                            return current.LocalizedStringProvider;
+                        }
+                        var provider = CreateLocalizedStringProviderCore(languageTag);
+                        if (provider is not null)
+                        {
+                            return provider;
+                        }
+                        var fallbackTag = {{fallbackExpression}};
+                        provider = fallbackTag is null ? null : CreateLocalizedStringProviderCore(fallbackTag);
+                        if (provider is not null)
+                        {
+                            return provider;
+                        }
+                        return _default.LocalizedStringProvider;
+                    }
+                    """,
+                    $$"""
+                    private static {{typePrefix}}ILocalizedStringProvider? CreateLocalizedStringProviderCore(string languageTag)
+                    {
+                        return languageTag.ToLowerInvariant() switch
+                        {
+                    {{switchArms}}
+                            _ => null,
+                        };
+                    }
+                    """)
+            );
         }
-        return defaultCode;
+
+        return builder.ToString();
     }
 
     private string GenerateCompiledMainClass(
@@ -243,17 +365,6 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
         return builder.ToString();
     }
 
-    private string GenerateIetfLanguageTagList(IEnumerable<string> languageTags) => $"""
-{string.Join("\n", languageTags.Select(x => $"        \"{x}\","))}
-""";
-
-    private string GenerateCreateLocalizedStringProviderCore(
-        string defaultIetfTag,
-        IReadOnlyDictionary<string, IReadOnlyList<LocalizationFileModel>> models,
-        string typePrefix) => $"""
-{string.Join("\n", models.Select(x => ConvertModelToProviderPatternMatch(defaultIetfTag, x.Key, typePrefix)))}
-""";
-
     private string ConvertModelToProviderPatternMatch(string defaultIetfTag, string ietfTag, string typePrefix)
     {
         var tagIdentifier = IetfLanguageTagToIdentifier(ietfTag);
@@ -261,17 +372,7 @@ public class LocalizationTypeGenerator : IIncrementalGenerator
             ? "null"
             : "_default.LocalizedStringProvider";
         return $"""
-            "{ietfTag.ToLowerInvariant()}" => new {typePrefix}{nameof(LocalizedStringProvider)}_{tagIdentifier}({defaultProvider}),
+            "{ietfTag.ToLowerInvariant()}" => new {typePrefix}LocalizedStringProvider_{tagIdentifier}({defaultProvider}),
 """;
-    }
-
-    private static string ReplaceNamespaceAndTypeName(string sourceText, string rootNamespace, string typeName)
-    {
-        return sourceText
-            .Replace("namespace DotNetCampus.Localizations.Assets.Templates;", $"namespace {rootNamespace};")
-            .Replace("partial class ImmutableLocalization", $"partial class {typeName}")
-            .Replace("partial class NotifiableLocalization", $"partial class {typeName}")
-            .Replace("static ImmutableLocalization()", $"static {typeName}()")
-            .Replace("static NotifiableLocalization()", $"static {typeName}()");
     }
 }

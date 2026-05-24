@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using DotNetCampus.Localizations.Assets.Templates;
 using DotNetCampus.Localizations.Generators.Builders;
 using DotNetCampus.Localizations.Generators.ModelProviding;
 using DotNetCampus.Localizations.IO;
@@ -643,136 +642,6 @@ public class LocalizationCodeTransformer
 
     #endregion
 
-    #region Language Value Implementations (Legacy)
-
-    public string ToImplementationCodeText(LocalizationGeneratingModel model, bool isNotifiable)
-    {
-        var typePrefix = isNotifiable ? "Notifiable" : "Immutable";
-        var content = isNotifiable
-            ? EmbeddedSourceFile.Get<NotifiableLocalizedValues>().Content
-            : EmbeddedSourceFile.Get<ImmutableLocalizedValues>().Content;
-        return content
-            .Replace("LOCALIZATION_TYPE_NAME", model.TypeName)
-            .Replace("namespace DotNetCampus.Localizations.Assets.Templates;", $"namespace {GeneratorInfo.RootNamespace};")
-            .FlagReplace(string.Join("\n", GenerateImplementationPropertyLines(Tree, typePrefix)))
-            .Flag2Replace(string.Concat(Tree.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, model.TypeName, typePrefix, isNotifiable))))
-            .Flag3Replace(GenerateSetProvider(Tree, typePrefix));
-    }
-
-    private string GenerateSetProvider(LocalizationTreeNode node, string typePrefix)
-    {
-        return $$"""
-
-    /// <summary>
-    /// 在不改变 <see cref="LocalizedStringProvider"/> 实例的情况下，设置新的本地化字符串提供器，并通知所有的属性的变更。
-    /// </summary>
-    /// <param name="newProvider">新的本地化字符串提供器。</param>
-    /// <exception cref="ArgumentNullException">当 <paramref name="newProvider"/> 为 null 时抛出。</exception>
-#pragma warning disable CS1998
-    internal async global::System.Threading.Tasks.ValueTask SetProvider(ILocalizedStringProvider newProvider)
-#pragma warning restore CS1998
-    {
-        if (newProvider is null)
-        {
-            throw new ArgumentNullException(nameof(newProvider));
-        }
-
-        var oldProvider = LocalizedStringProvider;
-        if (oldProvider == newProvider)
-        {
-            return;
-        }
-        LocalizedStringProvider = newProvider;
-
-        // 递归通知所有叶子节点引发变更事件。
-{{string.Join("\n", GeneratePropertyChanged(node, typePrefix))}}
-    }
-""";
-    }
-
-    private string RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(LocalizationTreeNode node, string typeName, string typePrefix, bool isNotifiable)
-    {
-        if (node.Children.Count is 0)
-        {
-            return "";
-        }
-
-        var nodeKeyName = node.GetFullIdentifierKey(".");
-        var nodeTypeName = node.GetFullIdentifierKey("_");
-        return $$"""
-
-[global::System.Diagnostics.DebuggerDisplay("[{LocalizedStringProvider.IetfLanguageTag}] {{typeName}}.{{nodeKeyName}}.???")]
-[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]
-internal sealed partial class {{typePrefix}}LocalizedValues_{{nodeTypeName}}(ILocalizedStringProvider provider) : ILocalizedValues_{{nodeTypeName}}{{(isNotifiable ? ", INotifyPropertyChanged" : "")}}
-{
-    /// <summary>
-    /// 获取本地化字符串提供器。
-    /// </summary>
-    public ILocalizedStringProvider LocalizedStringProvider {{(isNotifiable ? "{ get; private set; } =" : "=>")}} provider;
-{{(isNotifiable ? GenerateSetProvider(node, typePrefix) : "")}}
-{{string.Join("\n", GenerateImplementationPropertyLines(node, typePrefix))}}
-{{(isNotifiable ? """
-
-#pragma warning disable CS0067
-    public event PropertyChangedEventHandler? PropertyChanged;
-#pragma warning restore CS0067
-
-""" : "")}}
-    /// <summary>
-    /// 获取非完整本地化字符串键的字符串表示。
-    /// </summary>
-    public override string ToString() => "{{typeName}}.{{nodeKeyName}}.";
-}
-{{string.Concat(node.Children.Select(x => RecursiveConvertLocalizationTreeNodeToKeyImplementationCode(x, typeName, typePrefix, isNotifiable)))}}
-""";
-    }
-
-    private static IEnumerable<string> GenerateImplementationPropertyLines(LocalizationTreeNode node, string typePrefix)
-    {
-        return node.Children.Select(x =>
-        {
-            var identifierKey = x.GetFullIdentifierKey("_");
-            if (x.Children.Count is 0)
-            {
-                if (x.Item.ValueArgumentTypes.Length is 0)
-                {
-                    return $"""
-
-    /// <inheritdoc />
-    public LocalizedString {x.IdentifierKey} => LocalizedStringProvider.Get0("{x.Item.Key}");
-""";
-                }
-                else
-                {
-                    var genericTypes = string.Join(", ", x.Item.ValueArgumentTypes);
-                    return $"""
-
-    /// <inheritdoc />
-    public LocalizedString<{genericTypes}> {x.IdentifierKey} => LocalizedStringProvider.Get{x.Item.ValueArgumentTypes.Length}<{genericTypes}>("{x.Item.Key}");
-""";
-                }
-            }
-            else
-            {
-                return $$"""
-
-    public ILocalizedValues_{{identifierKey}} {{x.IdentifierKey}} { get; } = new {{typePrefix}}LocalizedValues_{{identifierKey}}(provider);
-""";
-            }
-        });
-    }
-
-    private IEnumerable<string> GeneratePropertyChanged(LocalizationTreeNode node, string typePrefix)
-    {
-        return node.Children.Select(x =>
-        {
-            return x.Children.Count is 0
-                ? $"        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(\"{x.IdentifierKey}\"));"
-                : $"        await (({typePrefix}LocalizedValues_{x.GetFullIdentifierKey("_")}){x.IdentifierKey}).SetProvider(newProvider);";
-        });
-    }
-
-    #endregion
 
     #region Language Value Provider
 
@@ -820,27 +689,15 @@ internal sealed partial class {{typePrefix}}LocalizedValues_{{nodeTypeName}}(ILo
         {
             builder.AddTypeDeclaration($"partial class {model.TypeName}", wrapper =>
             {
-                wrapper.AddTypeDeclaration($"internal class {nameof(LocalizedStringProvider)}_{typeName}(ILocalizedStringProvider? fallback)", buildProvider);
+                wrapper.AddTypeDeclaration($"internal class LocalizedStringProvider_{typeName}(ILocalizedStringProvider? fallback)", buildProvider);
             });
         }
         else
         {
-            builder.AddTypeDeclaration($"internal class {nameof(LocalizedStringProvider)}_{typeName}(ILocalizedStringProvider? fallback)", buildProvider);
+            builder.AddTypeDeclaration($"internal class LocalizedStringProvider_{typeName}(ILocalizedStringProvider? fallback)", buildProvider);
         }
 
         return builder.ToString();
-    }
-
-    public string ToProviderCodeText(string rootNamespace, string ietfLanguageTag)
-    {
-        var typeName = IetfLanguageTagToIdentifier(ietfLanguageTag);
-        var template = EmbeddedSourceFile.Get<LocalizedStringProvider>();
-        var code = template.Content
-            .Replace($"namespace {template.Namespace};", $"namespace {GeneratorInfo.RootNamespace};")
-            .Replace($"class {nameof(LocalizedStringProvider)}", $"class {nameof(LocalizedStringProvider)}_{typeName}")
-            .Replace("""IetfLanguageTag => "default";""", $"""IetfLanguageTag => "{ietfLanguageTag}";""")
-            .FlagReplace(string.Join("\n", LocalizationItems.Select(x => ConvertKeyValueToValueCodeLine(x.Key, x.Value))));
-        return code;
     }
 
     private string ConvertKeyValueToValueCodeLine(string key, string value)
