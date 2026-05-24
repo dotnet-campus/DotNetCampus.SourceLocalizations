@@ -77,6 +77,7 @@ public class LocalizationCodeTransformer
     private void AddInterfaceDeclarations(IAllowTypeDeclaration builder, string accessibility, bool includeBaseInterface)
     {
         builder.AddTypeDeclaration($"{accessibility} partial interface ILocalizedValues", t => t
+            .WithSummaryComment("提供本地化字符串的访问接口。通过属性导航访问各分组和叶子节点的本地化值。")
             .AddGeneratedToolAndEditorBrowsingAttributes()
             .If(includeBaseInterface, t => t.AddBaseTypes("ILocalizedStringProvider"))
             .AddRawMembers(GenerateInterfacePropertyMembers(Tree))
@@ -85,7 +86,9 @@ public class LocalizationCodeTransformer
         foreach (var node in EnumerateAllNonLeafDescendants(Tree))
         {
             var nodeTypeName = node.GetFullIdentifierKey("_");
+            var nodeKeyName = node.GetFullIdentifierKey(".");
             builder.AddTypeDeclaration($"{accessibility} interface ILocalizedValues_{nodeTypeName}", t => t
+                .WithSummaryComment($"提供 {nodeKeyName} 分组下本地化字符串的访问接口。")
                 .AddGeneratedToolAndEditorBrowsingAttributes()
                 .AddRawMembers(GenerateInterfacePropertyMembers(node))
             );
@@ -111,7 +114,12 @@ public class LocalizationCodeTransformer
             }
             else
             {
-                return $"ILocalizedValues_{identifierKey} {x.IdentifierKey} {{ get; }}";
+                return $$"""
+                    /// <summary>
+                    /// 获取 {{x.IdentifierKey}} 分组的本地化字符串。
+                    /// </summary>
+                    ILocalizedValues_{{identifierKey}} {{x.IdentifierKey}} { get; }
+                    """;
             }
         });
     }

@@ -131,20 +131,44 @@ public class LocalizationMainClassGenerator : IIncrementalGenerator
                     }
                     """,
                     $$"""
+                    /// <summary>
+                    /// 获取支持的语言标签列表。
+                    /// </summary>
                     public static global::System.Collections.Generic.IReadOnlyList<string> SupportedLanguageTags { get; } =
                     [
                     {{tagListLiteral}}
                     ];
                     """,
-                    $"public static {typePrefix}ILocalizedValues Default => _default;",
-                    $"public static {typePrefix}NotifiableLocalizedValues Current => _current;",
+                    $"""
+                    /// <summary>
+                    /// 获取默认语言的本地化字符串集。
+                    /// </summary>
+                    public static {typePrefix}ILocalizedValues Default => _default;
+                    """,
+                    $"""
+                    /// <summary>
+                    /// 获取当前语言的本地化字符串集。切换语言时，此实例会通过属性变更通知更新绑定的 UI。
+                    /// </summary>
+                    public static {typePrefix}NotifiableLocalizedValues Current => _current;
+                    """,
                     $$"""
+                    /// <summary>
+                    /// 切换当前语言。
+                    /// </summary>
+                    /// <param name="languageTag">要切换到的语言标签。</param>
                     public static void SetCurrent(string languageTag)
                     {
                         _current.SetProvider(CreateLocalizedStringProvider(languageTag));
                     }
                     """,
-                    $"public static {typePrefix}ILocalizedValues Create(string languageTag) => new {typePrefix}ImmutableLocalizedValues(CreateLocalizedStringProvider(languageTag));",
+                    $"""
+                    /// <summary>
+                    /// 创建指定语言的本地化字符串集实例。
+                    /// </summary>
+                    /// <param name="languageTag">语言标签。</param>
+                    /// <returns>对应语言的本地化字符串集。</returns>
+                    public static {typePrefix}ILocalizedValues Create(string languageTag) => new {typePrefix}ImmutableLocalizedValues(CreateLocalizedStringProvider(languageTag));
+                    """,
                     $$"""
                     private static {{typePrefix}}ILocalizedStringProvider CreateLocalizedStringProvider(string languageTag)
                     {
@@ -188,20 +212,44 @@ public class LocalizationMainClassGenerator : IIncrementalGenerator
                     }
                     """,
                     $$"""
+                    /// <summary>
+                    /// 获取支持的语言标签列表。
+                    /// </summary>
                     public static global::System.Collections.Generic.IReadOnlyList<string> SupportedLanguageTags { get; } =
                     [
                     {{tagListLiteral}}
                     ];
                     """,
-                    $"public static {typePrefix}ILocalizedValues Default => _default;",
-                    $"public static {typePrefix}ILocalizedValues Current => _current;",
+                    $"""
+                    /// <summary>
+                    /// 获取默认语言的本地化字符串集。
+                    /// </summary>
+                    public static {typePrefix}ILocalizedValues Default => _default;
+                    """,
+                    $"""
+                    /// <summary>
+                    /// 获取当前语言的本地化字符串集。调用 <see cref="SetCurrent(string)"/> 后需重新访问此属性获取新值。
+                    /// </summary>
+                    public static {typePrefix}ILocalizedValues Current => _current;
+                    """,
                     $$"""
+                    /// <summary>
+                    /// 切换当前语言。
+                    /// </summary>
+                    /// <param name="languageTag">要切换到的语言标签。</param>
                     public static void SetCurrent(string languageTag)
                     {
                         _current = ({{typePrefix}}ImmutableLocalizedValues)Create(languageTag);
                     }
                     """,
-                    $"public static {typePrefix}ILocalizedValues Create(string languageTag) => GetOrCreateLocalizedValues(languageTag);",
+                    $"""
+                    /// <summary>
+                    /// 创建指定语言的本地化字符串集实例。
+                    /// </summary>
+                    /// <param name="languageTag">语言标签。</param>
+                    /// <returns>对应语言的本地化字符串集。</returns>
+                    public static {typePrefix}ILocalizedValues Create(string languageTag) => GetOrCreateLocalizedValues(languageTag);
+                    """,
                     $$"""
                     private static {{typePrefix}}ImmutableLocalizedValues GetOrCreateLocalizedValues(string languageTag)
                     {
@@ -298,14 +346,31 @@ public class LocalizationMainClassGenerator : IIncrementalGenerator
                     }
                     """,
                     $$"""
+                    /// <summary>
+                    /// 获取支持的语言标签列表。
+                    /// </summary>
                     public static global::System.Collections.Generic.IReadOnlyList<string> SupportedLanguageTags { get; } =
                     [
                     {{tagListLiteral}}
                     ];
                     """,
-                    $"public static {interfacePrefix}ILocalizedValues Default => _default;",
-                    $"public static {interfacePrefix}NotifiableLocalizedValues Current => _current;",
+                    $"""
+                    /// <summary>
+                    /// 获取默认语言的本地化字符串集。
+                    /// </summary>
+                    public static {interfacePrefix}ILocalizedValues Default => _default;
+                    """,
+                    $"""
+                    /// <summary>
+                    /// 获取当前语言的本地化字符串集。切换语言时，此实例会通过属性变更通知更新绑定的 UI。
+                    /// </summary>
+                    public static {interfacePrefix}NotifiableLocalizedValues Current => _current;
+                    """,
                     $$"""
+                    /// <summary>
+                    /// 切换当前语言。
+                    /// </summary>
+                    /// <param name="languageTag">要切换到的语言标签。</param>
                     public static void SetCurrent(string languageTag)
                     {
                         var newInner = Create(languageTag);
@@ -313,6 +378,11 @@ public class LocalizationMainClassGenerator : IIncrementalGenerator
                     }
                     """,
                     $$"""
+                    /// <summary>
+                    /// 创建指定语言的本地化字符串集实例。
+                    /// </summary>
+                    /// <param name="languageTag">语言标签。</param>
+                    /// <returns>对应语言的本地化字符串集。</returns>
                     public static {{interfacePrefix}}ILocalizedValues Create(string languageTag)
                     {
                         return languageTag.ToLowerInvariant() switch
@@ -337,20 +407,42 @@ public class LocalizationMainClassGenerator : IIncrementalGenerator
                     }
                     """,
                     $$"""
+                    /// <summary>
+                    /// 获取支持的语言标签列表。
+                    /// </summary>
                     public static global::System.Collections.Generic.IReadOnlyList<string> SupportedLanguageTags { get; } =
                     [
                     {{tagListLiteral}}
                     ];
                     """,
-                    $"public static {interfacePrefix}ILocalizedValues Default => _default;",
-                    $"public static {interfacePrefix}ILocalizedValues Current => _current;",
+                    $"""
+                    /// <summary>
+                    /// 获取默认语言的本地化字符串集。
+                    /// </summary>
+                    public static {interfacePrefix}ILocalizedValues Default => _default;
+                    """,
+                    $"""
+                    /// <summary>
+                    /// 获取当前语言的本地化字符串集。调用 <see cref="SetCurrent(string)"/> 后需重新访问此属性获取新值。
+                    /// </summary>
+                    public static {interfacePrefix}ILocalizedValues Current => _current;
+                    """,
                     $$"""
+                    /// <summary>
+                    /// 切换当前语言。
+                    /// </summary>
+                    /// <param name="languageTag">要切换到的语言标签。</param>
                     public static void SetCurrent(string languageTag)
                     {
                         _current = Create(languageTag);
                     }
                     """,
                     $$"""
+                    /// <summary>
+                    /// 创建指定语言的本地化字符串集实例。
+                    /// </summary>
+                    /// <param name="languageTag">语言标签。</param>
+                    /// <returns>对应语言的本地化字符串集。</returns>
                     public static {{interfacePrefix}}ILocalizedValues Create(string languageTag)
                     {
                         return languageTag.ToLowerInvariant() switch
