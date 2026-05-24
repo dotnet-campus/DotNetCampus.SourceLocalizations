@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Immutable;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace DotNetCampus.Localizations.Utils.CodeAnalysis;
@@ -68,7 +68,7 @@ internal static class AnalyzerConfigOptionsExtensions
 
 public readonly record struct AnalyzerConfigOptionResult(AnalyzerConfigOptions Options, bool GotValue)
 {
-    public required ImmutableList<string> UnsetPropertyNames { get; init; }
+    public required IReadOnlyList<string> UnsetPropertyNames { get; init; }
 
     public AnalyzerConfigOptionResult Link(bool result, string propertyName)
     {
@@ -85,7 +85,7 @@ public readonly record struct AnalyzerConfigOptionResult(AnalyzerConfigOptions O
         return this with
         {
             GotValue = false,
-            UnsetPropertyNames = UnsetPropertyNames.Add(propertyName),
+            UnsetPropertyNames = [..UnsetPropertyNames, propertyName],
         };
     }
 
