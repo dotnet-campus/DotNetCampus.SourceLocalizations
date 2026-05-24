@@ -141,12 +141,22 @@ public class LocalizationCodeTransformer
 
     private string ConvertValueToComment(string? value)
     {
-        if (string.IsNullOrEmpty(value) || !value.Contains('\n'))
+        if (string.IsNullOrEmpty(value))
         {
-            return value ?? "";
+            return "";
         }
 
-        var lines = value!.Replace("\r", "").Split('\n');
+        var escaped = value!
+            .Replace("&", "&amp;")
+            .Replace("<", "&lt;")
+            .Replace(">", "&gt;");
+
+        if (!escaped.Contains('\n'))
+        {
+            return escaped;
+        }
+
+        var lines = escaped.Replace("\r\n", "\n").Split('\n');
         return string.Join("<br/>\n    /// ", lines);
     }
 
