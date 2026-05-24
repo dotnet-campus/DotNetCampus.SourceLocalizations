@@ -27,10 +27,9 @@ namespace DotNetCampus.Localizations.Generators;
 /// 根据 <see cref="NotificationMode"/> 决定 <c>_current</c> 类型和 <c>SetCurrent</c> 行为。
 /// </para>
 /// </remarks>
-[Generator]
-public class LocalizationMainClassGenerator : IIncrementalGenerator
+public class LocalizationMainClassGenerator
 {
-    public void Initialize(IncrementalGeneratorInitializationContext context)
+    public void Register(IncrementalGeneratorInitializationContext context)
     {
         var globalOptionsProvider = context.AnalyzerConfigOptionsProvider;
         var localizationFilesProvider = context.SelectLocalizationFileModels();
@@ -93,7 +92,7 @@ public class LocalizationMainClassGenerator : IIncrementalGenerator
             code = GenerateCompiledMainClass(model, allLocalizationModels);
         }
 
-        context.AddSource($"{model.TypeName}.g.cs", SourceText.From(code, Encoding.UTF8));
+        context.AddSource($"{model.Namespace}.Localizations/{model.TypeName}.g.cs", SourceText.From(code, Encoding.UTF8));
     }
 
     private string GenerateDictionaryMainClass(

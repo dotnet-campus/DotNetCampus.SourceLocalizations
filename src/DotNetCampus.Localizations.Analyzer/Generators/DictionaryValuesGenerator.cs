@@ -24,10 +24,9 @@ namespace DotNetCampus.Localizations.Generators;
 /// 并通过递归 <c>SetProvider()</c> 在切换语言时逐级通知。
 /// </para>
 /// </remarks>
-[Generator]
-public class DictionaryValuesGenerator : IIncrementalGenerator
+public class DictionaryValuesGenerator
 {
-    public void Initialize(IncrementalGeneratorInitializationContext context)
+    public void Register(IncrementalGeneratorInitializationContext context)
     {
         var globalOptionsProvider = context.AnalyzerConfigOptionsProvider;
         var localizationFilesProvider = context.SelectLocalizationFileModels().Collect();
@@ -91,12 +90,12 @@ public class DictionaryValuesGenerator : IIncrementalGenerator
         var transformer = new LocalizationCodeTransformer(group);
 
         var immutableCode = transformer.ToDictionaryImmutableValuesCodeText(model);
-        context.AddSource("LocalizedValues.immutable.g.cs", SourceText.From(immutableCode, Encoding.UTF8));
+        context.AddSource("DotNetCampus.Localizations/LocalizedValues.immutable.g.cs", SourceText.From(immutableCode, Encoding.UTF8));
 
         if (model.NotificationMode != NotificationMode.InitOnly)
         {
             var notifiableCode = transformer.ToDictionaryNotifiableValuesCodeText(model);
-            context.AddSource("LocalizedValues.notifiable.g.cs", SourceText.From(notifiableCode, Encoding.UTF8));
+            context.AddSource("DotNetCampus.Localizations/LocalizedValues.notifiable.g.cs", SourceText.From(notifiableCode, Encoding.UTF8));
         }
     }
 }

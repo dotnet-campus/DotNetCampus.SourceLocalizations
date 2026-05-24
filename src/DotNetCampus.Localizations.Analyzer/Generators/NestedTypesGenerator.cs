@@ -21,12 +21,11 @@ namespace DotNetCampus.Localizations.Generators;
 /// <para>输出文件：<c>{TypeName}.LocalizedString.g.cs</c></para>
 /// <para>触发条件：<see cref="DependencyMode.NestedSource"/>。</para>
 /// </remarks>
-[Generator]
-public class NestedTypesGenerator : IIncrementalGenerator
+public class NestedTypesGenerator
 {
     private const int MaxGenericArity = 8;
 
-    public void Initialize(IncrementalGeneratorInitializationContext context)
+    public void Register(IncrementalGeneratorInitializationContext context)
     {
         var localizationTypeProvider = context.SyntaxProvider.SelectGeneratingModels();
         var globalOptionsProvider = context.AnalyzerConfigOptionsProvider;
@@ -66,16 +65,16 @@ public class NestedTypesGenerator : IIncrementalGenerator
             return;
         }
 
-        context.AddSource($"{model.TypeName}.LocalizedString.g.cs",
+        context.AddSource($"{model.Namespace}.Localizations/{model.TypeName}.LocalizedString.g.cs",
             SourceText.From(GenerateLocalizedStringTypes(model), Encoding.UTF8));
 
         if (model.GenerationMode == GenerationMode.Dictionary)
         {
-            context.AddSource($"{model.TypeName}.ILocalizedStringProvider.g.cs",
+            context.AddSource($"{model.Namespace}.Localizations/{model.TypeName}.ILocalizedStringProvider.g.cs",
                 SourceText.From(GenerateILocalizedStringProvider(model), Encoding.UTF8));
         }
 
-        context.AddSource($"{model.TypeName}.LocalizationFallbackHelper.g.cs",
+        context.AddSource($"{model.Namespace}.Localizations/{model.TypeName}.LocalizationFallbackHelper.g.cs",
             SourceText.From(GenerateLocalizationFallbackHelper(model), Encoding.UTF8));
     }
 

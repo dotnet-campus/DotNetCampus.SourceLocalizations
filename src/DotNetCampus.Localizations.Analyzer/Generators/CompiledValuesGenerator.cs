@@ -28,10 +28,9 @@ namespace DotNetCampus.Localizations.Generators;
 /// INPC 时额外生成 <c>NotifiableLocalizedValues</c> 单类包装（持有 <c>_inner</c> + <c>SetInner</c> + raise 所有叶子属性名）。
 /// </para>
 /// </remarks>
-[Generator]
-public class CompiledValuesGenerator : IIncrementalGenerator
+public class CompiledValuesGenerator
 {
-    public void Initialize(IncrementalGeneratorInitializationContext context)
+    public void Register(IncrementalGeneratorInitializationContext context)
     {
         var globalOptionsProvider = context.AnalyzerConfigOptionsProvider;
         var localizationFilesProvider = context.SelectLocalizationFileModels().Collect();
@@ -103,13 +102,13 @@ public class CompiledValuesGenerator : IIncrementalGenerator
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);
             var transformer = new LocalizationCodeTransformer(group);
             var code = transformer.ToCompiledValuesCodeText(model, ietfLanguageTag, referenceTransformer);
-            context.AddSource($"LocalizedValues_{IetfLanguageTagToIdentifier(ietfLanguageTag)}.g.cs", SourceText.From(code, Encoding.UTF8));
+            context.AddSource($"DotNetCampus.Localizations/LocalizedValues_{IetfLanguageTagToIdentifier(ietfLanguageTag)}.g.cs", SourceText.From(code, Encoding.UTF8));
         }
 
         if (model.NotificationMode != NotificationMode.InitOnly)
         {
             var code = referenceTransformer.ToCompiledNotifiableValuesCodeText(model);
-            context.AddSource("NotifiableLocalizedValues.g.cs", SourceText.From(code, Encoding.UTF8));
+            context.AddSource("DotNetCampus.Localizations/NotifiableLocalizedValues.g.cs", SourceText.From(code, Encoding.UTF8));
         }
     }
 }

@@ -43,6 +43,11 @@ public class LocalizedConfigurationAttribute : Attribute
     public string? Preview { get; init; }
 
     /// <summary>
+    /// 指定是否确保所有语言文件中的键都是一致的。默认值为 false，不执行检查。如果是 true，则会在生成代码时检查所有语言文件中的键是否一致，如果不相同则会报错。
+    /// </summary>
+    public bool EnsureKeysIdentical { get; init; }
+
+    /// <summary>
     /// 指定生成的本地化类的模式。
     /// </summary>
     public GenerationMode GenerationMode { get; init; }
@@ -90,11 +95,6 @@ public class LocalizedConfigurationAttribute : Attribute
             false => NotificationMode.InitOnly,
         };
     }
-
-    /// <summary>
-    /// 指定是否确保所有语言文件中的键都是一致的。默认值为 false，不执行检查。如果是 true，则会在生成代码时检查所有语言文件中的键是否一致，如果不相同则会报错。
-    /// </summary>
-    public bool EnsureKeysIdentical { get; init; }
 }
 
 /// <summary>

@@ -22,10 +22,9 @@ namespace DotNetCampus.Localizations.Generators;
 /// <see cref="DependencyMode.NestedSource"/> 时，Provider 类包裹在用户声明的 partial class 内部。
 /// </para>
 /// </remarks>
-[Generator]
-public class StringsProviderGenerator : IIncrementalGenerator
+public class StringsProviderGenerator
 {
-    public void Initialize(IncrementalGeneratorInitializationContext context)
+    public void Register(IncrementalGeneratorInitializationContext context)
     {
         var globalOptionsProvider = context.AnalyzerConfigOptionsProvider;
         var localizationFilesProvider = context.SelectLocalizationFileModels().Collect();
@@ -87,7 +86,7 @@ public class StringsProviderGenerator : IIncrementalGenerator
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);
             var transformer = new LocalizationCodeTransformer(group);
             var code = transformer.ToProviderCodeText(model, ietfLanguageTag);
-            context.AddSource($"Strings.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
+            context.AddSource($"DotNetCampus.Localizations/Strings.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));
         }
     }
 }

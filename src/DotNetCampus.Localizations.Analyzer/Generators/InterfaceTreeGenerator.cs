@@ -24,10 +24,9 @@ namespace DotNetCampus.Localizations.Generators;
 /// <see cref="DependencyMode.NestedSource"/> 时生成 internal 接口并包裹在用户声明的 partial class 内部。
 /// </para>
 /// </remarks>
-[Generator]
-public class InterfaceTreeGenerator : IIncrementalGenerator
+public class InterfaceTreeGenerator
 {
-    public void Initialize(IncrementalGeneratorInitializationContext context)
+    public void Register(IncrementalGeneratorInitializationContext context)
     {
         var globalOptionsProvider = context.AnalyzerConfigOptionsProvider;
         var localizationFilesProvider = context.SelectLocalizationFileModels().Collect();
@@ -104,7 +103,7 @@ public class InterfaceTreeGenerator : IIncrementalGenerator
             ? transformer.ToNestedInterfaceCodeText(model)
             : transformer.ToInterfaceCodeText(model);
 
-        context.AddSource("ILocalizedValues.g.cs", SourceText.From(code, Encoding.UTF8));
+        context.AddSource($"{model.Namespace}.Localizations/ILocalizedValues.g.cs", SourceText.From(code, Encoding.UTF8));
     }
 
     private static void CompareLanguageKeys(
