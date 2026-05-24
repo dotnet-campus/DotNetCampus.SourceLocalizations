@@ -112,7 +112,7 @@ public class InterfaceTreeGenerator : IIncrementalGenerator
         string defaultTag,
         ImmutableSortedDictionary<string, IReadOnlyList<LocalizationFileModel>> allLocalizationModels)
     {
-        var defaultModels = allLocalizationModels.GetValueOrDefault(defaultTag) ?? allLocalizationModels.Values.First();
+        var defaultModels = allLocalizationModels[defaultTag];
         var defaultTransformer = new LocalizationCodeTransformer(defaultModels);
         var defaultKeys = new HashSet<string>(defaultTransformer.LocalizationItems.Select(i => i.Key));
 
