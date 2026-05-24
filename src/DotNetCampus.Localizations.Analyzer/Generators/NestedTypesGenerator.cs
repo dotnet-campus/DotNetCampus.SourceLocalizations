@@ -88,6 +88,7 @@ public class NestedTypesGenerator
             // LocalizedString（无参）
             wrapper.AddTypeDeclaration("public readonly record struct LocalizedString", t => t
                 .WithSummaryComment("表示一个本地化字符串，可隐式转换为字符串。")
+                .AddAttribute("""[global::System.Diagnostics.DebuggerDisplay("{_key} = \"{Value}\"")]""")
                 .AddRawMembers(
                     "private readonly string _key;",
                     """
@@ -111,6 +112,7 @@ public class NestedTypesGenerator
 
                 wrapper.AddTypeDeclaration($"public readonly record struct LocalizedString<{typeParams}>", t => t
                     .WithSummaryComment($"表示一个带有 {arity} 个格式化参数的本地化字符串。")
+                    .AddAttribute("""[global::System.Diagnostics.DebuggerDisplay("{_key} = \"{_value}\"")]""")
                     .AddRawMembers(
                         "private readonly string _key;",
                         "private readonly string _value;",

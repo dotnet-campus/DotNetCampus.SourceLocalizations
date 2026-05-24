@@ -403,6 +403,7 @@ public class LocalizationCodeTransformer
             target.AddTypeDeclaration($"internal sealed class LocalizedValues_{tagIdentifier}", t =>
             {
                 t.AddGeneratedToolAndEditorBrowsingAttributes();
+                t.AddAttribute($"""[global::System.Diagnostics.DebuggerDisplay("[{ietfLanguageTag}]")]""");
                 t.AddBaseTypes(allInterfaces.ToArray());
                 t.AddRawMembers($"public static LocalizedValues_{tagIdentifier} Instance {{ get; }} = new();");
                 if (!isNestedSource)
@@ -461,6 +462,10 @@ public class LocalizationCodeTransformer
             {
                 t.WithSummaryComment("提供可通知属性变更的本地化字符串集，当语言文化切换时会发出属性变更通知。");
                 t.AddGeneratedToolAndEditorBrowsingAttributes();
+                if (!isNestedSource)
+                {
+                    t.AddAttribute("[global::System.Diagnostics.DebuggerDisplay(\"[{IetfLanguageTag}]\")]");
+                }
                 t.AddBaseTypes(allInterfaces.ToArray());
                 t.AddRawMembers(GenerateNotifiableCompiledFields(nonLeafNodes));
                 t.AddRawMembers(GenerateNotifiableCompiledConstructor(nonLeafNodes));
@@ -669,6 +674,7 @@ public class LocalizationCodeTransformer
 
         Action<TypeDeclarationSourceTextBuilder> buildProvider = t => t
             .AddGeneratedToolAndEditorBrowsingAttributes()
+            .AddAttribute($"""[global::System.Diagnostics.DebuggerDisplay("[{ietfLanguageTag}]")]""")
             .AddBaseTypes("ILocalizedStringProvider")
             .AddRawMembers(
                 $"""public string IetfLanguageTag => "{ietfLanguageTag}";""",
