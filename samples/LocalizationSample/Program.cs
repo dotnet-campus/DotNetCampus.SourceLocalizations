@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using dotnetCampus.Localizations;
+using DotNetCampus.Localizations;
 
 namespace LocalizationSample;
 
 internal class Program
 {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         var tags = Lang.SupportedLanguageTags;
         Console.WriteLine(string.Join(", ", tags));
@@ -20,7 +20,7 @@ internal class Program
             changed.PropertyChanged += ChangedOnPropertyChanged;
         }
 
-        await Lang.SetCurrent("en");
+        Lang.SetCurrent("en");
     }
 
     private static void ChangedOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -29,5 +29,9 @@ internal class Program
     }
 }
 
-[LocalizedConfiguration(Default = "zh-Hans", SupportsNotification = true)]
+[LocalizedConfiguration(Default = "zh-Hans",
+    EnsureKeysIdentical = true,
+    DependencyMode = DependencyMode.Library,
+    GenerationMode = GenerationMode.Compiled,
+    NotificationMode = NotificationMode.InitOnly)]
 internal partial class Lang;

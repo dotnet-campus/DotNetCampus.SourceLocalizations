@@ -1,0 +1,18 @@
+<Project>
+  <ItemGroup>
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    <PackageVersion Include="DotNetCampus.CodeAnalysisUtils" Version="0.0.1-alpha.8" />
+    <PackageVersion Include="DotNetCampus.LatestCSharpFeatures" Version="13.0.1" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" />
+    <!-- 当前龙芯的 dotnet SDK 是 8.0.7 ，能支持的最高分析器版本为 4.8.0，详细请参阅 https://ftp.loongnix.cn/dotnet/ -->
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.300" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="4.2.3" />
+    <PackageVersion Include="MSTest.TestFramework" Version="4.2.3" />
+    <PackageVersion Include="Samboy063.Tomlet" Version="6.2.0" />
+    <PackageVersion Include="System.Collections.Immutable" Version="8.0.0" />
+    <PackageVersion Include="YamlDotNet" Version="18.0.0" />
+  </ItemGroup>
+</Project>

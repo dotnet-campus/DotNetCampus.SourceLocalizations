@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetCampus.Localizations", "src\DotNetCampus.Localizations\DotNetCampus.Localizations.csproj", "{9A8FEE27-F589-48E4-BF31-CC0D5CD4A3F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetCampus.Localizations.Analyzer", "src\DotNetCampus.Localizations.Analyzer\DotNetCampus.Localizations.Analyzer.csproj", "{48BE5845-BF2F-48CD-8214-2418E72A9BFF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{E407F54C-8E41-4F4E-B9BF-9864B6178E5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalizationSample", "samples\LocalizationSample\LocalizationSample.csproj", "{F330175F-FC20-4D42-921A-747AC296D1B9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4239BEE3-D480-4874-83E1-353B35F1BD86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetCampus.Localizations.Tests", "tests\DotNetCampus.Localizations.Tests\DotNetCampus.Localizations.Tests.csproj", "{3170B151-6A25-4321-BF09-EFC516E32F8D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{6E0F9A76-51AE-49A7-B74C-CA194F6CD37C}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		README.md = README.md
+		Directory.Build.props = Directory.Build.props
+		build\Version.props = build\Version.props
+		Directory.Packages.props = Directory.Packages.props
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetCampus.SourceLocalizations.PrivateGenerator", "src\DotNetCampus.SourceLocalizations.PrivateGenerator\DotNetCampus.SourceLocalizations.PrivateGenerator.csproj", "{452ACCD4-EB0A-46ED-A8F9-38B5AD57C9EB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A585D7EF-916E-45B1-AFB8-025DE9FD1647}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9A8FEE27-F589-48E4-BF31-CC0D5CD4A3F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A8FEE27-F589-48E4-BF31-CC0D5CD4A3F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A8FEE27-F589-48E4-BF31-CC0D5CD4A3F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A8FEE27-F589-48E4-BF31-CC0D5CD4A3F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48BE5845-BF2F-48CD-8214-2418E72A9BFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48BE5845-BF2F-48CD-8214-2418E72A9BFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48BE5845-BF2F-48CD-8214-2418E72A9BFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48BE5845-BF2F-48CD-8214-2418E72A9BFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F330175F-FC20-4D42-921A-747AC296D1B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F330175F-FC20-4D42-921A-747AC296D1B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F330175F-FC20-4D42-921A-747AC296D1B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F330175F-FC20-4D42-921A-747AC296D1B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3170B151-6A25-4321-BF09-EFC516E32F8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3170B151-6A25-4321-BF09-EFC516E32F8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3170B151-6A25-4321-BF09-EFC516E32F8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3170B151-6A25-4321-BF09-EFC516E32F8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{452ACCD4-EB0A-46ED-A8F9-38B5AD57C9EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{452ACCD4-EB0A-46ED-A8F9-38B5AD57C9EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{452ACCD4-EB0A-46ED-A8F9-38B5AD57C9EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{452ACCD4-EB0A-46ED-A8F9-38B5AD57C9EB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F330175F-FC20-4D42-921A-747AC296D1B9} = {E407F54C-8E41-4F4E-B9BF-9864B6178E5F}
+		{3170B151-6A25-4321-BF09-EFC516E32F8D} = {4239BEE3-D480-4874-83E1-353B35F1BD86}
+		{452ACCD4-EB0A-46ED-A8F9-38B5AD57C9EB} = {A585D7EF-916E-45B1-AFB8-025DE9FD1647}
+	EndGlobalSection
+EndGlobal

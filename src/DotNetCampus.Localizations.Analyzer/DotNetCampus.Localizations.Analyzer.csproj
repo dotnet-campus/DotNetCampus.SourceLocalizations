@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <IsRoslynComponent>true</IsRoslynComponent>
+    <RootNamespace>DotNetCampus.Localizations</RootNamespace>
+    <DefineConstants>$(DefineConstants);IN_ANALYZER</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNetCampus.CodeAnalysisUtils" />
+    <PackageReference Include="DotNetCampus.LatestCSharpFeatures" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" PrivateAssets="all" />
+    <PackageReference Include="System.Collections.Immutable" />
+    <PackageReference Include="Samboy063.Tomlet" GeneratePathProperty="true" PrivateAssets="all" />
+    <PackageReference Include="YamlDotNet" GeneratePathProperty="true" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 提供给分析器使用（主要是为了避免使用常量字符串），或单纯为了让分析器项目编译通过。 -->
+    <Compile Include="..\DotNetCampus.Localizations\*.cs" Link="Assets\Sources\%(FileName).g.cs" />
+    <Compile Include="..\DotNetCampus.Localizations\Helpers\*.cs" Link="Assets\Sources\Helpers\%(FileName).g.cs" />
+
+    <!-- 提供给源生成器使用。 -->
+    <EmbeddedResource Include="..\DotNetCampus.Localizations\Helpers\*.cs" Link="Assets\Helpers\%(FileName).g.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Localizations.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Localizations.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Update="Properties\Localizations.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Localizations.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
+  </PropertyGroup>
+
+  <Target Name="GetDependencyTargetPaths">
+    <ItemGroup>
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGSamboy063_Tomlet)\lib\netstandard2.0\Tomlet.dll" IncludeRuntimeDependency="false" />
+      <TargetPathWithTargetPlatformMoniker Include="$(PKGYamlDotNet)\lib\netstandard2.0\YamlDotNet.dll" IncludeRuntimeDependency="false" />
+    </ItemGroup>
+  </Target>
+
+</Project>

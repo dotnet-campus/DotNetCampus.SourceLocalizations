@@ -1,0 +1,30 @@
+<Project>
+
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CompileLocalizationFileTaskFilePath Condition=" '$(CompileLocalizationFileTaskFilePath)' == '' ">$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\DotNetCampus.Localizations.Tasks.dll</CompileLocalizationFileTaskFilePath>
+  </PropertyGroup>
+
+  <UsingTask TaskName="DotNetCampus.Localizations.Tasks.CompileLocalizationFile" AssemblyFile="$(CompileLocalizationFileTaskFilePath)" />
+
+  <PropertyGroup>
+    <_DLangRootNamespace>$(RootNamespace)</_DLangRootNamespace>
+    <_DLangRootNamespace Condition=" '$(_DLangRootNamespace)' == '' ">$(MSBuildProjectName.Replace(" ", "_"))</_DLangRootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <LocalizationFile Condition="'$(EnableDefaultItems)' == 'true'" Include="**\*.toml;**\*.yaml" />
+    <AdditionalFiles Include="@(LocalizationFile)" SourceItemGroup="DotNetCampusLocalization" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="_DLangRootNamespace" />
+    <CompilerVisibleProperty Include="LocalizationIsIncludedByPackageReference" />
+    <CompilerVisibleProperty Include="LocalizationSupportsNonIetfLanguageTag" />
+    <CompilerVisibleItemMetadata Include="AdditionalFiles" MetadataName="SourceItemGroup"/>
+  </ItemGroup>
+
+</Project>

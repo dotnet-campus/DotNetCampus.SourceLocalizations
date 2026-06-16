@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- TargetFramework -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <!-- Project Information -->
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Deterministic>true</Deterministic>
+    <PackageId>DotNetCampus.SourceLocalizations</PackageId>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!--
+      因为有 MSBuild Tasks 打包到 tasks 文件夹下，所以忽略不在 lib 文件夹的警告。
+      详见：https://learn.microsoft.com/zh-cn/visualstudio/msbuild/tutorial-custom-task-code-generation
+    -->
+    <NoWarn>$(NoWarn);NU5100</NoWarn>
+  </PropertyGroup>
+
+  <!-- 在 GitHub Action -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <!-- Package Reference -->
+  <ItemGroup>
+    <PackageReference Include="DotNetCampus.LatestCSharpFeatures" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
+    <PackageReference Include="Samboy063.Tomlet" ReferenceOutputAssembly="false" PrivateAssets="all" GeneratePathProperty="true" />
+    <PackageReference Include="YamlDotNet" ReferenceOutputAssembly="false" PrivateAssets="all" GeneratePathProperty="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\artifacts\bin\DotNetCampus.Localizations.Analyzer\$(Configuration)\**\*" Link="Package\analyzers\dotnet\cs\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\..\artifacts\bin\DotNetCampus.Localizations.Tasks\$(Configuration)\**\*" Link="Package\tasks\netstandard2.0\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DotNetCampus.SourceLocalizations.PrivateGenerator\DotNetCampus.SourceLocalizations.PrivateGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+  </ItemGroup>
+
+  <!-- 生成 NuGet 包。 -->
+  <Target Name="_IncludeAllDependencies" BeforeTargets="_GetPackageFiles">
+    <ItemGroup>
+      <None Include="$(RepositoryRoot)README.md" Pack="true" PackagePath="\"/>
+      <None Include="Package\build\Package.props" Pack="True" PackagePath="build\$(PackageId).props" />
+      <None Include="Package\build\Package.targets" Pack="True" PackagePath="build\$(PackageId).targets" />
+      <None Include="..\..\artifacts\bin\DotNetCampus.Localizations.Analyzer\$(Configuration)\**\*" Pack="True" PackagePath="analyzers\dotnet\cs" />
+      <None Include="$(PKGSamboy063_Tomlet)\lib\netstandard2.0\Tomlet.dll" Pack="True" PackagePath="analyzers\dotnet\cs\Tomlet.dll" />
+      <None Include="$(PKGYamlDotNet)\lib\netstandard2.0\YamlDotNet.dll" Pack="True" PackagePath="analyzers\dotnet\cs\YamlDotNet.dll" />
+    </ItemGroup>
+  </Target>
+
+</Project>

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\src\dotnetCampus.Localizations\Package\build\Package.props" />
+  <Import Project="..\..\src\DotNetCampus.Localizations\Package\build\Package.props" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -10,16 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\dotnetCampus.Localizations.Analyzer\dotnetCampus.Localizations.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\..\src\dotnetCampus.Localizations\dotnetCampus.Localizations.csproj" />
+    <ProjectReference Include="..\..\src\DotNetCampus.Localizations.Analyzer\DotNetCampus.Localizations.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\src\DotNetCampus.Localizations\DotNetCampus.Localizations.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- 现在，多语言文件会被自动引入并合并。 -->
-    <!-- <LocalizationFile Include="Localizations\**\*.yaml" /> -->
-    <!-- <LocalizationFile Include="Localizations\**\*.toml" /> -->
-  </ItemGroup>
-
-  <Import Project="..\..\src\dotnetCampus.Localizations\Package\build\Package.targets" />
+  <Import Project="..\..\src\DotNetCampus.Localizations\Package\build\Package.targets" />
 
 </Project>
