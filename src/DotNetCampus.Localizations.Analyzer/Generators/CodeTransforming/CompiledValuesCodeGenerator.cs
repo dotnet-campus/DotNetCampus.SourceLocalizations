@@ -34,12 +34,6 @@ internal class CompiledValuesCodeGenerator(LocalizationCodeTransformer transform
                 t.AddAttribute($"""[global::System.Diagnostics.DebuggerDisplay("[{ietfLanguageTag}]")]""");
                 t.AddBaseTypes(allInterfaces.ToArray());
                 t.AddRawMembers($"public static LocalizedValues_{tagIdentifier} Instance {{ get; }} = new();");
-                if (!isNestedSource)
-                {
-                    t.AddRawMembers(
-                        $"""public string IetfLanguageTag => "{ietfLanguageTag}";""",
-                        """public string this[string key] => throw new global::System.NotSupportedException("Compiled 模式不支持基于字符串 key 的动态索引，请使用类型化属性。");""");
-                }
                 t.AddRawMembers(GenerateCompiledExplicitMembers(referenceTransformer.Tree, transformer));
             });
         };
@@ -70,8 +64,7 @@ internal class CompiledValuesCodeGenerator(LocalizationCodeTransformer transform
         if (!isNestedSource)
         {
             builder
-                .Using("DotNetCampus.Localizations")
-                .UsingTypeAlias("ILocalizedStringProvider", "DotNetCampus.Localizations.ILocalizedStringProvider");
+                .Using("DotNetCampus.Localizations");
         }
 
         var allInterfaces = new List<string> { "ILocalizedValues" };
@@ -94,12 +87,6 @@ internal class CompiledValuesCodeGenerator(LocalizationCodeTransformer transform
                 t.AddBaseTypes(allInterfaces.ToArray());
                 t.AddRawMembers(GenerateNotifiableCompiledFields(nonLeafNodes));
                 t.AddRawMembers(GenerateNotifiableCompiledConstructor(nonLeafNodes));
-                if (!isNestedSource)
-                {
-                    t.AddRawMembers(
-                        "public string IetfLanguageTag => (_inner as ILocalizedStringProvider)?.IetfLanguageTag ?? \"\";",
-                        "public string this[string key] => (_inner as ILocalizedStringProvider)?[key] ?? \"\";");
-                }
                 t.AddRawMembers(GenerateCompiledExplicitMembersForNotifiable(transformer.Tree));
                 t.AddRawMembers(
                     GenerateCompiledSetInnerMethod(nonLeafNodes),
