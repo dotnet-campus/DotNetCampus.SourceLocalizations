@@ -12,9 +12,8 @@ internal class InterfaceCodeGenerator(LocalizationCodeTransformer transformer)
         using var builder = new SourceTextBuilder(GeneratorInfo.RootNamespace);
         builder
             .Using("DotNetCampus.Localizations")
-            .UsingTypeAlias("ILocalizedStringProvider", "DotNetCampus.Localizations.ILocalizedStringProvider")
             .UsingTypeAlias("LocalizedString", "DotNetCampus.Localizations.LocalizedString");
-        AddInterfaceDeclarations(builder, model.TypeAccessibility, includeBaseInterface: true);
+        AddInterfaceDeclarations(builder, model, model.TypeAccessibility);
         return builder.ToString();
     }
 
@@ -23,19 +22,42 @@ internal class InterfaceCodeGenerator(LocalizationCodeTransformer transformer)
         using var builder = new SourceTextBuilder(model.Namespace);
         builder.AddTypeDeclaration($"partial class {model.TypeName}", wrapper =>
         {
-            AddInterfaceDeclarations(wrapper, "public", includeBaseInterface: false);
+            AddInterfaceDeclarations(wrapper, model, "public");
         });
         return builder.ToString();
     }
 
-    private void AddInterfaceDeclarations(IAllowTypeDeclaration builder, string accessibility, bool includeBaseInterface)
+    private void AddInterfaceDeclarations(IAllowTypeDeclaration builder, LocalizationGeneratingModel model, string accessibility)
     {
+        // ILocalizedValues 仅承载 Lang.A.B.C 形式的强类型导航语法糖，不携带任何随生成模式变化的运行时能力。
         builder.AddTypeDeclaration($"{accessibility} partial interface ILocalizedValues", t => t
             .WithSummaryComment("提供本地化字符串的访问接口。通过属性导航访问各分组和叶子节点的本地化值。")
             .AddGeneratedToolAndEditorBrowsingAttributes()
-            .If(includeBaseInterface, t => t.AddBaseTypes("ILocalizedStringProvider"))
             .AddRawMembers(GenerateInterfacePropertyMembers(transformer.Tree))
         );
+
+        // 仅 Dictionary 模式提供基于运行时字符串 key 的动态索引能力；Compiled 模式此能力应在编译期即不可用。
+        if (model.GenerationMode == GenerationMode.Dictionary)
+        {
+            builder.AddTypeDeclaration($"{accessibility} partial interface IDictionaryLocalizedValues : ILocalizedValues", t => t
+                .WithSummaryComment("在强类型导航访问之外，额外支持通过运行时字符串 key 动态访问本地化字符串。仅 Dictionary 生成模式提供。")
+                .AddGeneratedToolAndEditorBrowsingAttributes()
+                .AddRawMembers(
+                    """
+                    /// <summary>
+                    /// 获取指定键的本地化字符串。如果字符串包含占位符，则返回值会包含形如 "{0}" "{1}" 的占位符用于格式化。
+                    /// </summary>
+                    /// <param name="key">要获取的本地化字符串的键。</param>
+                    string this[string key] { get; }
+                    """,
+                    """
+                    /// <summary>
+                    /// 获取符合 IETF 规范的当前语言标签。
+                    /// </summary>
+                    string IetfLanguageTag { get; }
+                    """)
+            );
+        }
 
         foreach (var node in transformer.EnumerateAllNonLeafDescendants(transformer.Tree))
         {

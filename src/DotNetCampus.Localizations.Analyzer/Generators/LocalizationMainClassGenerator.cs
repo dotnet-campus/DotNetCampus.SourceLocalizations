@@ -142,7 +142,7 @@ public class LocalizationMainClassGenerator
                     /// <summary>
                     /// 获取默认语言的本地化字符串集。
                     /// </summary>
-                    public static {typePrefix}ILocalizedValues Default => _default;
+                    public static {typePrefix}IDictionaryLocalizedValues Default => _default;
                     """,
                     $"""
                     /// <summary>
@@ -166,7 +166,7 @@ public class LocalizationMainClassGenerator
                     /// </summary>
                     /// <param name="languageTag">语言标签。</param>
                     /// <returns>对应语言的本地化字符串集。</returns>
-                    public static {typePrefix}ILocalizedValues Create(string languageTag) => new {typePrefix}ImmutableLocalizedValues(CreateLocalizedStringProvider(languageTag));
+                    public static {typePrefix}IDictionaryLocalizedValues Create(string languageTag) => new {typePrefix}ImmutableLocalizedValues(CreateLocalizedStringProvider(languageTag));
                     """,
                     $$"""
                     private static {{typePrefix}}ILocalizedStringProvider CreateLocalizedStringProvider(string languageTag)
@@ -223,13 +223,13 @@ public class LocalizationMainClassGenerator
                     /// <summary>
                     /// 获取默认语言的本地化字符串集。
                     /// </summary>
-                    public static {typePrefix}ILocalizedValues Default => _default;
+                    public static {typePrefix}IDictionaryLocalizedValues Default => _default;
                     """,
                     $"""
                     /// <summary>
                     /// 获取当前语言的本地化字符串集。调用 <see cref="SetCurrent(string)"/> 后需重新访问此属性获取新值。
                     /// </summary>
-                    public static {typePrefix}ILocalizedValues Current => _current;
+                    public static {typePrefix}IDictionaryLocalizedValues Current => _current;
                     """,
                     $$"""
                     /// <summary>
@@ -247,7 +247,7 @@ public class LocalizationMainClassGenerator
                     /// </summary>
                     /// <param name="languageTag">语言标签。</param>
                     /// <returns>对应语言的本地化字符串集。</returns>
-                    public static {typePrefix}ILocalizedValues Create(string languageTag) => GetOrCreateLocalizedValues(languageTag);
+                    public static {typePrefix}IDictionaryLocalizedValues Create(string languageTag) => GetOrCreateLocalizedValues(languageTag);
                     """,
                     $$"""
                     private static {{typePrefix}}ImmutableLocalizedValues GetOrCreateLocalizedValues(string languageTag)

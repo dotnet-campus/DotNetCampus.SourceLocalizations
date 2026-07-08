@@ -78,7 +78,7 @@ internal class DictionaryValuesCodeGenerator(LocalizationCodeTransformer transfo
         target.AddTypeDeclaration("internal sealed class ImmutableLocalizedValues(ILocalizedStringProvider provider)", t => t
             .AddGeneratedToolAndEditorBrowsingAttributes()
             .AddAttribute("[global::System.Diagnostics.DebuggerDisplay(\"[{LocalizedStringProvider.IetfLanguageTag}] " + typeName + ".???\")]")
-            .AddBaseTypes("ILocalizedValues")
+            .AddBaseTypes("IDictionaryLocalizedValues")
             .AddRawMembers(
                 "public ILocalizedStringProvider LocalizedStringProvider => provider;",
                 "public string IetfLanguageTag => provider.IetfLanguageTag;",
@@ -106,7 +106,7 @@ internal class DictionaryValuesCodeGenerator(LocalizationCodeTransformer transfo
             .WithSummaryComment("提供可通知属性变更的本地化字符串集，当语言文化切换时会发出属性变更通知。")
             .AddGeneratedToolAndEditorBrowsingAttributes()
             .AddAttribute("[global::System.Diagnostics.DebuggerDisplay(\"[{LocalizedStringProvider.IetfLanguageTag}] " + typeName + ".???\")]")
-            .AddBaseTypes("ILocalizedValues", "INotifyPropertyChanged")
+            .AddBaseTypes("IDictionaryLocalizedValues", "INotifyPropertyChanged")
             .AddRawMembers(
                 "public ILocalizedStringProvider LocalizedStringProvider { get; private set; }",
                 GenerateNotifiableConstructor("NotifiableLocalizedValues", root),
