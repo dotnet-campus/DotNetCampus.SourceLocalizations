@@ -35,14 +35,6 @@ public class LocalizedConfigurationAttribute : Attribute
     public string? Current { get; init; }
 
     /// <summary>
-    /// 指定开发时预览语言项文字所用的语言。指定后可在语言项的文档注释中查看此语言项的文本，方便开发时人工检查语言项的正确性。
-    /// </summary>
-    /// <remarks>
-    /// 一般无需指定。如果没有指定，则会使用编译时当前计算机的语言文化。
-    /// </remarks>
-    public string? Preview { get; init; }
-
-    /// <summary>
     /// 指定是否确保所有语言文件中的键都是一致的。默认值为 false，不执行检查。如果是 true，则会在生成代码时检查所有语言文件中的键是否一致，如果不相同则会报错。
     /// </summary>
     public bool EnsureKeysIdentical { get; init; }
@@ -61,26 +53,6 @@ public class LocalizedConfigurationAttribute : Attribute
     /// 指定生成本地化相关类时，应如何包含这些类型的依赖。
     /// </summary>
     public DependencyMode DependencyMode { get; init; }
-
-    /// <summary>
-    /// 指定本地化文件的格式。
-    /// </summary>
-    public LocalizationFileFormat FileFormat { get; init; }
-
-    /// <summary>
-    /// 默认情况下，DotNetCampus.SourceLocalizations 会自动在项目中寻找看起来像本地化文件的文件（.toml/.yaml/.yml，且文件名或文件夹名中包含语言文化名称）。<br/>
-    /// 但如果多语言文件在项目之外，或你不希望项目中某些看起来像本地化文件的文件被视作最终的本地化文件，可以通过此属性来指定本地化文件的搜索正则表达式。<br/>
-    /// 为此，你需要做这些事情：
-    /// <list type="number">
-    /// <item>修改项目文件（csproj）或其他 MSBuild 属性文件（.props/.targets），确保在时机 DotNetCampusGenerateLocalizations 之前，修改 LocalizationFile 集合，使其包含所有你希望被视作本地化文件的文件。</item>
-    /// <item>如果保持此属性为 <see langword="null"/>，那么上一步中的所有文件都将成为目标本地化文件；而指定此属性会过滤这些文件，仅包含符合此属性指定模式的文件。（指定此属性不会导致引入比上一步中更多的文件。）</item>
-    /// </list>
-    /// 此正则表达式将匹配路径，包含其所在的文件夹路径和文件名（包含扩展名）。
-    /// </summary>
-    /// <remarks>
-    /// 如果项目中只存在一套多语言机制，通常不需要指定此属性，直接修改 .csproj/.props/.targets 中的 LocalizationFile 集合即可。
-    /// </remarks>
-    public string? LocalizationFileRegex { get; init; }
 
     /// <summary>
     /// 是否支持在修改当前语言时，发出属性变更通知，可用于数据绑定。
@@ -156,25 +128,4 @@ public enum DependencyMode
     /// 适合单文件应用程序，或仅希望获得多语言支持而不希望引入额外依赖的库项目。
     /// </summary>
     NestedSource,
-}
-
-/// <summary>
-/// 指定本地化文件的格式。
-/// </summary>
-public enum LocalizationFileFormat
-{
-    /// <summary>
-    /// 根据文件的扩展名决定文件格式。
-    /// </summary>
-    AutoDetect,
-
-    /// <summary>
-    /// 视目标文件为 TOML 格式。
-    /// </summary>
-    Toml,
-
-    /// <summary>
-    /// 视目标文件为 YAML 格式。
-    /// </summary>
-    Yaml,
 }

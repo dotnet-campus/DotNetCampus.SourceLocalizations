@@ -76,8 +76,8 @@ namespace SampleApp;
 
 // The default language is used to generate localization interfaces, so it must be the most complete one.
 // The current language is optional. If not specified, the current OS UI language will be used.
-// The notification is optional. If true, when the current language changes, the UI will be notified to update the localization text.
-[LocalizedConfiguration(Default = "en", Current = "zh-hans", SupportsNotification = false)]
+// The notification is optional. Use NotificationMode.CurrentCulturePropertyChanged to notify the UI to update the localization text when the current language changes.
+[LocalizedConfiguration(Default = "en", Current = "zh-hans", NotificationMode = NotificationMode.InitOnly)]
 public partial class LocalizedText;
 ```
 
@@ -143,7 +143,7 @@ public sealed partial class MainPage : Page
 If you want to add real-time language switching support, you can modify the `LocalizedText` class as follows:
 
 ```csharp
-[LocalizedConfiguration(Default = "en-US", SupportsNotification = true)]
+[LocalizedConfiguration(Default = "en-US", NotificationMode = NotificationMode.CurrentCulturePropertyChanged)]
 public static partial class LocalizedText
 {
     public static AppBuilder UseCompiledLang(this AppBuilder appBuilder)
@@ -151,7 +151,7 @@ public static partial class LocalizedText
         if (OperatingSystem.IsWindows())
         {
             var language = GetUserProfileLanguage() ?? CultureInfo.CurrentUICulture.Name;
-            _ = SetCurrent(language);
+            SetCurrent(language);
             SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
         }
         else
@@ -166,12 +166,12 @@ public static partial class LocalizedText
     {
         if (e.Category is UserPreferenceCategory.Locale)
         {
-            Dispatcher.UIThread.InvokeAsync(async () =>
+            Dispatcher.UIThread.InvokeAsync(() =>
             {
                 var language = GetUserProfileLanguage();
                 if (language is not null)
                 {
-                    await SetCurrent(language);
+                    SetCurrent(language);
                 }
             }, DispatcherPriority.Background);
         }
