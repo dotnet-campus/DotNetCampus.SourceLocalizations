@@ -55,7 +55,7 @@ public class LocalizedConfigurationAttribute : Attribute
     public DependencyMode DependencyMode { get; init; }
 
     /// <summary>
-    /// 指定是否为本地化类生成独立的 Provider 注册 API。
+    /// 指定是否为本地化类生成独立的 Provider 注册 API。仅 <see cref="GenerationMode.Dictionary"/> 模式支持。
     /// </summary>
     public bool SupportsAddingProviders { get; init; }
 

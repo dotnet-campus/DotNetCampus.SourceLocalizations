@@ -206,7 +206,7 @@ public static AppBuilder BuildAvaloniaApp()
 
 ### Compose providers by priority
 
-Dictionary mode exposes `Lang.Current` as an `ILocalizedStringProvider`. Set `SupportsAddingProviders` to generate an independent Provider chain for a `Lang`:
+Dictionary mode exposes `Lang.Current` as an `ILocalizedStringProvider`. Set `SupportsAddingProviders` to generate an independent Provider chain for a `Lang`. Compiled mode does not support this option and reports build error `DLA006` when it is enabled:
 
 ```csharp
 [LocalizedConfiguration(
