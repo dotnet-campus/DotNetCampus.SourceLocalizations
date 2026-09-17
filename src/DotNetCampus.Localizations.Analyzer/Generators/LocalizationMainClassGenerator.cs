@@ -320,11 +320,11 @@ public class LocalizationMainClassGenerator
         }
 
         return $$"""
-            private static readonly LocalizedStringProviderCollection _localizedStringProviders = new();
+            private static readonly LocalizedStringProviderRegistry _localizedStringProviderRegistry = new();
 
             private static {{typePrefix}}ILocalizedStringProvider ComposeLocalizedStringProvider({{typePrefix}}ILocalizedStringProvider provider)
             {
-                return _localizedStringProviders.CreateProvider(provider);
+                return _localizedStringProviderRegistry.CreateProvider(provider);
             }
 
             /// <summary>
@@ -334,7 +334,7 @@ public class LocalizationMainClassGenerator
             /// <param name="priority">Provider 优先级。新增的优先级 0 Provider 在当前 Lang 自身 Provider 之后查询。</param>
             public static void AddProvider({{typePrefix}}ILocalizedStringProvider provider, int priority = 0)
             {
-                _localizedStringProviders.AddProvider(provider, priority);
+                _localizedStringProviderRegistry.AddProvider(provider, priority);
             }
 
             /// <summary>
@@ -342,13 +342,12 @@ public class LocalizationMainClassGenerator
             /// </summary>
             public static bool RemoveProvider({{typePrefix}}ILocalizedStringProvider provider)
             {
-                return _localizedStringProviders.RemoveProvider(provider);
+                return _localizedStringProviderRegistry.RemoveProvider(provider);
             }
 
-            private sealed class LocalizedStringProviderCollection
+            private sealed class LocalizedStringProviderRegistry
             {
-                private readonly object _lock = new();
-                private readonly global::System.Collections.Generic.List<Entry> _entries = [];
+                private Entry[] _entries = [];
                 private long _nextOrder;
 
                 public void AddProvider({{typePrefix}}ILocalizedStringProvider provider, int priority)
@@ -358,11 +357,11 @@ public class LocalizationMainClassGenerator
                         throw new global::System.ArgumentNullException(nameof(provider));
                     }
 
-                    lock (_lock)
-                    {
-                        _entries.Add(new Entry(provider, priority, _nextOrder++));
-                        SortEntries(_entries);
-                    }
+                    var entries = new Entry[_entries.Length + 1];
+                    global::System.Array.Copy(_entries, entries, _entries.Length);
+                    entries[^1] = new Entry(provider, priority, _nextOrder++);
+                    global::System.Array.Sort(entries, CompareEntries);
+                    _entries = entries;
                 }
 
                 public bool RemoveProvider({{typePrefix}}ILocalizedStringProvider provider)
@@ -372,17 +371,18 @@ public class LocalizationMainClassGenerator
                         throw new global::System.ArgumentNullException(nameof(provider));
                     }
 
-                    lock (_lock)
+                    var entries = _entries;
+                    var index = global::System.Array.FindIndex(entries, entry => global::System.Object.ReferenceEquals(entry.Provider, provider));
+                    if (index < 0)
                     {
-                        var index = _entries.FindIndex(entry => global::System.Object.ReferenceEquals(entry.Provider, provider));
-                        if (index < 0)
-                        {
-                            return false;
-                        }
-
-                        _entries.RemoveAt(index);
-                        return true;
+                        return false;
                     }
+
+                    var newEntries = new Entry[entries.Length - 1];
+                    global::System.Array.Copy(entries, 0, newEntries, 0, index);
+                    global::System.Array.Copy(entries, index + 1, newEntries, index, entries.Length - index - 1);
+                    _entries = newEntries;
+                    return true;
                 }
 
                 public {{typePrefix}}ILocalizedStringProvider CreateProvider({{typePrefix}}ILocalizedStringProvider provider)
@@ -390,44 +390,53 @@ public class LocalizationMainClassGenerator
                     return new CombinedProvider(this, provider);
                 }
 
-                private {{typePrefix}}ILocalizedStringProvider[] GetProviders({{typePrefix}}ILocalizedStringProvider provider)
+                private static int CompareEntries(Entry left, Entry right)
                 {
-                    lock (_lock)
-                    {
-                        var entries = new global::System.Collections.Generic.List<Entry>(_entries.Count + 1)
-                        {
-                            new(provider, 0, -1)
-                        };
-                        entries.AddRange(_entries);
-                        SortEntries(entries);
-                        return global::System.Linq.Enumerable.ToArray(global::System.Linq.Enumerable.Select(entries, entry => entry.Provider));
-                    }
-                }
-
-                private static void SortEntries(global::System.Collections.Generic.List<Entry> entries)
-                {
-                    entries.Sort(static (left, right) =>
-                    {
-                        var priorityComparison = right.Priority.CompareTo(left.Priority);
-                        return priorityComparison != 0 ? priorityComparison : left.Order.CompareTo(right.Order);
-                    });
+                    var priorityComparison = right.Priority.CompareTo(left.Priority);
+                    return priorityComparison != 0 ? priorityComparison : left.Order.CompareTo(right.Order);
                 }
 
                 private sealed record Entry({{typePrefix}}ILocalizedStringProvider Provider, int Priority, long Order);
 
                 private sealed class CombinedProvider(
-                    LocalizedStringProviderCollection collection,
+                    LocalizedStringProviderRegistry registry,
                     {{typePrefix}}ILocalizedStringProvider provider) : {{typePrefix}}ILocalizedStringProvider
                 {
-                    public string IetfLanguageTag => collection.GetProviders(provider)[0].IetfLanguageTag;
+                    public string IetfLanguageTag
+                    {
+                        get
+                        {
+                            var entries = registry._entries;
+                            return entries.Length > 0 && entries[0].Priority > 0
+                                ? entries[0].Provider.IetfLanguageTag
+                                : provider.IetfLanguageTag;
+                        }
+                    }
 
                     public string this[string key]
                     {
                         get
                         {
-                            foreach (var item in collection.GetProviders(provider))
+                            var entries = registry._entries;
+                            var index = 0;
+                            for (; index < entries.Length && entries[index].Priority > 0; index++)
                             {
-                                var value = item[key];
+                                var value = entries[index].Provider[key];
+                                if (!global::System.String.IsNullOrEmpty(value))
+                                {
+                                    return value;
+                                }
+                            }
+
+                            var ownValue = provider[key];
+                            if (!global::System.String.IsNullOrEmpty(ownValue))
+                            {
+                                return ownValue;
+                            }
+
+                            for (; index < entries.Length; index++)
+                            {
+                                var value = entries[index].Provider[key];
                                 if (!global::System.String.IsNullOrEmpty(value))
                                 {
                                     return value;
