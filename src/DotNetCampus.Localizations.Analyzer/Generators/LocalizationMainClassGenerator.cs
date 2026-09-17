@@ -115,18 +115,19 @@ public class LocalizationMainClassGenerator
         var fallbackExpression = isNestedSource
             ? "LocalizationFallbackHelper.FindBestMatch(languageTag, SupportedLanguageTags)"
             : "global::DotNetCampus.Localizations.Helpers.LocalizationHelper.MatchWithFallback(languageTag, SupportedLanguageTags)";
+        var providerCompositionMembers = GenerateProviderCompositionMembers(model, typePrefix);
 
         if (supportsNotifyChanged)
         {
             builder.AddTypeDeclaration($"partial class {model.TypeName}", type => type
                 .AddRawMembers(
-                    $"private static readonly {typePrefix}ImmutableLocalizedValues _default = new {typePrefix}ImmutableLocalizedValues(CreateLocalizedStringProvider(\"{model.DefaultLanguage.ToLowerInvariant()}\"));",
+                    $"private static readonly {typePrefix}ImmutableLocalizedValues _default = new {typePrefix}ImmutableLocalizedValues(ComposeLocalizedStringProvider(CreateLocalizedStringProvider(\"{model.DefaultLanguage.ToLowerInvariant()}\")));",
                     $$"""
                     private static readonly {{typePrefix}}NotifiableLocalizedValues _current;
 
                     static {{model.TypeName}}()
                     {
-                        _current = new {{typePrefix}}NotifiableLocalizedValues(CreateLocalizedStringProvider({{currentLanguageExpression}}));
+                        _current = new {{typePrefix}}NotifiableLocalizedValues(ComposeLocalizedStringProvider(CreateLocalizedStringProvider({{currentLanguageExpression}})));
                     }
                     """,
                     $$"""
@@ -157,7 +158,7 @@ public class LocalizationMainClassGenerator
                     /// <param name="languageTag">要切换到的语言标签。</param>
                     public static void SetCurrent(string languageTag)
                     {
-                        _current.SetProvider(CreateLocalizedStringProvider(languageTag));
+                        _current.SetProvider(ComposeLocalizedStringProvider(CreateLocalizedStringProvider(languageTag)));
                     }
                     """,
                     $"""
@@ -166,7 +167,7 @@ public class LocalizationMainClassGenerator
                     /// </summary>
                     /// <param name="languageTag">语言标签。</param>
                     /// <returns>对应语言的本地化字符串集。</returns>
-                    public static {typePrefix}IDictionaryLocalizedValues Create(string languageTag) => new {typePrefix}ImmutableLocalizedValues(CreateLocalizedStringProvider(languageTag));
+                    public static {typePrefix}IDictionaryLocalizedValues Create(string languageTag) => new {typePrefix}ImmutableLocalizedValues(ComposeLocalizedStringProvider(CreateLocalizedStringProvider(languageTag)));
                     """,
                     $$"""
                     private static {{typePrefix}}ILocalizedStringProvider CreateLocalizedStringProvider(string languageTag)
@@ -194,7 +195,8 @@ public class LocalizationMainClassGenerator
                             _ => null,
                         };
                     }
-                    """)
+                    """,
+                    providerCompositionMembers)
             );
         }
         else
@@ -260,7 +262,7 @@ public class LocalizationMainClassGenerator
                         {
                             return current;
                         }
-                        return new {{typePrefix}}ImmutableLocalizedValues(GetOrCreateLocalizedStringProvider(languageTag));
+                        return new {{typePrefix}}ImmutableLocalizedValues(ComposeLocalizedStringProvider(GetOrCreateLocalizedStringProvider(languageTag)));
                     }
                     """,
                     $$"""
@@ -297,11 +299,147 @@ public class LocalizationMainClassGenerator
                             _ => null,
                         };
                     }
-                    """)
+                    """,
+                    providerCompositionMembers)
             );
         }
 
         return builder.ToString();
+    }
+
+    private static string GenerateProviderCompositionMembers(LocalizationGeneratingModel model, string typePrefix)
+    {
+        if (!model.SupportsAddingProviders)
+        {
+            return $$"""
+                private static {{typePrefix}}ILocalizedStringProvider ComposeLocalizedStringProvider({{typePrefix}}ILocalizedStringProvider provider)
+                {
+                    return provider;
+                }
+                """;
+        }
+
+        return $$"""
+            private static readonly LocalizedStringProviderCollection _localizedStringProviders = new();
+
+            private static {{typePrefix}}ILocalizedStringProvider ComposeLocalizedStringProvider({{typePrefix}}ILocalizedStringProvider provider)
+            {
+                return _localizedStringProviders.CreateProvider(provider);
+            }
+
+            /// <summary>
+            /// 添加本地化字符串提供者。当前 Lang 自身 Provider 的优先级为 0；正优先级可覆盖自身文本，负优先级作为兜底。
+            /// </summary>
+            /// <param name="provider">要添加的本地化字符串提供者。</param>
+            /// <param name="priority">Provider 优先级。新增的优先级 0 Provider 在当前 Lang 自身 Provider 之后查询。</param>
+            public static void AddProvider({{typePrefix}}ILocalizedStringProvider provider, int priority = 0)
+            {
+                _localizedStringProviders.AddProvider(provider, priority);
+            }
+
+            /// <summary>
+            /// 移除本地化字符串提供者。
+            /// </summary>
+            public static bool RemoveProvider({{typePrefix}}ILocalizedStringProvider provider)
+            {
+                return _localizedStringProviders.RemoveProvider(provider);
+            }
+
+            private sealed class LocalizedStringProviderCollection
+            {
+                private readonly object _lock = new();
+                private readonly global::System.Collections.Generic.List<Entry> _entries = [];
+                private long _nextOrder;
+
+                public void AddProvider({{typePrefix}}ILocalizedStringProvider provider, int priority)
+                {
+                    if (provider is null)
+                    {
+                        throw new global::System.ArgumentNullException(nameof(provider));
+                    }
+
+                    lock (_lock)
+                    {
+                        _entries.Add(new Entry(provider, priority, _nextOrder++));
+                        SortEntries(_entries);
+                    }
+                }
+
+                public bool RemoveProvider({{typePrefix}}ILocalizedStringProvider provider)
+                {
+                    if (provider is null)
+                    {
+                        throw new global::System.ArgumentNullException(nameof(provider));
+                    }
+
+                    lock (_lock)
+                    {
+                        var index = _entries.FindIndex(entry => global::System.Object.ReferenceEquals(entry.Provider, provider));
+                        if (index < 0)
+                        {
+                            return false;
+                        }
+
+                        _entries.RemoveAt(index);
+                        return true;
+                    }
+                }
+
+                public {{typePrefix}}ILocalizedStringProvider CreateProvider({{typePrefix}}ILocalizedStringProvider provider)
+                {
+                    return new CombinedProvider(this, provider);
+                }
+
+                private {{typePrefix}}ILocalizedStringProvider[] GetProviders({{typePrefix}}ILocalizedStringProvider provider)
+                {
+                    lock (_lock)
+                    {
+                        var entries = new global::System.Collections.Generic.List<Entry>(_entries.Count + 1)
+                        {
+                            new(provider, 0, -1)
+                        };
+                        entries.AddRange(_entries);
+                        SortEntries(entries);
+                        return global::System.Linq.Enumerable.ToArray(global::System.Linq.Enumerable.Select(entries, entry => entry.Provider));
+                    }
+                }
+
+                private static void SortEntries(global::System.Collections.Generic.List<Entry> entries)
+                {
+                    entries.Sort(static (left, right) =>
+                    {
+                        var priorityComparison = right.Priority.CompareTo(left.Priority);
+                        return priorityComparison != 0 ? priorityComparison : left.Order.CompareTo(right.Order);
+                    });
+                }
+
+                private sealed record Entry({{typePrefix}}ILocalizedStringProvider Provider, int Priority, long Order);
+
+                private sealed class CombinedProvider(
+                    LocalizedStringProviderCollection collection,
+                    {{typePrefix}}ILocalizedStringProvider provider) : {{typePrefix}}ILocalizedStringProvider
+                {
+                    public string IetfLanguageTag => collection.GetProviders(provider)[0].IetfLanguageTag;
+
+                    public string this[string key]
+                    {
+                        get
+                        {
+                            foreach (var item in collection.GetProviders(provider))
+                            {
+                                var value = item[key];
+                                if (!global::System.String.IsNullOrEmpty(value))
+                                {
+                                    return value;
+                                }
+                            }
+
+                            return global::System.String.Empty;
+                        }
+                    }
+                }
+            }
+            """;
     }
 
     private string GenerateCompiledMainClass(

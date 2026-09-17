@@ -46,4 +46,9 @@ public readonly record struct LocalizationGeneratingModel(string Namespace, stri
     /// 指定是否确保所有语言文件中的键都一致。
     /// </summary>
     public required bool EnsureKeysIdentical { get; init; }
+
+    /// <summary>
+    /// 指定是否为本地化声明生成独立的 Provider 集合管理 API。
+    /// </summary>
+    public required bool SupportsAddingProviders { get; init; }
 }

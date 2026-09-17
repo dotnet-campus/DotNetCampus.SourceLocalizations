@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -74,6 +74,7 @@ public static class LocalizationGeneratingModelExtensions
             var notificationMode = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.NotificationMode)).Value is int nm ? (NotificationMode)nm : NotificationMode.InitOnly;
             var dependencyMode = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.DependencyMode)).Value is int dm ? (DependencyMode)dm : DependencyMode.Library;
             var ensureKeysIdentical = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.EnsureKeysIdentical)).Value is true;
+            var supportsAddingProviders = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.SupportsAddingProviders)).Value is true;
 
             // 兼容旧属性：仅当未显式设置 NotificationMode 时，SupportsNotification = true 才生效。
             if (notificationMode == NotificationMode.InitOnly
@@ -94,6 +95,7 @@ public static class LocalizationGeneratingModelExtensions
                 NotificationMode = notificationMode,
                 DependencyMode = dependencyMode,
                 EnsureKeysIdentical = ensureKeysIdentical,
+                SupportsAddingProviders = supportsAddingProviders,
             };
         });
 }
