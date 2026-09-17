@@ -348,8 +348,49 @@ public class LocalizationMainClassGenerator
                      """;
         }
 
+        var supportsNotifications = model.NotificationMode != NotificationMode.InitOnly;
+        var notifyProviderChanged = supportsNotifications
+            ? "_current.SetProvider(_current.LocalizedStringProvider);"
+            : string.Empty;
+        var subscribeProviderChanged = supportsNotifications
+            ? """
+              if (provider is global::System.ComponentModel.INotifyPropertyChanged changed)
+              {
+                  changed.PropertyChanged += OnRegisteredProviderPropertyChanged;
+              }
+              """
+            : string.Empty;
+        var unsubscribeProviderChanged = supportsNotifications
+            ? """
+              if (entries[index].Provider is global::System.ComponentModel.INotifyPropertyChanged changed)
+              {
+                  changed.PropertyChanged -= OnRegisteredProviderPropertyChanged;
+              }
+              """
+            : string.Empty;
+        var registeredProviderChangedHandler = supportsNotifications
+            ? """
+              private static void OnRegisteredProviderPropertyChanged(object? sender, global::System.ComponentModel.PropertyChangedEventArgs e)
+              {
+                  _current.SetProvider(_current.LocalizedStringProvider);
+              }
+              """
+            : string.Empty;
+        var removeProviderBody = supportsNotifications
+            ? """
+              var removed = _localizedStringProviderRegistry.RemoveProvider(provider);
+              if (removed)
+              {
+                  _current.SetProvider(_current.LocalizedStringProvider);
+              }
+              return removed;
+              """
+            : "return _localizedStringProviderRegistry.RemoveProvider(provider);";
+
         return $$"""
                  private static readonly LocalizedStringProviderRegistry _localizedStringProviderRegistry = new();
+
+                 {{registeredProviderChangedHandler}}
 
                  private static {{typePrefix}}ILocalizedStringProvider ComposeLocalizedStringProvider({{typePrefix}}ILocalizedStringProvider provider)
                  {
@@ -364,6 +405,7 @@ public class LocalizationMainClassGenerator
                  public static void AddProvider({{typePrefix}}ILocalizedStringProvider provider, int priority = 0)
                  {
                      _localizedStringProviderRegistry.AddProvider(provider, priority);
+                     {{notifyProviderChanged}}
                  }
 
                  /// <summary>
@@ -371,7 +413,7 @@ public class LocalizationMainClassGenerator
                  /// </summary>
                  public static bool RemoveProvider({{typePrefix}}ILocalizedStringProvider provider)
                  {
-                     return _localizedStringProviderRegistry.RemoveProvider(provider);
+                     {{removeProviderBody}}
                  }
 
                  private sealed class LocalizedStringProviderRegistry
@@ -391,6 +433,7 @@ public class LocalizationMainClassGenerator
                          entries[^1] = new Entry(provider, priority, _nextOrder++);
                          global::System.Array.Sort(entries, CompareEntries);
                          _entries = entries;
+                         {{subscribeProviderChanged}}
                      }
 
                      public bool RemoveProvider({{typePrefix}}ILocalizedStringProvider provider)
@@ -406,6 +449,8 @@ public class LocalizationMainClassGenerator
                          {
                              return false;
                          }
+
+                         {{unsubscribeProviderChanged}}
 
                          var newEntries = new Entry[entries.Length - 1];
                          global::System.Array.Copy(entries, 0, newEntries, 0, index);
