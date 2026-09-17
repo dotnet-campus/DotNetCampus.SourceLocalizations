@@ -137,6 +137,12 @@ public class LocalizationMainClassGenerator
             ? "LocalizationFallbackHelper.FindBestMatch(languageTag, SupportedLanguageTags)"
             : "global::DotNetCampus.Localizations.Helpers.LocalizationHelper.MatchWithFallback(languageTag, SupportedLanguageTags)";
         var providerCompositionMembers = GenerateProviderCompositionMembers(model, typePrefix);
+        var providerRegistryField = model.SupportsAddingProviders
+            ? "private static readonly LocalizedStringProviderRegistry _localizedStringProviderRegistry;"
+            : string.Empty;
+        var initializeProviderRegistry = model.SupportsAddingProviders
+            ? "_localizedStringProviderRegistry = new LocalizedStringProviderRegistry();"
+            : string.Empty;
 
         if (supportsNotifyChanged)
         {
@@ -145,12 +151,15 @@ public class LocalizationMainClassGenerator
                 $"partial class {model.TypeName}", type => type
                     .AddRawMembers
                     (
-                        $"private static readonly {typePrefix}ImmutableLocalizedValues _default = new {typePrefix}ImmutableLocalizedValues(ComposeLocalizedStringProvider(CreateLocalizedStringProvider(\"{model.DefaultLanguage.ToLowerInvariant()}\")));",
+                        providerRegistryField,
+                        $"private static readonly {typePrefix}ImmutableLocalizedValues _default;",
                         $$"""
                           private static readonly {{typePrefix}}NotifiableLocalizedValues _current;
 
                           static {{model.TypeName}}()
                           {
+                              {{initializeProviderRegistry}}
+                              _default = new {{typePrefix}}ImmutableLocalizedValues(ComposeLocalizedStringProvider(CreateLocalizedStringProvider("{{model.DefaultLanguage.ToLowerInvariant()}}")));
                               _current = new {{typePrefix}}NotifiableLocalizedValues(ComposeLocalizedStringProvider(CreateLocalizedStringProvider({{currentLanguageExpression}})));
                           }
                           """,
@@ -231,12 +240,15 @@ public class LocalizationMainClassGenerator
                 $"partial class {model.TypeName}", type => type
                     .AddRawMembers
                     (
-                        $"private static readonly {typePrefix}ImmutableLocalizedValues _default = GetOrCreateLocalizedValues(\"{model.DefaultLanguage.ToLowerInvariant()}\");",
+                        providerRegistryField,
+                        $"private static readonly {typePrefix}ImmutableLocalizedValues _default;",
                         $$"""
                           private static {{typePrefix}}ImmutableLocalizedValues _current;
 
                           static {{model.TypeName}}()
                           {
+                              {{initializeProviderRegistry}}
+                              _default = GetOrCreateLocalizedValues("{{model.DefaultLanguage.ToLowerInvariant()}}");
                               _current = GetOrCreateLocalizedValues({{currentLanguageExpression}});
                           }
                           """,
@@ -388,8 +400,6 @@ public class LocalizationMainClassGenerator
             : "return _localizedStringProviderRegistry.RemoveProvider(provider);";
 
         return $$"""
-                 private static readonly LocalizedStringProviderRegistry _localizedStringProviderRegistry = new();
-
                  {{registeredProviderChangedHandler}}
 
                  private static {{typePrefix}}ILocalizedStringProvider ComposeLocalizedStringProvider({{typePrefix}}ILocalizedStringProvider provider)
