@@ -114,7 +114,7 @@ internal class DictionaryValuesCodeGenerator(LocalizationCodeTransformer transfo
                 "public string this[string key] => LocalizedStringProvider[key];")
             .AddRawMembers(GenerateNotifiablePropertyMembers(root))
             .AddRawMembers(
-                GenerateSetProviderMethod(root),
+                GenerateSetProviderMethod(root, notifyAllProperties: true),
                 """
                 #pragma warning disable CS0067
                 public event PropertyChangedEventHandler? PropertyChanged;
@@ -135,7 +135,7 @@ internal class DictionaryValuesCodeGenerator(LocalizationCodeTransformer transfo
                     GenerateNotifiableConstructor($"NotifiableLocalizedValues_{nodeTypeName}", node))
                 .AddRawMembers(GenerateNotifiablePropertyMembers(node))
                 .AddRawMembers(
-                    GenerateSetProviderMethod(node),
+                    GenerateSetProviderMethod(node, notifyAllProperties: false),
                     """
                     #pragma warning disable CS0067
                     public event PropertyChangedEventHandler? PropertyChanged;
@@ -205,9 +205,13 @@ internal class DictionaryValuesCodeGenerator(LocalizationCodeTransformer transfo
         });
     }
 
-    private string GenerateSetProviderMethod(LocalizationTreeNode node)
+    private string GenerateSetProviderMethod(LocalizationTreeNode node, bool notifyAllProperties)
     {
         var lines = new List<string> { "LocalizedStringProvider = newProvider;" };
+        if (notifyAllProperties)
+        {
+            lines.Add("PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));");
+        }
         foreach (var child in node.Children)
         {
             if (child.Type == LocalizationTreeNodeType.Leaf)

@@ -39,23 +39,9 @@ internal class InterfaceCodeGenerator(LocalizationCodeTransformer transformer)
         // 仅 Dictionary 模式提供基于运行时字符串 key 的动态索引能力；Compiled 模式此能力应在编译期即不可用。
         if (model.GenerationMode == GenerationMode.Dictionary)
         {
-            builder.AddTypeDeclaration($"{accessibility} partial interface IDictionaryLocalizedValues : ILocalizedValues", t => t
+            builder.AddTypeDeclaration($"{accessibility} partial interface IDictionaryLocalizedValues : ILocalizedValues, ILocalizedStringProvider", t => t
                 .WithSummaryComment("在强类型导航访问之外，额外支持通过运行时字符串 key 动态访问本地化字符串。仅 Dictionary 生成模式提供。")
                 .AddGeneratedToolAndEditorBrowsingAttributes()
-                .AddRawMembers(
-                    """
-                    /// <summary>
-                    /// 获取指定键的本地化字符串。如果字符串包含占位符，则返回值会包含形如 "{0}" "{1}" 的占位符用于格式化。
-                    /// </summary>
-                    /// <param name="key">要获取的本地化字符串的键。</param>
-                    string this[string key] { get; }
-                    """,
-                    """
-                    /// <summary>
-                    /// 获取符合 IETF 规范的当前语言标签。
-                    /// </summary>
-                    string IetfLanguageTag { get; }
-                    """)
             );
         }
 
