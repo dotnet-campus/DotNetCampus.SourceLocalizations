@@ -144,30 +144,30 @@ public class LocalizationMainClassGenerator
             ? "_localizedStringProviderRegistry = new LocalizedStringProviderRegistry();"
             : string.Empty;
         var supportedLanguageTagsMember = $$"""
-          /// <summary>
-          /// 获取支持的语言标签列表。
-          /// </summary>
-          public static global::System.Collections.Generic.IReadOnlyList<string> SupportedLanguageTags { get; } =
-          [
-          {{tagListLiteral}}
-          ];
-          """;
+                                            /// <summary>
+                                            /// 获取支持的语言标签列表。
+                                            /// </summary>
+                                            public static global::System.Collections.Generic.IReadOnlyList<string> SupportedLanguageTags { get; } =
+                                            [
+                                            {{tagListLiteral}}
+                                            ];
+                                            """;
         var defaultPropertyMember = $"""
-         /// <summary>
-         /// 获取默认语言的本地化字符串集。
-         /// </summary>
-         public static {typePrefix}IDictionaryLocalizedValues Default => _default;
-         """;
+                                     /// <summary>
+                                     /// 获取默认语言的本地化字符串集。
+                                     /// </summary>
+                                     public static {typePrefix}IDictionaryLocalizedValues Default => _default;
+                                     """;
         var providerFactoryCoreMember = $$"""
-          private static {{typePrefix}}ILocalizedStringProvider? CreateLocalizedStringProviderCore(string languageTag)
-          {
-              return languageTag.ToLowerInvariant() switch
-              {
-          {{switchArms}}
-                  _ => null,
-              };
-          }
-          """;
+                                          private static {{typePrefix}}ILocalizedStringProvider? CreateLocalizedStringProviderCore(string languageTag)
+                                          {
+                                              return languageTag.ToLowerInvariant() switch
+                                              {
+                                          {{switchArms}}
+                                                  _ => null,
+                                              };
+                                          }
+                                          """;
 
         string currentFieldAndConstructorMember;
         string currentPropertyMember;
@@ -179,98 +179,102 @@ public class LocalizationMainClassGenerator
         if (supportsNotifyChanged)
         {
             currentFieldAndConstructorMember = $$"""
-              private static readonly {{typePrefix}}NotifiableLocalizedValues _current;
+                                                 private static readonly {{typePrefix}}NotifiableLocalizedValues _current;
 
-              static {{model.TypeName}}()
-              {
-                  {{initializeProviderRegistry}}
-                  _default = new {{typePrefix}}ImmutableLocalizedValues(ComposeLocalizedStringProvider(CreateLocalizedStringProvider("{{model.DefaultLanguage.ToLowerInvariant()}}")));
-                  _current = new {{typePrefix}}NotifiableLocalizedValues(ComposeLocalizedStringProvider(CreateLocalizedStringProvider({{currentLanguageExpression}})));
-              }
-              """;
+                                                 static {{model.TypeName}}()
+                                                 {
+                                                     {{initializeProviderRegistry}}
+                                                     _default = new {{typePrefix}}ImmutableLocalizedValues(ComposeLocalizedStringProvider(CreateLocalizedStringProvider("{{model.DefaultLanguage.ToLowerInvariant()}}")));
+                                                     _current = new {{typePrefix}}NotifiableLocalizedValues(ComposeLocalizedStringProvider(CreateLocalizedStringProvider({{currentLanguageExpression}})));
+                                                 }
+                                                 """;
             currentPropertyMember = $"""
-              /// <summary>
-              /// 获取当前语言的本地化字符串集。切换语言时，此实例会通过属性变更通知更新绑定的 UI。
-              /// </summary>
-              public static {typePrefix}NotifiableLocalizedValues Current => _current;
-              """;
+                                     /// <summary>
+                                     /// 获取当前语言的本地化字符串集。切换语言时，此实例会通过属性变更通知更新绑定的 UI。
+                                     /// </summary>
+                                     public static {typePrefix}NotifiableLocalizedValues Current => _current;
+                                     """;
             setCurrentMember = $$"""
-              /// <summary>
-              /// 切换当前语言。
-              /// </summary>
-              /// <param name="languageTag">要切换到的语言标签。</param>
-              public static void SetCurrent(string languageTag)
-              {
-                  _current.SetProvider(ComposeLocalizedStringProvider(CreateLocalizedStringProvider(languageTag)));
-              }
-              """;
+                                 /// <summary>
+                                 /// 切换当前语言。
+                                 /// </summary>
+                                 /// <param name="languageTag">要切换到的语言标签。</param>
+                                 public static void SetCurrent(string languageTag)
+                                 {
+                                     _current.SetProvider(ComposeLocalizedStringProvider(CreateLocalizedStringProvider(languageTag)));
+                                 }
+                                 """;
             createMember = $"""
-              /// <summary>
-              /// 创建指定语言的本地化字符串集实例。
-              /// </summary>
-              /// <param name="languageTag">语言标签。</param>
-              /// <returns>对应语言的本地化字符串集。</returns>
-              public static {typePrefix}IDictionaryLocalizedValues Create(string languageTag) => new {typePrefix}ImmutableLocalizedValues(ComposeLocalizedStringProvider(CreateLocalizedStringProvider(languageTag)));
-              """;
+                            /// <summary>
+                            /// 创建指定语言的本地化字符串集实例。
+                            /// </summary>
+                            /// <param name="languageTag">语言标签。</param>
+                            /// <returns>对应语言的本地化字符串集。</returns>
+                            public static {typePrefix}IDictionaryLocalizedValues Create(string languageTag) => new {typePrefix}ImmutableLocalizedValues(ComposeLocalizedStringProvider(CreateLocalizedStringProvider(languageTag)));
+                            """;
             localizedValuesCacheMember = string.Empty;
-            providerFactoryMember = GenerateDictionaryProviderFactoryMember(typePrefix, fallbackExpression, model.DefaultLanguage, useCachedValues: false);
+            providerFactoryMember = GenerateDictionaryProviderFactoryMember
+                (typePrefix, fallbackExpression, model.DefaultLanguage, useCachedValues: false);
         }
         else
         {
             currentFieldAndConstructorMember = $$"""
-              private static {{typePrefix}}ImmutableLocalizedValues _current;
+                                                 private static {{typePrefix}}ImmutableLocalizedValues _current;
 
-              static {{model.TypeName}}()
-              {
-                  {{initializeProviderRegistry}}
-                  _default = GetOrCreateLocalizedValues("{{model.DefaultLanguage.ToLowerInvariant()}}");
-                  _current = GetOrCreateLocalizedValues({{currentLanguageExpression}});
-              }
-              """;
+                                                 static {{model.TypeName}}()
+                                                 {
+                                                     {{initializeProviderRegistry}}
+                                                     _default = GetOrCreateLocalizedValues("{{model.DefaultLanguage.ToLowerInvariant()}}");
+                                                     _current = GetOrCreateLocalizedValues({{currentLanguageExpression}});
+                                                 }
+                                                 """;
             currentPropertyMember = $"""
-              /// <summary>
-              /// 获取当前语言的本地化字符串集。调用 <see cref="SetCurrent(string)"/> 后需重新访问此属性获取新值。
-              /// </summary>
-              public static {typePrefix}IDictionaryLocalizedValues Current => _current;
-              """;
+                                     /// <summary>
+                                     /// 获取当前语言的本地化字符串集。调用 <see cref="SetCurrent(string)"/> 后需重新访问此属性获取新值。
+                                     /// </summary>
+                                     public static {typePrefix}IDictionaryLocalizedValues Current => _current;
+                                     """;
             setCurrentMember = $$"""
-              /// <summary>
-              /// 切换当前语言。
-              /// </summary>
-              /// <param name="languageTag">要切换到的语言标签。</param>
-              public static void SetCurrent(string languageTag)
-              {
-                  _current = ({{typePrefix}}ImmutableLocalizedValues)Create(languageTag);
-              }
-              """;
+                                 /// <summary>
+                                 /// 切换当前语言。
+                                 /// </summary>
+                                 /// <param name="languageTag">要切换到的语言标签。</param>
+                                 public static void SetCurrent(string languageTag)
+                                 {
+                                     _current = ({{typePrefix}}ImmutableLocalizedValues)Create(languageTag);
+                                 }
+                                 """;
             createMember = $"""
-              /// <summary>
-              /// 创建指定语言的本地化字符串集实例。
-              /// </summary>
-              /// <param name="languageTag">语言标签。</param>
-              /// <returns>对应语言的本地化字符串集。</returns>
-              public static {typePrefix}IDictionaryLocalizedValues Create(string languageTag) => GetOrCreateLocalizedValues(languageTag);
-              """;
+                            /// <summary>
+                            /// 创建指定语言的本地化字符串集实例。
+                            /// </summary>
+                            /// <param name="languageTag">语言标签。</param>
+                            /// <returns>对应语言的本地化字符串集。</returns>
+                            public static {typePrefix}IDictionaryLocalizedValues Create(string languageTag) => GetOrCreateLocalizedValues(languageTag);
+                            """;
             localizedValuesCacheMember = $$"""
-              private static {{typePrefix}}ImmutableLocalizedValues GetOrCreateLocalizedValues(string languageTag)
-              {
-                  if (_default is { } @default && languageTag.Equals("{{model.DefaultLanguage.ToLowerInvariant()}}", global::System.StringComparison.OrdinalIgnoreCase))
-                  {
-                      return @default;
-                  }
-                  if (_current is { } current && languageTag.Equals(current.LocalizedStringProvider.IetfLanguageTag, global::System.StringComparison.OrdinalIgnoreCase))
-                  {
-                      return current;
-                  }
-                  return new {{typePrefix}}ImmutableLocalizedValues(ComposeLocalizedStringProvider(GetOrCreateLocalizedStringProvider(languageTag)));
-              }
-              """;
-            providerFactoryMember = GenerateDictionaryProviderFactoryMember(typePrefix, fallbackExpression, model.DefaultLanguage, useCachedValues: true);
+                                           private static {{typePrefix}}ImmutableLocalizedValues GetOrCreateLocalizedValues(string languageTag)
+                                           {
+                                               if (_default is { } @default && languageTag.Equals("{{model.DefaultLanguage.ToLowerInvariant()}}", global::System.StringComparison.OrdinalIgnoreCase))
+                                               {
+                                                   return @default;
+                                               }
+                                               if (_current is { } current && languageTag.Equals(current.LocalizedStringProvider.IetfLanguageTag, global::System.StringComparison.OrdinalIgnoreCase))
+                                               {
+                                                   return current;
+                                               }
+                                               return new {{typePrefix}}ImmutableLocalizedValues(ComposeLocalizedStringProvider(GetOrCreateLocalizedStringProvider(languageTag)));
+                                           }
+                                           """;
+            providerFactoryMember = GenerateDictionaryProviderFactoryMember
+                (typePrefix, fallbackExpression, model.DefaultLanguage, useCachedValues: true);
         }
 
-        builder.AddTypeDeclaration(
+        builder.AddTypeDeclaration
+        (
             $"partial class {model.TypeName}",
-            type => type.AddRawMembers(
+            type => type.AddRawMembers
+            (
                 providerRegistryField,
                 $"private static readonly {typePrefix}ImmutableLocalizedValues _default;",
                 currentFieldAndConstructorMember,
@@ -282,51 +286,55 @@ public class LocalizationMainClassGenerator
                 localizedValuesCacheMember,
                 providerFactoryMember,
                 providerFactoryCoreMember,
-                providerCompositionMembers));
+                providerCompositionMembers
+            )
+        );
 
         return builder.ToString();
     }
 
-    private static string GenerateDictionaryProviderFactoryMember(
+    private static string GenerateDictionaryProviderFactoryMember
+    (
         string typePrefix,
         string fallbackExpression,
         string defaultLanguage,
-        bool useCachedValues)
+        bool useCachedValues
+    )
     {
         var methodName = useCachedValues
             ? "GetOrCreateLocalizedStringProvider"
             : "CreateLocalizedStringProvider";
         var cachedProviderLookup = useCachedValues
             ? $$"""
-              if (_default is { } @default && languageTag.Equals("{{defaultLanguage.ToLowerInvariant()}}", global::System.StringComparison.OrdinalIgnoreCase))
-              {
-                  return @default.LocalizedStringProvider;
-              }
-              if (_current is { } current && languageTag.Equals(current.LocalizedStringProvider.IetfLanguageTag, global::System.StringComparison.OrdinalIgnoreCase))
-              {
-                  return current.LocalizedStringProvider;
-              }
-              """
+                if (_default is { } @default && languageTag.Equals("{{defaultLanguage.ToLowerInvariant()}}", global::System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return @default.LocalizedStringProvider;
+                }
+                if (_current is { } current && languageTag.Equals(current.LocalizedStringProvider.IetfLanguageTag, global::System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return current.LocalizedStringProvider;
+                }
+                """
             : string.Empty;
 
         return $$"""
-          private static {{typePrefix}}ILocalizedStringProvider {{methodName}}(string languageTag)
-          {
-          {{cachedProviderLookup}}
-              var provider = CreateLocalizedStringProviderCore(languageTag);
-              if (provider is not null)
-              {
-                  return provider;
-              }
-              var fallbackTag = {{fallbackExpression}};
-              provider = fallbackTag is null ? null : CreateLocalizedStringProviderCore(fallbackTag);
-              if (provider is not null)
-              {
-                  return provider;
-              }
-              return _default.LocalizedStringProvider;
-          }
-          """;
+                 private static {{typePrefix}}ILocalizedStringProvider {{methodName}}(string languageTag)
+                 {
+                 {{cachedProviderLookup}}
+                     var provider = CreateLocalizedStringProviderCore(languageTag);
+                     if (provider is not null)
+                     {
+                         return provider;
+                     }
+                     var fallbackTag = {{fallbackExpression}};
+                     provider = fallbackTag is null ? null : CreateLocalizedStringProviderCore(fallbackTag);
+                     if (provider is not null)
+                     {
+                         return provider;
+                     }
+                     return _default.LocalizedStringProvider;
+                 }
+                 """;
     }
 
     private static string GenerateProviderCompositionMembers(LocalizationGeneratingModel model, string typePrefix)
