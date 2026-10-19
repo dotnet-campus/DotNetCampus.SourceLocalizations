@@ -138,6 +138,24 @@ public sealed partial class MainPage : Page
 }
 ```
 
+## Best Practices
+
+Write the full property chain at each use site. Searching the repository for a key path such as `App.Title` then finds every read.
+
+```csharp
+window.Title = LocalizedText.Current.App.Title;
+window.Content = LocalizedText.Current.App.Description;
+```
+
+A local, field, or property that holds an intermediate node removes that path from the call site, so the same search no longer finds it. The intermediate adds nothing: each step is already a property read.
+
+```csharp
+// Do not do this. It is an anti-pattern.
+var lta = LocalizedText.Current.App;
+window.Title = lta.Title;          // A search for App.Title misses this line.
+window.Content = lta.Description;  // A search for App.Description misses this line.
+```
+
 ## Advanced Usage
 
 If you want to add real-time language switching support, you can modify the `LocalizedText` class as follows:
