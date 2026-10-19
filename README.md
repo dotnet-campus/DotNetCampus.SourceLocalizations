@@ -203,3 +203,25 @@ public static AppBuilder BuildAvaloniaApp()
         .XxxOthers()
     ;
 ```
+
+### Compose providers by priority
+
+Dictionary mode exposes `Lang.Current` as an `ILocalizedStringProvider`. Set `SupportsAddingProviders` to generate an independent Provider chain for a `Lang`. Compiled mode does not support this option and reports build error `DLA006` when it is enabled:
+
+```csharp
+[LocalizedConfiguration(
+    Default = "zh-Hans",
+    GenerationMode = GenerationMode.Dictionary,
+    DependencyMode = DependencyMode.Library,
+    SupportsAddingProviders = true)]
+internal static partial class Lang;
+```
+
+The generator adds `Lang.AddProvider` and `Lang.RemoveProvider`. The generated `Lang`'s own Provider has priority `0`. Providers with a positive priority override its values, while providers with a negative priority act as fallbacks. An added Provider with priority `0` is queried after the generated Provider. Empty results continue to the next Provider.
+
+```csharp
+Lang.AddProvider(ProductLang.Current, priority: 50);
+Lang.AddProvider(AppLang.Current, priority: 100);
+```
+
+Each generated `Lang` owns its Provider chain. No process-wide Provider collection is used. The same behavior is available with `DependencyMode.Library` and `DependencyMode.NestedSource`.

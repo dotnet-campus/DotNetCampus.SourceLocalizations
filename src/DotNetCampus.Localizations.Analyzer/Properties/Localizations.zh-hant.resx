@@ -156,4 +156,10 @@
   <data name="DLA005_Message" xml:space="preserve">
     <value>Compiled 模式要求設定 EnsureKeysIdentical = true。否則，缺失的語言項將在執行時靜默返回空字串。</value>
   </data>
+  <data name="DLA006" xml:space="preserve">
+    <value>Compiled 模式不支援新增 Provider</value>
+  </data>
+  <data name="DLA006_Message" xml:space="preserve">
+    <value>Compiled 模式將文字直接編譯到強型別屬性中，因此不能啟用 SupportsAddingProviders。請改用 Dictionary 模式，或設定 SupportsAddingProviders = false。</value>
+  </data>
 </root>

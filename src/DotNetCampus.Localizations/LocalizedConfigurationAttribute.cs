@@ -55,6 +55,11 @@ public class LocalizedConfigurationAttribute : Attribute
     public DependencyMode DependencyMode { get; init; }
 
     /// <summary>
+    /// 指定是否为本地化类生成独立的 Provider 注册 API。仅 <see cref="GenerationMode.Dictionary"/> 模式支持。
+    /// </summary>
+    public bool SupportsAddingProviders { get; init; }
+
+    /// <summary>
     /// 是否支持在修改当前语言时，发出属性变更通知，可用于数据绑定。
     /// </summary>
     [Obsolete("请使用 NotificationMode 属性来指定通知模式。当都设置时，以 NotificationMode 为准。")]

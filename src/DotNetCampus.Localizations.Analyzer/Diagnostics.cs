@@ -10,53 +10,75 @@ namespace DotNetCampus.Localizations;
 /// </summary>
 public class Diagnostics
 {
-    public static DiagnosticDescriptor DLA000_UnknownError { get; } = new(
+    public static DiagnosticDescriptor DLA000_UnknownError { get; } = new
+    (
         nameof(DLA000),
         Localize(nameof(DLA000)),
         Localize(nameof(DLA000_Message)),
         Categories.Useless,
         DiagnosticSeverity.Error,
-        true);
+        true
+    );
 
-    public static DiagnosticDescriptor DLA001_DefaultLanguageTagIsNotInTheTagList { get; } = new(
+    public static DiagnosticDescriptor DLA001_DefaultLanguageTagIsNotInTheTagList { get; } = new
+    (
         nameof(DLA001),
         Localize(nameof(DLA001)),
         Localize(nameof(DLA001_Message)),
         Categories.RuntimeException,
         DiagnosticSeverity.Error,
-        true);
+        true
+    );
 
-    public static DiagnosticDescriptor DLA002_CurrentLanguageTagIsNotInTheTagList { get; } = new(
+    public static DiagnosticDescriptor DLA002_CurrentLanguageTagIsNotInTheTagList { get; } = new
+    (
         nameof(DLA002),
         Localize(nameof(DLA002)),
         Localize(nameof(DLA002_Message)),
         Categories.RuntimeException,
         DiagnosticSeverity.Error,
-        true);
+        true
+    );
 
-    public static DiagnosticDescriptor DLA003_LanguageKeyInconsistent { get; } = new(
+    public static DiagnosticDescriptor DLA003_LanguageKeyInconsistent { get; } = new
+    (
         nameof(DLA003),
         Localize(nameof(DLA003)),
         Localize(nameof(DLA003_Message)),
         Categories.RuntimeException,
         DiagnosticSeverity.Error,
-        true);
+        true
+    );
 
-    public static DiagnosticDescriptor DLA004_InvalidConfigurationCombination { get; } = new(
+    public static DiagnosticDescriptor DLA004_InvalidConfigurationCombination { get; } = new
+    (
         nameof(DLA004),
         Localize(nameof(DLA004)),
         Localize(nameof(DLA004_Message)),
         Categories.Mechanism,
         DiagnosticSeverity.Error,
-        true);
+        true
+    );
 
-    public static DiagnosticDescriptor DLA005_CompiledModeRequiresEnsureKeysIdentical { get; } = new(
+    public static DiagnosticDescriptor DLA005_CompiledModeRequiresEnsureKeysIdentical { get; } = new
+    (
         nameof(DLA005),
         Localize(nameof(DLA005)),
         Localize(nameof(DLA005_Message)),
         Categories.AvoidBugs,
         DiagnosticSeverity.Warning,
-        true);
+        true
+    );
+
+    public static DiagnosticDescriptor DLA006_CompiledModeDoesNotSupportAddingProviders { get; } = new
+    (
+        "DLA006",
+        Localize("DLA006"),
+        Localize("DLA006_Message"),
+        Categories.Mechanism,
+        DiagnosticSeverity.Error,
+        true
+    );
 
     private static class Categories
     {
@@ -101,5 +123,6 @@ public class Diagnostics
         public const string Useless = "DotNetCampus.Useless";
     }
 
-    private static LocalizableString Localize(string key) => new LocalizableResourceString(key, ResourceManager, typeof(Properties.Localizations));
+    private static LocalizableString Localize
+        (string key) => new LocalizableResourceString(key, ResourceManager, typeof(Properties.Localizations));
 }
