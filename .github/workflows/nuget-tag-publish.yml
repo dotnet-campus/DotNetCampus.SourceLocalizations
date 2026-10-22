@@ -1,4 +1,4 @@
-name: publish nuget
+﻿name: publish nuget
 
 on:
   push:
@@ -31,7 +31,6 @@ jobs:
     - name: Build with dotnet
       run: |
         dotnet build --configuration Release
-        dotnet pack --configuration Release --no-build
 
     - name: Push generated packages to GitHub Packages
       env:
