@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- 复用 NuGet 包提供的编译期配置，让此项目通过真实源生成流程验证本地化入口。 -->
+  <Import Project="..\..\..\src\DotNetCampus.Localizations\Package\build\Package.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>PlaceholderIndices</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\DotNetCampus.Localizations.Analyzer\DotNetCampus.Localizations.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\..\src\DotNetCampus.Localizations\DotNetCampus.Localizations.csproj" />
+  </ItemGroup>
+  <!-- 将项目中的 TOML、YAML 资源作为 AdditionalFiles 交给源生成器。 -->
+  <Import Project="..\..\..\src\DotNetCampus.Localizations\Package\build\Package.targets" />
+</Project>

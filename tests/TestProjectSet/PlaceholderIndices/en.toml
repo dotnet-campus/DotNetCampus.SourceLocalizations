@@ -1,0 +1,12 @@
+# 与 zh-Hans.toml 保持相同的键和参数含义，刻意在部分英文文案中将索引 1 放在索引 0 前。
+# RepeatedTyped 将类型标注放在重复引用之后；Sparse 只使用索引 2，验证参数槽位补齐。
+# Named、Mixed、Plain 分别验证命名参数兼容、命名与数字参数混用，以及无参数文案。
+Toml.Takeoff = "Take off {1} drone(s) in group {0}?"
+Toml.Repeated = "Group {0}, again {0}."
+Toml.ReorderedAndRepeated = "{1} drone(s), group {0}, still {1} drone(s)."
+Toml.Typed = "{1:string} belongs to group {0:int}."
+Toml.RepeatedTyped = "Group {0}, again {0:int}."
+Toml.Sparse = "Drone count: {2}."
+Toml.Named = "{name:string} has {count:int} drone(s)."
+Toml.Mixed = "Take off {count:int} drone(s) in group {0}?"
+Toml.Plain = "Ready."
