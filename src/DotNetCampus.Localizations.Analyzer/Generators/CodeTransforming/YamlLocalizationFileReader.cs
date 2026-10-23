@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using YamlDotNet.RepresentationModel;
 
 namespace DotNetCampus.Localizations.Generators.CodeTransforming;
@@ -10,9 +9,13 @@ namespace DotNetCampus.Localizations.Generators.CodeTransforming;
 /// <summary>
 /// 读取单一层级 YAML 格式语言文件。
 /// </summary>
+/// <remarks>
+/// 只读取根映射中的标量键值对，并使用与 TOML 相同的文案转换规则，保留数字占位符的索引与重复引用。
+/// </remarks>
 public class YamlLocalizationFileReader : ILocalizationFileReader
 {
     /// <inheritdoc />
+    /// <remarks>根节点不是映射时返回空集合；嵌套映射、序列等非标量键值对不在当前读取范围内。</remarks>
     public ImmutableArray<LocalizationItem> Read(string content)
     {
         List<LocalizationItem> keyValues = [];
@@ -23,6 +26,7 @@ public class YamlLocalizationFileReader : ILocalizationFileReader
             return [];
         }
 
+        // 只将单层标量键值对交给 CreateItem，文件结构解析与占位符转换分别处理。
         keyValues.AddRange(node.Children
             .Where(x => x is { Key: YamlScalarNode, Value: YamlScalarNode })
             .Select(x => CreateItem(
@@ -38,29 +42,11 @@ public class YamlLocalizationFileReader : ILocalizationFileReader
     /// <param name="yamlKey">YAML 文件中的键。</param>
     /// <param name="yamlValue">YAML 文件中的值。</param>
     /// <returns>本地化项。</returns>
+    /// <remarks>转换后的文案用于生成可格式化字符串，原始文案仍作为本地化项的示例值保留。</remarks>
     private static LocalizationItem CreateItem(string yamlKey, string yamlValue)
     {
-        var (valueTypes, value) = ConvertYamlValueToCodeValue(yamlValue);
+        // 共用占位符转换器，使 YAML 与 TOML 在参数顺序、重复索引及类型检查上的行为保持一致。
+        var (valueTypes, value) = LocalizationValueConverter.ConvertToCodeValue(yamlValue);
         return new LocalizationItem(yamlKey, value, yamlValue, valueTypes, null);
-    }
-
-    /// <summary>
-    /// 将 YAML 文件中的语言项值转换为适用于 C# 代码中可格式化字符串的值。
-    /// </summary>
-    /// <example>
-    /// 从 YAML 文件中读取的语言项值为 <c>"{name:string} is {age:int} years old."</c>，转换为 <c>([string, int],"{0} is {1} years old.")</c>。
-    /// </example>
-    /// <param name="value">YAML 文件中的语言项值。</param>
-    /// <returns>适用于 C# 代码中可格式化字符串的值。</returns>
-    private static (ImmutableArray<string> Types, string Value) ConvertYamlValueToCodeValue(string value)
-    {
-        var regex = new Regex(@"\{(?<name>[^{}:]+)(?::(?<type>[^{}:]+))?\}");
-        var matches = regex.Matches(value);
-        ImmutableArray<string> types = matches.Count is 0
-            ? []
-            : [..matches.OfType<Match>().Select(x => x.Groups["type"].Success ? x.Groups["type"].Value : "object")];
-        var index = 0;
-        var v = regex.Replace(value, _ => $"{{{index++}}}");
-        return (types, v);
     }
 }
