@@ -37,9 +37,20 @@ public class LocalizationCodeTransformer
                     _ => throw new NotSupportedException($"Unsupported localization file format: {x.FileFormat}"),
                 })))
                 .SelectMany(x => x.Reader.Read(x.Content))
-                .Reverse()
-                .Distinct(LocalizationItem.KeyEqualityComparer),
+                .Reverse(),
         ];
+
+        var keys = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var item in LocalizationItems)
+        {
+            if (keys.TryGetValue(item.Key, out var existingKey))
+            {
+                throw new InvalidOperationException(
+                    $"Duplicate localization keys \"{existingKey}\" and \"{item.Key}\" in language \"{fileModels[0].IetfLanguageTag}\".");
+            }
+            keys.Add(item.Key, item.Key);
+        }
+
         Tree = LocalizationTreeNode.FromList(LocalizationItems);
     }
 

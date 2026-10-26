@@ -66,6 +66,8 @@ PressAnyKeyToExit = "按任意键退出..."
 
 The file name must conform to the [IETF BCP 47 standard](https://en.wikipedia.org/wiki/IETF_language_tag).
 
+Each full localization key must be unique within a language, including across files. Keys must use the same casing across languages. Duplicate keys and casing conflicts (such as `Abc` and `ABC`) fail the build with `DLA000`, regardless of `EnsureKeysIdentical`.
+
 ### 2. Write a localization class
 
 ```csharp

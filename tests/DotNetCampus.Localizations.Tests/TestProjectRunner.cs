@@ -41,24 +41,20 @@ public static class TestProjectRunner
     /// <summary>
     /// 构建指定测试项目。
     /// </summary>
-    public static Task<TestProjectResult> BuildAsync(string projectPath)
+    public static Task<TestProjectResult> BuildAsync(string projectPath, params string[] additionalArguments)
     {
-        return ExecuteAsync("build", projectPath);
+        return ExecuteAsync("build", projectPath, additionalArguments);
     }
 
-    private static async Task<TestProjectResult> ExecuteAsync(string command, string projectPath)
+    private static async Task<TestProjectResult> ExecuteAsync(string command, string projectPath, params string[] additionalArguments)
     {
         var projectDirectory = Path.GetDirectoryName(projectPath)!;
         var artifactsPath = Path.Combine(projectDirectory, ".artifacts");
-        var projectArgument = command == "run"
-            ? $"--project \"{projectPath}\""
-            : $"\"{projectPath}\"";
         using var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = "dotnet",
-                Arguments = $"{command} {projectArgument} --configuration Debug -p:ArtifactsPath=\"{artifactsPath}\"",
                 WorkingDirectory = projectDirectory,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -66,6 +62,20 @@ public static class TestProjectRunner
                 CreateNoWindow = true,
             },
         };
+
+        process.StartInfo.ArgumentList.Add(command);
+        if (command == "run")
+        {
+            process.StartInfo.ArgumentList.Add("--project");
+        }
+        process.StartInfo.ArgumentList.Add(projectPath);
+        process.StartInfo.ArgumentList.Add("--configuration");
+        process.StartInfo.ArgumentList.Add("Debug");
+        process.StartInfo.ArgumentList.Add($"-p:ArtifactsPath={artifactsPath}");
+        foreach (var argument in additionalArguments)
+        {
+            process.StartInfo.ArgumentList.Add(argument);
+        }
 
         process.Start();
         var standardOutputTask = process.StandardOutput.ReadToEndAsync();
