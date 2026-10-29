@@ -162,4 +162,16 @@
   <data name="DLA006_Message" xml:space="preserve">
     <value>Compiled 模式将文本直接编译到强类型属性中，因此不能启用 SupportsAddingProviders。请改用 Dictionary 模式，或设置 SupportsAddingProviders = false。</value>
   </data>
+  <data name="DLA007" xml:space="preserve">
+    <value>本地化 Key 重复</value>
+  </data>
+  <data name="DLA007_Message" xml:space="preserve">
+    <value>语言“{0}”中的本地化 Key“{1}”和“{2}”按配置的键比较规则发生冲突。</value>
+  </data>
+  <data name="DLA008" xml:space="preserve">
+    <value>本地化 Key 大小写冲突</value>
+  </data>
+  <data name="DLA008_Message" xml:space="preserve">
+    <value>IsKeysCaseSensitive 为 false 时，本地化 Key“{0}”（{1}）和“{2}”（{3}）必须使用完全相同的大小写拼写。</value>
+  </data>
 </root>

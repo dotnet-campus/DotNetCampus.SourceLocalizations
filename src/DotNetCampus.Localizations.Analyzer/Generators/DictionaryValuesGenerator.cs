@@ -87,7 +87,11 @@ public class DictionaryValuesGenerator
         var referenceLanguageTag = model.DefaultLanguage;
 
         var group = allLocalizationModels[referenceLanguageTag];
-        var transformer = new LocalizationCodeTransformer(group);
+        if (!LocalizationCodeTransformer.TryCreate(group, model, out var transformer, out _))
+        {
+            // 输入冲突由始终执行的 InterfaceTreeGenerator 统一报告。
+            return;
+        }
 
         var valuesGen = new DictionaryValuesCodeGenerator(transformer);
         var immutableCode = valuesGen.GenerateImmutable(model);

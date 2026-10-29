@@ -1,6 +1,3 @@
-A.A1 = "文本"
-A.A2 = "错误码：{errorCode:int}"
-A.A3 = "错误：{error}"
 A.A4.A41 = "警告：{error}"
 A.A4.A42 = "提示：{0}={1}"
 B.C.A1 = "Hello"
