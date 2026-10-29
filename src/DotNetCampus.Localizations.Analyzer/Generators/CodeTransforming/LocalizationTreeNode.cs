@@ -74,8 +74,9 @@ internal class LocalizationTreeNode(LocalizationItem item, string identifierKey,
     /// 寻找本地化项在树中的节点，如果不存在则创建。
     /// </summary>
     /// <param name="localizationItem">本地化项。</param>
+    /// <param name="keyComparer">与完整 Key 校验一致的比较规则，也适用于中间分组节点。</param>
     /// <returns>本地化项在树中的节点。</returns>
-    public LocalizationTreeNode GetOrCreateDescendant(LocalizationItem localizationItem)
+    public LocalizationTreeNode GetOrCreateDescendant(LocalizationItem localizationItem, StringComparer keyComparer)
     {
         var parts = localizationItem.Key.Split(['.'], StringSplitOptions.RemoveEmptyEntries);
         var current = this;
@@ -83,7 +84,7 @@ internal class LocalizationTreeNode(LocalizationItem item, string identifierKey,
         {
             var part = parts[i];
             var child = current.Children.FirstOrDefault(
-                x => string.Equals(x.IdentifierKey, part, StringComparison.OrdinalIgnoreCase));
+                x => keyComparer.Equals(x.IdentifierKey, part));
             if (child is null)
             {
                 var isLeaf = i == parts.Length - 1;
@@ -102,8 +103,9 @@ internal class LocalizationTreeNode(LocalizationItem item, string identifierKey,
     /// 从本地化项列表创建树。
     /// </summary>
     /// <param name="localizationItemList">本地化项列表。</param>
+    /// <param name="keyComparer">当前配置的 Key 比较器，确保大小写敏感时不合并不同节点。</param>
     /// <returns>树的根节点。</returns>
-    public static LocalizationTreeNode FromList(IReadOnlyList<LocalizationItem> localizationItemList)
+    public static LocalizationTreeNode FromList(IReadOnlyList<LocalizationItem> localizationItemList, StringComparer keyComparer)
     {
         var root = new LocalizationTreeNode(default, "", [], isRoot: true);
         foreach (var item in localizationItemList)
@@ -113,7 +115,7 @@ internal class LocalizationTreeNode(LocalizationItem item, string identifierKey,
                 continue;
             }
 
-            root.GetOrCreateDescendant(item);
+            root.GetOrCreateDescendant(item, keyComparer);
         }
         return root;
     }

@@ -2,6 +2,7 @@
   <Import Project="..\..\..\src\DotNetCampus.Localizations\Package\build\Package.props" />
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
     <EnableDefaultItems>false</EnableDefaultItems>
   </PropertyGroup>
   <ItemGroup>

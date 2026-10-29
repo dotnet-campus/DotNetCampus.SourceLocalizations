@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 
 namespace DotNetCampus.Localizations.Tests;
 
@@ -33,9 +34,11 @@ public static class TestProjectRunner
     /// <summary>
     /// 构建并运行指定测试项目。
     /// </summary>
-    public static Task<TestProjectResult> RunAsync(string projectPath)
+    /// <param name="projectPath">测试项目的完整路径。</param>
+    /// <param name="additionalArguments">传递给 dotnet 的额外构建参数，用于选择当前测试生成的资源输入。</param>
+    public static Task<TestProjectResult> RunAsync(string projectPath, params string[] additionalArguments)
     {
-        return ExecuteAsync("run", projectPath);
+        return ExecuteAsync("run", projectPath, additionalArguments);
     }
 
     /// <summary>
@@ -58,6 +61,9 @@ public static class TestProjectRunner
                 WorkingDirectory = projectDirectory,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
+                // dotnet 输出 UTF-8；显式解码，避免中文诊断旁的 Key 字母被系统代码页吞入乱码。
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8,
                 UseShellExecute = false,
                 CreateNoWindow = true,
             },

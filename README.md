@@ -1,8 +1,8 @@
 # DotNetCampus.SourceLocalizations
 
-| Build | NuGet |
-|--|--|
-|![](https://github.com/dotnet-campus/DotNetCampus.SourceLocalizations/workflows/.NET%20Core/badge.svg)|[![](https://img.shields.io/nuget/v/DotNetCampus.SourceLocalizations.svg)](https://www.nuget.org/packages/DotNetCampus.SourceLocalizations)|
+| Build                                                                                                  | NuGet                                                                                                                                       |
+|--------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| ![](https://github.com/dotnet-campus/DotNetCampus.SourceLocalizations/workflows/.NET%20Core/badge.svg) | [![](https://img.shields.io/nuget/v/DotNetCampus.SourceLocalizations.svg)](https://www.nuget.org/packages/DotNetCampus.SourceLocalizations) |
 
 DotNetCampus.SourceLocalizations is a source generator that can convert text localization files (e.g. .toml) into C# code and provide strong type support for localization keys.
 
@@ -65,8 +65,6 @@ PressAnyKeyToExit = "按任意键退出..."
 ```
 
 The file name must conform to the [IETF BCP 47 standard](https://en.wikipedia.org/wiki/IETF_language_tag).
-
-Each full localization key must be unique within a language, including across files. Keys must use the same casing across languages. Duplicate keys and casing conflicts (such as `Abc` and `ABC`) fail the build with `DLA000`, regardless of `EnsureKeysIdentical`.
 
 ### 2. Write a localization class
 

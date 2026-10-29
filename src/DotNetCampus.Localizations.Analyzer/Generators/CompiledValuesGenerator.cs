@@ -100,12 +100,19 @@ public class CompiledValuesGenerator
 
         var referenceLanguageTag = model.DefaultLanguage;
 
-        var referenceTransformer = new LocalizationCodeTransformer(allLocalizationModels[referenceLanguageTag]);
+        if (!LocalizationCodeTransformer.TryCreate(allLocalizationModels[referenceLanguageTag], model, out var referenceTransformer, out _))
+        {
+            // 输入冲突由始终执行的 InterfaceTreeGenerator 统一报告。
+            return;
+        }
 
         foreach (var pair in allLocalizationModels)
         {
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);
-            var transformer = new LocalizationCodeTransformer(group);
+            if (!LocalizationCodeTransformer.TryCreate(group, model, out var transformer, out _))
+            {
+                return;
+            }
             var compiledGen = new CompiledValuesCodeGenerator(transformer);
             var code = compiledGen.Generate(model, ietfLanguageTag, referenceTransformer);
             context.AddSource($"DotNetCampus.Localizations/LocalizedValues_{IetfLanguageTagToIdentifier(ietfLanguageTag)}.g.cs", SourceText.From(code, Encoding.UTF8));

@@ -91,9 +91,22 @@ public class InterfaceTreeGenerator
                 string.Join(", ", allTags));
         }
 
-        var allTransformers = allLocalizationModels.ToImmutableSortedDictionary(
-            x => x.Key, x => new LocalizationCodeTransformer(x.Value), StringComparer.OrdinalIgnoreCase);
-        ValidateLanguageKeyCasing(allTransformers);
+        var transformers = ImmutableSortedDictionary.CreateBuilder<string, LocalizationCodeTransformer>(StringComparer.OrdinalIgnoreCase);
+        foreach (var pair in allLocalizationModels)
+        {
+            if (!LocalizationCodeTransformer.TryCreate(pair.Value, model, out var value, out var diagnostic))
+            {
+                // 此路径始终执行，由它统一报告重复键；其余生成路径只终止，避免重复诊断。
+                context.ReportDiagnostic(diagnostic!);
+                return;
+            }
+            transformers.Add(pair.Key, value);
+        }
+        var allTransformers = transformers.ToImmutable();
+        if (!ValidateLanguageKeyCasing(context, model, allTransformers))
+        {
+            return;
+        }
 
         if (model.EnsureKeysIdentical && allTransformers.Count > 1)
         {
@@ -109,8 +122,21 @@ public class InterfaceTreeGenerator
         context.AddSource($"{model.Namespace}.Localizations/ILocalizedValues.g.cs", SourceText.From(code, Encoding.UTF8));
     }
 
-    private static void ValidateLanguageKeyCasing(ImmutableSortedDictionary<string, LocalizationCodeTransformer> allTransformers)
+    /// <summary>
+    /// 忽略大小写时，各语言对应 Key 仍需保持相同拼写；冲突直接报告专用诊断并停止接口生成。
+    /// </summary>
+    /// <param name="context">用于报告诊断的生成上下文。</param>
+    /// <param name="model">用户配置，提供大小写规则及诊断位置。</param>
+    /// <param name="allTransformers">按语言分组且已通过同语言重复检查的转换器。</param>
+    /// <returns>无需检查或所有拼写一致时返回 true；报告冲突时返回 false。</returns>
+    private static bool ValidateLanguageKeyCasing(SourceProductionContext context, LocalizationGeneratingModel model,
+        ImmutableSortedDictionary<string, LocalizationCodeTransformer> allTransformers)
     {
+        // 大小写敏感时，大小写不同的完整 Key 是独立项，由键集合一致性选项决定是否允许缺项。
+        if (model.IsKeysCaseSensitive)
+        {
+            return true;
+        }
         var keys = new Dictionary<string, (string Key, string LanguageTag)>(StringComparer.OrdinalIgnoreCase);
         foreach (var pair in allTransformers)
         {
@@ -119,12 +145,14 @@ public class InterfaceTreeGenerator
                 if (keys.TryGetValue(item.Key, out var existing)
                     && !string.Equals(existing.Key, item.Key, StringComparison.Ordinal))
                 {
-                    throw new InvalidOperationException(
-                        $"Localization key casing conflict: \"{existing.Key}\" ({existing.LanguageTag}) and \"{item.Key}\" ({pair.Key}).");
+                    context.ReportDiagnostic(Diagnostic.Create(Diagnostics.DLA008_LocalizationKeyCasingConflict,
+                        model.Location, existing.Key, existing.LanguageTag, item.Key, pair.Key));
+                    return false;
                 }
                 keys[item.Key] = (item.Key, pair.Key);
             }
         }
+        return true;
     }
 
     private static void CompareLanguageKeys(
@@ -134,7 +162,7 @@ public class InterfaceTreeGenerator
         ImmutableSortedDictionary<string, LocalizationCodeTransformer> allTransformers)
     {
         var defaultTransformer = allTransformers[defaultTag];
-        var defaultKeys = new HashSet<string>(defaultTransformer.LocalizationItems.Select(i => i.Key), StringComparer.OrdinalIgnoreCase);
+        var defaultKeys = new HashSet<string>(defaultTransformer.LocalizationItems.Select(i => i.Key), defaultTransformer.KeyComparer);
 
         var diffs = new List<string>();
 
@@ -146,7 +174,7 @@ public class InterfaceTreeGenerator
             }
 
             var transformer = pair.Value;
-            var otherKeys = new HashSet<string>(transformer.LocalizationItems.Select(i => i.Key), StringComparer.OrdinalIgnoreCase);
+            var otherKeys = new HashSet<string>(transformer.LocalizationItems.Select(i => i.Key), transformer.KeyComparer);
 
             var missing = defaultKeys.Where(k => !otherKeys.Contains(k)).ToList();
             var extra = otherKeys.Where(k => !defaultKeys.Contains(k)).ToList();
