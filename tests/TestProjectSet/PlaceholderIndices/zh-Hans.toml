@@ -1,0 +1,12 @@
+# 与 en.toml 共用调用约定：起飞文案的索引 0 为组号、索引 1 为飞机数量；Typed 的索引 1 则为名称。
+# 中文保持不同于英文的占位符顺序，用来验证切换语言时无需调整 C# 调用参数。
+# RepeatedTyped 将类型标注放在首次引用上，验证未标注类型的重复引用不会覆盖已有类型。
+Toml.Takeoff = "确定对第 {0} 组共 {1} 架飞机执行起飞？"
+Toml.Repeated = "第 {0} 组，再次确认第 {0} 组。"
+Toml.ReorderedAndRepeated = "第 {0} 组共 {1} 架飞机，仍为 {1} 架。"
+Toml.Typed = "第 {0:int} 组属于 {1:string}。"
+Toml.RepeatedTyped = "第 {0:int} 组，再次确认第 {0} 组。"
+Toml.Sparse = "飞机数量：{2}。"
+Toml.Named = "{name:string} 有 {count:int} 架飞机。"
+Toml.Mixed = "确定对第 {0} 组共 {count:int} 架飞机执行起飞？"
+Toml.Plain = "准备就绪。"

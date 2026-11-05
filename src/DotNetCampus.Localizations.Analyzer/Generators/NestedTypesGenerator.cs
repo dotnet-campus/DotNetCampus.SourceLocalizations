@@ -23,7 +23,10 @@ namespace DotNetCampus.Localizations.Generators;
 /// </remarks>
 public class NestedTypesGenerator
 {
-    private const int MaxGenericArity = 8;
+    /// <summary>
+    /// 生成泛型本地化字符串类型时支持的最大参数数量，与文案转换器的索引检查保持一致。
+    /// </summary>
+    private const int MaxGenericArity = CodeTransforming.LocalizationValueConverter.MaxArgumentCount;
 
     public void Register(IncrementalGeneratorInitializationContext context)
     {

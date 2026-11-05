@@ -16,10 +16,20 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="MSTest.TestAdapter" />
     <PackageReference Include="MSTest.TestFramework" />
+    <!-- 读取器源码链接到测试项目后，使用与分析器相同的 TOML、YAML 解析依赖和集中管理的版本。 -->
+    <PackageReference Include="Samboy063.Tomlet" />
+    <PackageReference Include="YamlDotNet" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 直接编译实际读取器及转换器源码，验证解析逻辑，避免为单元测试引用整个分析器的编译期工具链。 -->
+    <Compile Include="..\..\src\DotNetCampus.Localizations.Analyzer\Generators\CodeTransforming\*LocalizationFileReader.cs" Link="CodeTransforming\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\DotNetCampus.Localizations.Analyzer\Generators\CodeTransforming\LocalizationItem.cs" Link="CodeTransforming\%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\DotNetCampus.Localizations.Analyzer\Generators\CodeTransforming\LocalizationValueConverter.cs" Link="CodeTransforming\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

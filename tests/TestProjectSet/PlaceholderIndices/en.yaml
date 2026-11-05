@@ -1,0 +1,12 @@
+# 与 zh-Hans.yaml 保持相同的键和参数含义，覆盖与 TOML 相同的乱序、重复及带类型占位符场景。
+# RepeatedTyped 将类型标注放在重复引用之后；Sparse 只使用索引 2，验证参数槽位补齐。
+# Yaml 键前缀与 TOML 用例区分，确保两种文件格式都实际参与代码生成，不会按相同键互相覆盖。
+Yaml.Takeoff: "Take off {1} drone(s) in group {0}?"
+Yaml.Repeated: "Group {0}, again {0}."
+Yaml.ReorderedAndRepeated: "{1} drone(s), group {0}, still {1} drone(s)."
+Yaml.Typed: "{1:string} belongs to group {0:int}."
+Yaml.RepeatedTyped: "Group {0}, again {0:int}."
+Yaml.Sparse: "Drone count: {2}."
+Yaml.Named: "{name:string} has {count:int} drone(s)."
+Yaml.Mixed: "Take off {count:int} drone(s) in group {0}?"
+Yaml.Plain: "Ready."
