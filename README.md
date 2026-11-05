@@ -1,8 +1,8 @@
 # DotNetCampus.SourceLocalizations
 
-| Build | NuGet |
-|--|--|
-|![](https://github.com/dotnet-campus/DotNetCampus.SourceLocalizations/workflows/.NET%20Core/badge.svg)|[![](https://img.shields.io/nuget/v/DotNetCampus.SourceLocalizations.svg)](https://www.nuget.org/packages/DotNetCampus.SourceLocalizations)|
+| Build                                                                                                  | NuGet                                                                                                                                       |
+|--------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| ![](https://github.com/dotnet-campus/DotNetCampus.SourceLocalizations/workflows/.NET%20Core/badge.svg) | [![](https://img.shields.io/nuget/v/DotNetCampus.SourceLocalizations.svg)](https://www.nuget.org/packages/DotNetCampus.SourceLocalizations) |
 
 DotNetCampus.SourceLocalizations is a source generator that can convert text localization files (e.g. .toml) into C# code and provide strong type support for localization keys.
 

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.CodeAnalysis;
 
 namespace DotNetCampus.Localizations.Generators.ModelProviding;
@@ -46,6 +47,16 @@ public readonly record struct LocalizationGeneratingModel(string Namespace, stri
     /// 指定是否确保所有语言文件中的键都一致。
     /// </summary>
     public required bool EnsureKeysIdentical { get; init; }
+
+    /// <summary>
+    /// 指定本地化 Key 是否大小写敏感；省略配置时保持大小写敏感。
+    /// </summary>
+    public required bool IsKeysCaseSensitive { get; init; }
+
+    /// <summary>
+    /// 所有 Key 校验、树构建及值查询共用的序号比较规则，避免生成阶段与运行时行为不一致。
+    /// </summary>
+    internal StringComparer KeyComparer => IsKeysCaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
 
     /// <summary>
     /// 指定是否为本地化声明生成独立的 Provider 集合管理 API。

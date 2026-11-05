@@ -162,4 +162,16 @@
   <data name="DLA006_Message" xml:space="preserve">
     <value>Compiled mode cannot enable SupportsAddingProviders because its values are compiled directly into strongly typed properties. Use Dictionary mode or set SupportsAddingProviders = false.</value>
   </data>
+  <data name="DLA007" xml:space="preserve">
+    <value>Duplicate localization key</value>
+  </data>
+  <data name="DLA007_Message" xml:space="preserve">
+    <value>Localization keys "{1}" and "{2}" in language "{0}" conflict under the configured key comparison rule.</value>
+  </data>
+  <data name="DLA008" xml:space="preserve">
+    <value>Localization key casing conflict</value>
+  </data>
+  <data name="DLA008_Message" xml:space="preserve">
+    <value>Localization key "{0}" ({1}) and "{2}" ({3}) must use identical casing when IsKeysCaseSensitive is false.</value>
+  </data>
 </root>

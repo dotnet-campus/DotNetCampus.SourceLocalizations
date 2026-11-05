@@ -84,7 +84,11 @@ public class StringsProviderGenerator
         foreach (var pair in allLocalizationModels)
         {
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);
-            var transformer = new LocalizationCodeTransformer(group);
+            if (!LocalizationCodeTransformer.TryCreate(group, model, out var transformer, out _))
+            {
+                // 输入冲突由始终执行的 InterfaceTreeGenerator 统一报告。
+                return;
+            }
             var providerGen = new ProviderCodeGenerator(transformer);
             var code = providerGen.Generate(model, ietfLanguageTag);
             context.AddSource($"DotNetCampus.Localizations/Strings.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));

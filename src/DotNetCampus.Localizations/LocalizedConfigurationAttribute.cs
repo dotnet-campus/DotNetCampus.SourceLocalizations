@@ -40,6 +40,16 @@ public class LocalizedConfigurationAttribute : Attribute
     public bool EnsureKeysIdentical { get; init; }
 
     /// <summary>
+    /// 指定本地化 Key 是否大小写敏感，默认值为 true。
+    /// 为 true 时，ABC 与 Abc 是不同的 Key；为 false 时，同语言中的大小写变体会报告重复键错误，生成字典的查询也忽略大小写。
+    /// </summary>
+    /// <remarks>
+    /// 大小写敏感时，EnsureKeysIdentical 按原始拼写比较各语言的键集合。
+    /// 忽略大小写时，各语言对应 Key 的拼写仍必须完全一致；此检查不受 EnsureKeysIdentical 影响。
+    /// </remarks>
+    public bool IsKeysCaseSensitive { get; init; } = true;
+
+    /// <summary>
     /// 指定生成的本地化类的模式。
     /// </summary>
     public GenerationMode GenerationMode { get; init; }

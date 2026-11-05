@@ -80,6 +80,32 @@ public class Diagnostics
         true
     );
 
+    /// <summary>
+    /// 同一语言内的两个 Key 按配置的比较规则发生重复，无法生成无歧义的成员和字典。
+    /// </summary>
+    public static DiagnosticDescriptor DLA007_DuplicateLocalizationKey { get; } = new
+    (
+        "DLA007",
+        Localize("DLA007"),
+        Localize("DLA007_Message"),
+        Categories.Compiler,
+        DiagnosticSeverity.Error,
+        true
+    );
+
+    /// <summary>
+    /// 忽略大小写时，各语言对同一 Key 使用了不同拼写。
+    /// </summary>
+    public static DiagnosticDescriptor DLA008_LocalizationKeyCasingConflict { get; } = new
+    (
+        "DLA008",
+        Localize("DLA008"),
+        Localize("DLA008_Message"),
+        Categories.Compiler,
+        DiagnosticSeverity.Error,
+        true
+    );
+
     private static class Categories
     {
         /// <summary>

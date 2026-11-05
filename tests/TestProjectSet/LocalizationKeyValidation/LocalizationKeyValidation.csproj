@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\..\src\DotNetCampus.Localizations\Package\build\Package.props" />
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(ValidationInputDirectory)\Lang.cs" />
+    <LocalizationFile Include="$(ValidationInputDirectory)\**\*.toml;$(ValidationInputDirectory)\**\*.yaml" />
+    <ProjectReference Include="..\..\..\src\DotNetCampus.Localizations.Analyzer\DotNetCampus.Localizations.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\..\src\DotNetCampus.Localizations\DotNetCampus.Localizations.csproj" />
+  </ItemGroup>
+  <Import Project="..\..\..\src\DotNetCampus.Localizations\Package\build\Package.targets" />
+</Project>
