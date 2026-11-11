@@ -172,6 +172,6 @@
     <value>本地化 Key 大小寫衝突</value>
   </data>
   <data name="DLA008_Message" xml:space="preserve">
-    <value>IsKeysCaseSensitive 為 false 時，本地化 Key「{0}」（{1}）和「{2}」（{3}）必須使用完全相同的大小寫拼寫。</value>
+    <value>AreKeysCaseSensitive 為 false 時，本地化 Key「{0}」（{1}）和「{2}」（{3}）必須使用完全相同的大小寫拼寫。</value>
   </data>
 </root>

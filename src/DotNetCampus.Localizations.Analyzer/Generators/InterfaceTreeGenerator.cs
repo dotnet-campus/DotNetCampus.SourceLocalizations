@@ -133,7 +133,7 @@ public class InterfaceTreeGenerator
         ImmutableSortedDictionary<string, LocalizationCodeTransformer> allTransformers)
     {
         // 大小写敏感时，大小写不同的完整 Key 是独立项，由键集合一致性选项决定是否允许缺项。
-        if (model.IsKeysCaseSensitive)
+        if (model.AreKeysCaseSensitive)
         {
             return true;
         }

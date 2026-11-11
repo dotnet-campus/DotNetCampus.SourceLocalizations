@@ -172,6 +172,6 @@
     <value>Localization key casing conflict</value>
   </data>
   <data name="DLA008_Message" xml:space="preserve">
-    <value>Localization key "{0}" ({1}) and "{2}" ({3}) must use identical casing when IsKeysCaseSensitive is false.</value>
+    <value>Localization key "{0}" ({1}) and "{2}" ({3}) must use identical casing when AreKeysCaseSensitive is false.</value>
   </data>
 </root>

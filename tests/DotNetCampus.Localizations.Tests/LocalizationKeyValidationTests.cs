@@ -41,7 +41,7 @@ public class LocalizationKeyValidationTests
     public async Task WhenCaseInsensitiveKeysConflictThenBuildReportsSpecificDiagnostic(
         string scenario, string mode, bool areIdenticalKeysRequired, (string Path, string Content)[] files, string[] expected)
     {
-        var result = await ExecuteAsync(scenario, mode, areIdenticalKeysRequired, files, isKeysCaseSensitive: false);
+        var result = await ExecuteAsync(scenario, mode, areIdenticalKeysRequired, files, areKeysCaseSensitive: false);
 
         Assert.AreNotEqual(0, result.ExitCode, result.Output);
         var diagnosticId = scenario is "CaseConflictAcrossLanguages" or "NestedConflictAcrossLanguages" ? "DLA008" : "DLA007";
@@ -63,7 +63,7 @@ public class LocalizationKeyValidationTests
     [DataRow("Compiled", true, "Library")]
     [DataRow("Dictionary", null, "NestedSource")]
     [DataRow("Compiled", true, "NestedSource")]
-    public async Task WhenKeysAreCaseSensitiveThenDistinctValuesSurviveLanguageChanges(string mode, bool? isKeysCaseSensitive, string dependencyMode)
+    public async Task WhenKeysAreCaseSensitiveThenDistinctValuesSurviveLanguageChanges(string mode, bool? areKeysCaseSensitive, string dependencyMode)
     {
         var assertions = """
             AssertEqual("en mixed", Lang.Current.Abc.ToString());
@@ -93,7 +93,7 @@ public class LocalizationKeyValidationTests
              ("en.yaml", "ABC: en upper\nMenu.ABC: en nested upper"),
              ("zh-Hans.yaml", "Abc: zh mixed\nMenu.Abc: zh nested mixed\nmenu.Abc: zh lower group"),
              ("zh-Hans.toml", "ABC = \"zh upper\"\nMenu.ABC = \"zh nested upper\"")],
-            isKeysCaseSensitive, assertions, dependencyMode);
+            areKeysCaseSensitive, assertions, dependencyMode);
 
         Assert.AreEqual(0, result.ExitCode, result.Output);
     }
@@ -130,10 +130,10 @@ public class LocalizationKeyValidationTests
     [DataRow("Dictionary", true)]
     [DataRow("Compiled", null)]
     [DataRow("Compiled", true)]
-    public async Task WhenExactKeysAreDuplicatedThenBuildReportsDla007(string mode, bool? isKeysCaseSensitive)
+    public async Task WhenExactKeysAreDuplicatedThenBuildReportsDla007(string mode, bool? areKeysCaseSensitive)
     {
         var result = await ExecuteAsync("ExactDuplicates", mode, false,
-            [("en.toml", "Abc = \"first\""), ("en.yaml", "Abc: second")], isKeysCaseSensitive);
+            [("en.toml", "Abc = \"first\""), ("en.yaml", "Abc: second")], areKeysCaseSensitive);
 
         Assert.AreNotEqual(0, result.ExitCode, result.Output);
         StringAssert.Contains(result.Output, "DLA007");
@@ -170,11 +170,11 @@ public class LocalizationKeyValidationTests
     [DataRow("Dictionary", true, false)]
     [DataRow("Compiled", false, false)]
     [DataRow("Compiled", true, false)]
-    public async Task WhenKeysMatchAcrossLanguagesThenBuildSucceeds(string mode, bool areIdenticalKeysRequired, bool? isKeysCaseSensitive)
+    public async Task WhenKeysMatchAcrossLanguagesThenBuildSucceeds(string mode, bool areIdenticalKeysRequired, bool? areKeysCaseSensitive)
     {
         var result = await ExecuteAsync("MatchingKeys", mode, areIdenticalKeysRequired,
             [("en.toml", "Abc = \"english\"\n[Menu]\nAbc = \"nested english\""),
-             ("zh-Hans.yaml", "Abc: chinese\nMenu.Abc: nested chinese")], isKeysCaseSensitive);
+             ("zh-Hans.yaml", "Abc: chinese\nMenu.Abc: nested chinese")], areKeysCaseSensitive);
 
         Assert.AreEqual(0, result.ExitCode, result.Output);
     }
@@ -193,7 +193,7 @@ public class LocalizationKeyValidationTests
     {
         var result = await ExecuteAsync($"DifferentKeys-{legacySetting}", mode, areIdenticalKeysRequired,
             [("en.toml", "Abc = \"english\""), ("zh-Hans.yaml", "Other: chinese")],
-            isKeysCaseSensitive: null, legacySetting: legacySetting);
+            areKeysCaseSensitive: null, legacySetting: legacySetting);
 
         if (expectError)
         {
@@ -217,7 +217,7 @@ public class LocalizationKeyValidationTests
 
     private static Task<TestProjectResult> BuildAsync(
         string scenario, string mode, bool areIdenticalKeysRequired, params (string Path, string Content)[] files)
-        => ExecuteAsync(scenario, mode, areIdenticalKeysRequired, files, isKeysCaseSensitive: null);
+        => ExecuteAsync(scenario, mode, areIdenticalKeysRequired, files, areKeysCaseSensitive: null);
 
     /// <summary>
     /// 在独立输入目录中生成配置和资源；有运行时断言时编译运行，否则只检查构建诊断。
@@ -226,21 +226,21 @@ public class LocalizationKeyValidationTests
     /// <param name="mode">Dictionary 或 Compiled 生成模式。</param>
     /// <param name="areIdenticalKeysRequired">是否要求各语言完整键集合一致；null 表示省略属性。</param>
     /// <param name="files">相对于输入目录的资源路径及内容。</param>
-    /// <param name="isKeysCaseSensitive">大小写配置；null 表示省略属性以验证默认值。</param>
+    /// <param name="areKeysCaseSensitive">大小写配置；null 表示省略属性以验证默认值。</param>
     /// <param name="assertions">编译运行的断言代码；null 表示只执行构建。</param>
     /// <param name="dependencyMode">使用库依赖或内嵌源代码。</param>
     /// <param name="legacySetting">旧属性的值；null 表示省略属性。</param>
     /// <returns>构建或运行进程的退出码及输出。</returns>
     private static async Task<TestProjectResult> ExecuteAsync(
         string scenario, string mode, bool? areIdenticalKeysRequired, (string Path, string Content)[] files,
-        bool? isKeysCaseSensitive, string? assertions = null, string dependencyMode = "Library", bool? legacySetting = null)
+        bool? areKeysCaseSensitive, string? assertions = null, string dependencyMode = "Library", bool? legacySetting = null)
     {
         var projectPath = TestProjectRunner.GetTestProjectPath("LocalizationKeyValidation", "LocalizationKeyValidation.csproj");
         var inputDirectory = Path.Combine(Path.GetDirectoryName(projectPath)!, ".artifacts", "obj", "inputs", scenario, mode,
-            areIdenticalKeysRequired?.ToString() ?? "Default", isKeysCaseSensitive?.ToString() ?? "Default", dependencyMode);
+            areIdenticalKeysRequired?.ToString() ?? "Default", areKeysCaseSensitive?.ToString() ?? "Default", dependencyMode);
         Directory.CreateDirectory(inputDirectory);
         // 省略属性本身才能验证源生成器对默认值的处理，而不只是显式传入 true。
-        var caseConfiguration = isKeysCaseSensitive is { } caseSensitive ? $", IsKeysCaseSensitive = {caseSensitive.ToString().ToLowerInvariant()}" : "";
+        var caseConfiguration = areKeysCaseSensitive is { } caseSensitive ? $", AreKeysCaseSensitive = {caseSensitive.ToString().ToLowerInvariant()}" : "";
         var keyRequirement = areIdenticalKeysRequired is { } required ? $", AreIdenticalKeysRequired = {required.ToString().ToLowerInvariant()}" : "";
         var legacyConfiguration = legacySetting is { } legacy ? $", EnsureKeysIdentical = {legacy.ToString().ToLowerInvariant()}" : "";
         await File.WriteAllTextAsync(Path.Combine(inputDirectory, "Lang.cs"), $$"""

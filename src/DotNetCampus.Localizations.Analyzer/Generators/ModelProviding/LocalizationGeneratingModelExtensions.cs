@@ -78,7 +78,7 @@ public static class LocalizationGeneratingModelExtensions
                 ?? (namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.EnsureKeysIdentical)).Value is true);
 #pragma warning restore CS0618
             // Roslyn 的 NamedArguments 不包含属性初始化值，未显式配置时也必须使用 true。
-            var isKeysCaseSensitive = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.IsKeysCaseSensitive)).Value is not false;
+            var areKeysCaseSensitive = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.AreKeysCaseSensitive)).Value is not false;
             var supportsAddingProviders = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.SupportsAddingProviders)).Value is true;
 
             // 兼容旧属性：仅当未显式设置 NotificationMode 时，SupportsNotification = true 才生效。
@@ -100,7 +100,7 @@ public static class LocalizationGeneratingModelExtensions
                 NotificationMode = notificationMode,
                 DependencyMode = dependencyMode,
                 AreIdenticalKeysRequired = areIdenticalKeysRequired,
-                IsKeysCaseSensitive = isKeysCaseSensitive,
+                AreKeysCaseSensitive = areKeysCaseSensitive,
                 SupportsAddingProviders = supportsAddingProviders,
             };
         });
