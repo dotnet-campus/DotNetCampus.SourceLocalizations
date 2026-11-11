@@ -60,7 +60,7 @@ public class Diagnostics
         true
     );
 
-    public static DiagnosticDescriptor DLA005_CompiledModeRequiresEnsureKeysIdentical { get; } = new
+    public static DiagnosticDescriptor DLA005_CompiledModeRequiresIdenticalKeys { get; } = new
     (
         nameof(DLA005),
         Localize(nameof(DLA005)),

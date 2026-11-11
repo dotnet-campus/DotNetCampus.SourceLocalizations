@@ -151,10 +151,10 @@
     <value>Compiled mode does not support LocalizationItemPropertyChanged notification mode. Use InitOnly or CurrentCulturePropertyChanged instead.</value>
   </data>
   <data name="DLA005" xml:space="preserve">
-    <value>Compiled mode requires EnsureKeysIdentical</value>
+    <value>Compiled mode requires AreIdenticalKeysRequired</value>
   </data>
   <data name="DLA005_Message" xml:space="preserve">
-    <value>Compiled mode requires EnsureKeysIdentical = true. Without it, missing keys will silently return empty strings at runtime.</value>
+    <value>Compiled mode requires AreIdenticalKeysRequired = true. Without it, missing keys will silently return empty strings at runtime.</value>
   </data>
   <data name="DLA006" xml:space="preserve">
     <value>Compiled mode does not support adding Providers</value>

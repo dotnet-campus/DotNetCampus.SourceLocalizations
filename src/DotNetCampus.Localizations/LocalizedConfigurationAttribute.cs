@@ -18,6 +18,9 @@ namespace DotNetCampus.Localizations;
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 public class LocalizedConfigurationAttribute : Attribute
 {
+    private readonly bool? _areIdenticalKeysRequired;
+    private readonly bool _legacyEnsureKeysIdentical;
+
     /// <summary>
     /// 指定默认语言。当任何一个语言项未找到时，将使用此语言项。
     /// </summary>
@@ -35,17 +38,31 @@ public class LocalizedConfigurationAttribute : Attribute
     public string? Current { get; init; }
 
     /// <summary>
-    /// 指定是否确保所有语言文件中的键都是一致的。默认值为 false，不执行检查。如果是 true，则会在生成代码时检查所有语言文件中的键是否一致，如果不相同则会报错。
+    /// 指定是否要求所有语言具有相同的键集合。默认值为 false；为 true 时，任一语言缺少或多出键都会导致生成时报错。
     /// </summary>
-    public bool EnsureKeysIdentical { get; init; }
+    public bool AreIdenticalKeysRequired
+    {
+        get => _areIdenticalKeysRequired ?? _legacyEnsureKeysIdentical;
+        init => _areIdenticalKeysRequired = value;
+    }
+
+    /// <summary>
+    /// <see cref="AreIdenticalKeysRequired"/> 的旧名称。
+    /// </summary>
+    [Obsolete("请使用 AreIdenticalKeysRequired 属性。当都设置时，以 AreIdenticalKeysRequired 为准。")]
+    public bool EnsureKeysIdentical
+    {
+        get => AreIdenticalKeysRequired;
+        init => _legacyEnsureKeysIdentical = value;
+    }
 
     /// <summary>
     /// 指定本地化 Key 是否大小写敏感，默认值为 true。
     /// 为 true 时，ABC 与 Abc 是不同的 Key；为 false 时，同语言中的大小写变体会报告重复键错误，生成字典的查询也忽略大小写。
     /// </summary>
     /// <remarks>
-    /// 大小写敏感时，EnsureKeysIdentical 按原始拼写比较各语言的键集合。
-    /// 忽略大小写时，各语言对应 Key 的拼写仍必须完全一致；此检查不受 EnsureKeysIdentical 影响。
+    /// 大小写敏感时，<see cref="AreIdenticalKeysRequired"/> 按原始拼写比较各语言的键集合。
+    /// 忽略大小写时，各语言对应 Key 的拼写仍必须完全一致；此检查不受 <see cref="AreIdenticalKeysRequired"/> 影响。
     /// </remarks>
     public bool IsKeysCaseSensitive { get; init; } = true;
 

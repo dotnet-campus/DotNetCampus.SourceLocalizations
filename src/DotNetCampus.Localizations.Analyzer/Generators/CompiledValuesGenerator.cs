@@ -71,9 +71,9 @@ public class CompiledValuesGenerator
             return;
         }
 
-        if (!model.EnsureKeysIdentical)
+        if (!model.AreIdenticalKeysRequired)
         {
-            context.ReportCompiledModeRequiresEnsureKeysIdentical(model.Location);
+            context.ReportCompiledModeRequiresIdenticalKeys(model.Location);
         }
 
         if (model.NotificationMode == NotificationMode.LocalizationItemPropertyChanged)

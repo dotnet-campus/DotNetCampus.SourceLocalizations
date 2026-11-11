@@ -108,7 +108,7 @@ public class InterfaceTreeGenerator
             return;
         }
 
-        if (model.EnsureKeysIdentical && allTransformers.Count > 1)
+        if (model.AreIdenticalKeysRequired && allTransformers.Count > 1)
         {
             CompareLanguageKeys(context, model.Location, model.DefaultLanguage, allTransformers);
         }

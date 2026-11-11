@@ -160,7 +160,7 @@ namespace DotNetCampus.Localizations.Properties {
         }
 
         /// <summary>
-        ///   查找类似 Compiled mode requires EnsureKeysIdentical 的本地化字符串。
+        ///   查找类似 Compiled mode requires AreIdenticalKeysRequired 的本地化字符串。
         /// </summary>
         public static string DLA005 {
             get {
@@ -169,7 +169,7 @@ namespace DotNetCampus.Localizations.Properties {
         }
 
         /// <summary>
-        ///   查找类似 Compiled mode requires EnsureKeysIdentical = true. 的本地化字符串。
+        ///   查找类似 Compiled mode requires AreIdenticalKeysRequired = true. 的本地化字符串。
         /// </summary>
         public static string DLA005_Message {
             get {

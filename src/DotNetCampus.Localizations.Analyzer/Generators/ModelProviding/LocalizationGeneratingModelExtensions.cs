@@ -73,7 +73,10 @@ public static class LocalizationGeneratingModelExtensions
             var generationMode = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.GenerationMode)).Value is int gm ? (GenerationMode)gm : GenerationMode.Dictionary;
             var notificationMode = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.NotificationMode)).Value is int nm ? (NotificationMode)nm : NotificationMode.InitOnly;
             var dependencyMode = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.DependencyMode)).Value is int dm ? (DependencyMode)dm : DependencyMode.Library;
-            var ensureKeysIdentical = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.EnsureKeysIdentical)).Value is true;
+            var areIdenticalKeysRequired = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.AreIdenticalKeysRequired)).Value as bool?
+#pragma warning disable CS0618
+                ?? (namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.EnsureKeysIdentical)).Value is true);
+#pragma warning restore CS0618
             // Roslyn 的 NamedArguments 不包含属性初始化值，未显式配置时也必须使用 true。
             var isKeysCaseSensitive = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.IsKeysCaseSensitive)).Value is not false;
             var supportsAddingProviders = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.SupportsAddingProviders)).Value is true;
@@ -96,7 +99,7 @@ public static class LocalizationGeneratingModelExtensions
                 GenerationMode = generationMode,
                 NotificationMode = notificationMode,
                 DependencyMode = dependencyMode,
-                EnsureKeysIdentical = ensureKeysIdentical,
+                AreIdenticalKeysRequired = areIdenticalKeysRequired,
                 IsKeysCaseSensitive = isKeysCaseSensitive,
                 SupportsAddingProviders = supportsAddingProviders,
             };
