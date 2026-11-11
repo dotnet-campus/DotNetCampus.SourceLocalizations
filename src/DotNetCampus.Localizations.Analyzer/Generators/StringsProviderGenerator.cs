@@ -42,6 +42,10 @@ public class StringsProviderGenerator
         {
             ExecuteCore(context, values);
         }
+        catch (DiagnosticsException)
+        {
+            // 重复键诊断由 InterfaceTreeGenerator 统一报告。
+        }
         catch (Exception ex)
         {
             context.ReportUnknownError(ex.Message);
@@ -84,11 +88,7 @@ public class StringsProviderGenerator
         foreach (var pair in allLocalizationModels)
         {
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);
-            if (!LocalizationCodeTransformer.TryCreate(group, model, out var transformer, out _))
-            {
-                // 输入冲突由始终执行的 InterfaceTreeGenerator 统一报告。
-                return;
-            }
+            var transformer = LocalizationCodeTransformer.Create(group, model);
             var providerGen = new ProviderCodeGenerator(transformer);
             var code = providerGen.Generate(model, ietfLanguageTag);
             context.AddSource($"DotNetCampus.Localizations/Strings.{ietfLanguageTag}.g.cs", SourceText.From(code, Encoding.UTF8));

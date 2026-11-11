@@ -48,6 +48,10 @@ public class CompiledValuesGenerator
         {
             ExecuteCore(context, values);
         }
+        catch (DiagnosticsException)
+        {
+            // 重复键诊断由 InterfaceTreeGenerator 统一报告。
+        }
         catch (Exception ex)
         {
             context.ReportUnknownError(ex.Message);
@@ -100,19 +104,14 @@ public class CompiledValuesGenerator
 
         var referenceLanguageTag = model.DefaultLanguage;
 
-        if (!LocalizationCodeTransformer.TryCreate(allLocalizationModels[referenceLanguageTag], model, out var referenceTransformer, out _))
-        {
-            // 输入冲突由始终执行的 InterfaceTreeGenerator 统一报告。
-            return;
-        }
+        var referenceTransformer = LocalizationCodeTransformer.Create(allLocalizationModels[referenceLanguageTag], model);
 
         foreach (var pair in allLocalizationModels)
         {
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);
-            if (!LocalizationCodeTransformer.TryCreate(group, model, out var transformer, out _))
-            {
-                return;
-            }
+            var transformer = StringComparer.OrdinalIgnoreCase.Equals(ietfLanguageTag, referenceLanguageTag)
+                ? referenceTransformer
+                : LocalizationCodeTransformer.Create(group, model);
             var compiledGen = new CompiledValuesCodeGenerator(transformer);
             var code = compiledGen.Generate(model, ietfLanguageTag, referenceTransformer);
             context.AddSource($"DotNetCampus.Localizations/LocalizedValues_{IetfLanguageTagToIdentifier(ietfLanguageTag)}.g.cs", SourceText.From(code, Encoding.UTF8));

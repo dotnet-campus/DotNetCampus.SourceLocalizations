@@ -44,6 +44,10 @@ public class InterfaceTreeGenerator
         {
             ExecuteCore(context, values);
         }
+        catch (DiagnosticsException ex)
+        {
+            context.ReportDiagnostic(ex.Diagnostic);
+        }
         catch (Exception ex)
         {
             context.ReportUnknownError(ex.Message);
@@ -94,13 +98,7 @@ public class InterfaceTreeGenerator
         var transformers = ImmutableSortedDictionary.CreateBuilder<string, LocalizationCodeTransformer>(StringComparer.OrdinalIgnoreCase);
         foreach (var pair in allLocalizationModels)
         {
-            if (!LocalizationCodeTransformer.TryCreate(pair.Value, model, out var value, out var diagnostic))
-            {
-                // 此路径始终执行，由它统一报告重复键；其余生成路径只终止，避免重复诊断。
-                context.ReportDiagnostic(diagnostic!);
-                return;
-            }
-            transformers.Add(pair.Key, value);
+            transformers.Add(pair.Key, LocalizationCodeTransformer.Create(pair.Value, model));
         }
         var allTransformers = transformers.ToImmutable();
         if (!ValidateLanguageKeyCasing(context, model, allTransformers))

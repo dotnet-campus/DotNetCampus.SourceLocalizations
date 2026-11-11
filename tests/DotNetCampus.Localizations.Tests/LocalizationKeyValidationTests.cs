@@ -45,7 +45,7 @@ public class LocalizationKeyValidationTests
 
         Assert.AreNotEqual(0, result.ExitCode, result.Output);
         var diagnosticId = scenario is "CaseConflictAcrossLanguages" or "NestedConflictAcrossLanguages" ? "DLA008" : "DLA007";
-        StringAssert.Contains(result.Output, diagnosticId);
+        Assert.AreEqual(1, result.Output.Split('\n').Count(line => line.Contains($"{diagnosticId}:")), result.Output);
         Assert.IsFalse(result.Output.Contains("DLA000"), result.Output);
         foreach (var text in expected)
         {
@@ -136,7 +136,7 @@ public class LocalizationKeyValidationTests
             [("en.toml", "Abc = \"first\""), ("en.yaml", "Abc: second")], areKeysCaseSensitive);
 
         Assert.AreNotEqual(0, result.ExitCode, result.Output);
-        StringAssert.Contains(result.Output, "DLA007");
+        Assert.AreEqual(1, result.Output.Split('\n').Count(line => line.Contains("DLA007:")), result.Output);
         Assert.IsFalse(result.Output.Contains("DLA000"), result.Output);
     }
 
@@ -275,8 +275,10 @@ public class LocalizationKeyValidationTests
             await File.WriteAllTextAsync(filePath, content);
         }
 
+        // 避免 MSBuild 在摘要中重复打印诊断，以便直接验证报告次数。
         return assertions is null
-            ? await TestProjectRunner.BuildAsync(projectPath, $"-p:ValidationInputDirectory={inputDirectory}")
+            ? await TestProjectRunner.BuildAsync(projectPath, $"-p:ValidationInputDirectory={inputDirectory}",
+                "--tl:off", "-clp:WarningsOnly;ErrorsOnly;NoSummary")
             : await TestProjectRunner.RunAsync(projectPath, $"-p:ValidationInputDirectory={inputDirectory}");
     }
 }
