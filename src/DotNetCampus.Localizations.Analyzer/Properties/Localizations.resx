@@ -166,12 +166,12 @@
     <value>Duplicate localization key</value>
   </data>
   <data name="DLA007_Message" xml:space="preserve">
-    <value>Localization keys "{1}" and "{2}" in language "{0}" conflict under the configured key comparison rule.</value>
+    <value>Localization keys "{1}" and "{2}" in language "{0}" are treated as the same key. Keep only one entry.</value>
   </data>
   <data name="DLA008" xml:space="preserve">
-    <value>Localization key casing conflict</value>
+    <value>Localization keys differ only in casing across languages</value>
   </data>
   <data name="DLA008_Message" xml:space="preserve">
-    <value>Localization key "{0}" ({1}) and "{2}" ({3}) must use identical casing when AreKeysCaseSensitive is false.</value>
+    <value>Localization keys "{0}" ({1}) and "{2}" ({3}) differ only in casing. Use identical casing when AreKeysCaseSensitive is false.</value>
   </data>
 </root>

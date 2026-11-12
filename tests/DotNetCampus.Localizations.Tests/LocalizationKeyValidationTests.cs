@@ -99,24 +99,27 @@ public class LocalizationKeyValidationTests
     }
 
     /// <summary>
-    /// 忽略大小写的配置还必须影响运行时查询及默认语言回退，避免只放宽编译检查。
+    /// 即使源生成阶段按忽略大小写的规则校验，运行时查询和默认语言回退仍要求键的大小写完全匹配。
     /// </summary>
     [TestMethod]
     [DataRow("Library")]
     [DataRow("NestedSource")]
-    public async Task WhenKeysAreCaseInsensitiveThenDictionaryLookupAndFallbackIgnoreCase(string dependencyMode)
+    public async Task WhenKeyValidationIgnoresCaseThenDictionaryLookupAndFallbackRequireExactCasing(string dependencyMode)
     {
-        var result = await ExecuteAsync("InsensitiveLookup", "Dictionary", false,
+        var result = await ExecuteAsync("ExactCaseLookup", "Dictionary", false,
             [("en.toml", "Abc = \"english\"\nOnlyDefault = \"fallback\"\nMenu.Abc = \"nested english\""),
              ("zh-Hans.yaml", "Abc: chinese\nMenu.Abc: nested chinese")],
             false, """
-                AssertEqual("english", Lang.Current["ABC"]);
-                AssertEqual("nested english", Lang.Current["MENU.ABC"]);
+                AssertEqual("english", Lang.Current["Abc"]);
+                AssertEqual("nested english", Lang.Current["Menu.Abc"]);
                 Lang.SetCurrent("zh-Hans");
-                AssertEqual("chinese", Lang.Current["abc"]);
+                AssertEqual("chinese", Lang.Current["Abc"]);
+                AssertEqual("", Lang.Current["abc"]);
+                AssertEqual("", Lang.Current["MENU.ABC"]);
                 AssertEqual("chinese", Lang.Current.Abc.ToString());
                 AssertEqual("nested chinese", Lang.Current.Menu.Abc.ToString());
-                AssertEqual("fallback", Lang.Current["ONLYDEFAULT"]);
+                AssertEqual("fallback", Lang.Current["OnlyDefault"]);
+                AssertEqual("", Lang.Current["ONLYDEFAULT"]);
                 """, dependencyMode);
 
         Assert.AreEqual(0, result.ExitCode, result.Output);

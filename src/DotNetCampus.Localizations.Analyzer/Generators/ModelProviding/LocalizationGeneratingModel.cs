@@ -49,7 +49,7 @@ public readonly record struct LocalizationGeneratingModel(string Namespace, stri
     public required bool AreIdenticalKeysRequired { get; init; }
 
     /// <summary>
-    /// 指定本地化 Key 是否大小写敏感；省略配置时保持大小写敏感。
+    /// 指定语言项 Key 是否大小写敏感；省略配置时保持大小写敏感。
     /// </summary>
     public required bool AreKeysCaseSensitive { get; init; }
 

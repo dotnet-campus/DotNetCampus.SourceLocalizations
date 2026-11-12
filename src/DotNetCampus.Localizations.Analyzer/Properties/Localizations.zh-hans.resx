@@ -59,7 +59,10 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema id="root"
+    xmlns=""
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -163,15 +166,15 @@
     <value>Compiled 模式将文本直接编译到强类型属性中，因此不能启用 SupportsAddingProviders。请改用 Dictionary 模式，或设置 SupportsAddingProviders = false。</value>
   </data>
   <data name="DLA007" xml:space="preserve">
-    <value>本地化 Key 重复</value>
+    <value>语言项重复</value>
   </data>
   <data name="DLA007_Message" xml:space="preserve">
-    <value>语言“{0}”中的本地化 Key“{1}”和“{2}”按配置的键比较规则发生冲突。</value>
+    <value>语言“{0}”中的语言项“{1}”和“{2}”被视为同一项，请只保留其中一项。</value>
   </data>
   <data name="DLA008" xml:space="preserve">
-    <value>本地化 Key 大小写冲突</value>
+    <value>不同语言中存在仅大小写不同的语言项</value>
   </data>
   <data name="DLA008_Message" xml:space="preserve">
-    <value>AreKeysCaseSensitive 为 false 时，本地化 Key“{0}”（{1}）和“{2}”（{3}）必须使用完全相同的大小写拼写。</value>
+    <value>语言项“{0}”（{1}）和“{2}”（{3}）仅大小写不同，在 AreKeysCaseSensitive 为 false 时，应使用完全相同的大小写</value>
   </data>
 </root>

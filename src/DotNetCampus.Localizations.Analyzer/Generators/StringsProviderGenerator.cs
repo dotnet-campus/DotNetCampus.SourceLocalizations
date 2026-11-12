@@ -44,7 +44,7 @@ public class StringsProviderGenerator
         }
         catch (DiagnosticsException)
         {
-            // 重复键诊断由 InterfaceTreeGenerator 统一报告。
+            // 只有 `InterfaceTreeGenerator` 会在所有情况下生成代码，因此多语言文件和多语言项的编译时错误统一由此处检查并报告。
         }
         catch (Exception ex)
         {

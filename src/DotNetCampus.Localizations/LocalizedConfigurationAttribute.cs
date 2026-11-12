@@ -57,8 +57,8 @@ public class LocalizedConfigurationAttribute : Attribute
     }
 
     /// <summary>
-    /// 指定本地化 Key 是否大小写敏感，默认值为 true。
-    /// 为 true 时，ABC 与 Abc 是不同的 Key；为 false 时，同语言中的大小写变体会报告重复键错误，生成字典的查询也忽略大小写。
+    /// 指定语言项 Key 是否大小写敏感，默认值为 true。
+    /// 为 true 时，ABC 与 Abc 是不同的 Key；为 false 时，同语言中的大小写变体会报告重复键错误。
     /// </summary>
     /// <remarks>
     /// 大小写敏感时，<see cref="AreIdenticalKeysRequired"/> 按原始拼写比较各语言的键集合。

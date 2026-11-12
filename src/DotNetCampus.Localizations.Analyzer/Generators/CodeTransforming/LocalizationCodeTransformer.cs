@@ -28,7 +28,7 @@ public class LocalizationCodeTransformer
     internal StringComparer KeyComparer { get; }
 
     /// <summary>
-    /// 从通过重复键检查的本地化项创建转换器，并按同一比较规则构建 Key 树。
+    /// 从通过重复键检查的语言项创建转换器，并按同一比较规则构建 Key 树。
     /// </summary>
     private LocalizationCodeTransformer(ImmutableArray<LocalizationItem> items, StringComparer keyComparer)
     {

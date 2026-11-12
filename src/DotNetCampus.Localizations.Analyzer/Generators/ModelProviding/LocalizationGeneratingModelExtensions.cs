@@ -77,7 +77,6 @@ public static class LocalizationGeneratingModelExtensions
 #pragma warning disable CS0618
                 ?? (namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.EnsureKeysIdentical)).Value is true);
 #pragma warning restore CS0618
-            // Roslyn 的 NamedArguments 不包含属性初始化值，未显式配置时也必须使用 true。
             var areKeysCaseSensitive = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.AreKeysCaseSensitive)).Value is not false;
             var supportsAddingProviders = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.SupportsAddingProviders)).Value is true;
 

@@ -18,8 +18,6 @@ internal class ProviderCodeGenerator(LocalizationCodeTransformer transformer)
 
         var typeName = IetfLanguageTagToIdentifier(ietfLanguageTag);
         var dictionaryEntries = string.Join("\n", transformer.LocalizationItems.Select(x => ConvertKeyValueToValueCodeLine(x.Key, x.Value)));
-        // 比较规则必须写入生成代码，使运行时查询及回退与生成阶段的 Key 校验一致。
-        var comparer = model.AreKeysCaseSensitive ? "Ordinal" : "OrdinalIgnoreCase";
 
         System.Action<TypeDeclarationSourceTextBuilder> buildProvider = t => t
             .AddGeneratedToolAndEditorBrowsingAttributes()
@@ -45,7 +43,7 @@ internal class ProviderCodeGenerator(LocalizationCodeTransformer transformer)
                 }
                 """,
                 $$"""
-                private readonly global::System.Collections.Generic.Dictionary<string, string> _strings = new global::System.Collections.Generic.Dictionary<string, string>(global::System.StringComparer.{{comparer}})
+                private readonly global::System.Collections.Generic.Dictionary<string, string> _strings = new global::System.Collections.Generic.Dictionary<string, string>(global::System.StringComparer.Ordinal)
                 {
                 {{dictionaryEntries}}
                 };
