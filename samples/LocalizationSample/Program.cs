@@ -34,7 +34,7 @@ internal class Program
 }
 
 [LocalizedConfiguration(Default = "zh-Hans",
-    EnsureKeysIdentical = true,
+    AreIdenticalKeysRequired = true,
     DependencyMode = DependencyMode.NestedSource,
     GenerationMode = GenerationMode.Dictionary,
     NotificationMode = NotificationMode.InitOnly,

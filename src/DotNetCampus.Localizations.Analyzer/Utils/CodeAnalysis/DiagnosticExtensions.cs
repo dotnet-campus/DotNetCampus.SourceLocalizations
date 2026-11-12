@@ -73,14 +73,14 @@ public static class DiagnosticExtensions
         );
     }
 
-    public static void ReportCompiledModeRequiresEnsureKeysIdentical
+    public static void ReportCompiledModeRequiresIdenticalKeys
         (this SourceProductionContext context, Location? location)
     {
         context.ReportDiagnostic
         (
             Diagnostic.Create
             (
-                Diagnostics.DLA005_CompiledModeRequiresEnsureKeysIdentical,
+                Diagnostics.DLA005_CompiledModeRequiresIdenticalKeys,
                 location
             )
         );

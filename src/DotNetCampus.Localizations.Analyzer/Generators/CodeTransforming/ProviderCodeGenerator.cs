@@ -43,7 +43,7 @@ internal class ProviderCodeGenerator(LocalizationCodeTransformer transformer)
                 }
                 """,
                 $$"""
-                private readonly global::System.Collections.Generic.Dictionary<string, string> _strings = new global::System.Collections.Generic.Dictionary<string, string>
+                private readonly global::System.Collections.Generic.Dictionary<string, string> _strings = new global::System.Collections.Generic.Dictionary<string, string>(global::System.StringComparer.Ordinal)
                 {
                 {{dictionaryEntries}}
                 };

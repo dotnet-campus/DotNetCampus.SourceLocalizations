@@ -73,7 +73,11 @@ public static class LocalizationGeneratingModelExtensions
             var generationMode = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.GenerationMode)).Value is int gm ? (GenerationMode)gm : GenerationMode.Dictionary;
             var notificationMode = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.NotificationMode)).Value is int nm ? (NotificationMode)nm : NotificationMode.InitOnly;
             var dependencyMode = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.DependencyMode)).Value is int dm ? (DependencyMode)dm : DependencyMode.Library;
-            var ensureKeysIdentical = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.EnsureKeysIdentical)).Value is true;
+            var areIdenticalKeysRequired = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.AreIdenticalKeysRequired)).Value as bool?
+#pragma warning disable CS0618
+                ?? (namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.EnsureKeysIdentical)).Value is true);
+#pragma warning restore CS0618
+            var areKeysCaseSensitive = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.AreKeysCaseSensitive)).Value is not false;
             var supportsAddingProviders = namedArguments.GetValueOrDefault(nameof(LocalizedConfigurationAttribute.SupportsAddingProviders)).Value is true;
 
             // 兼容旧属性：仅当未显式设置 NotificationMode 时，SupportsNotification = true 才生效。
@@ -94,7 +98,8 @@ public static class LocalizationGeneratingModelExtensions
                 GenerationMode = generationMode,
                 NotificationMode = notificationMode,
                 DependencyMode = dependencyMode,
-                EnsureKeysIdentical = ensureKeysIdentical,
+                AreIdenticalKeysRequired = areIdenticalKeysRequired,
+                AreKeysCaseSensitive = areKeysCaseSensitive,
                 SupportsAddingProviders = supportsAddingProviders,
             };
         });

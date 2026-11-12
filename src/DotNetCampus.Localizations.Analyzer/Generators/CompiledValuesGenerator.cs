@@ -48,6 +48,10 @@ public class CompiledValuesGenerator
         {
             ExecuteCore(context, values);
         }
+        catch (DiagnosticsException)
+        {
+            // 只有 `InterfaceTreeGenerator` 会在所有情况下生成代码，因此多语言文件和多语言项的编译时错误统一由此处检查并报告。
+        }
         catch (Exception ex)
         {
             context.ReportUnknownError(ex.Message);
@@ -71,9 +75,9 @@ public class CompiledValuesGenerator
             return;
         }
 
-        if (!model.EnsureKeysIdentical)
+        if (!model.AreIdenticalKeysRequired)
         {
-            context.ReportCompiledModeRequiresEnsureKeysIdentical(model.Location);
+            context.ReportCompiledModeRequiresIdenticalKeys(model.Location);
         }
 
         if (model.NotificationMode == NotificationMode.LocalizationItemPropertyChanged)
@@ -100,12 +104,14 @@ public class CompiledValuesGenerator
 
         var referenceLanguageTag = model.DefaultLanguage;
 
-        var referenceTransformer = new LocalizationCodeTransformer(allLocalizationModels[referenceLanguageTag]);
+        var referenceTransformer = LocalizationCodeTransformer.Create(allLocalizationModels[referenceLanguageTag], model);
 
         foreach (var pair in allLocalizationModels)
         {
             var (ietfLanguageTag, group) = (pair.Key, pair.Value);
-            var transformer = new LocalizationCodeTransformer(group);
+            var transformer = StringComparer.OrdinalIgnoreCase.Equals(ietfLanguageTag, referenceLanguageTag)
+                ? referenceTransformer
+                : LocalizationCodeTransformer.Create(group, model);
             var compiledGen = new CompiledValuesCodeGenerator(transformer);
             var code = compiledGen.Generate(model, ietfLanguageTag, referenceTransformer);
             context.AddSource($"DotNetCampus.Localizations/LocalizedValues_{IetfLanguageTagToIdentifier(ietfLanguageTag)}.g.cs", SourceText.From(code, Encoding.UTF8));

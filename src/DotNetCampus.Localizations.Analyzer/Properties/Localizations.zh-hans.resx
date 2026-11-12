@@ -59,7 +59,10 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema id="root"
+    xmlns=""
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -151,15 +154,27 @@
     <value>Compiled 模式不支持 LocalizationItemPropertyChanged 通知模式。请改用 InitOnly 或 CurrentCulturePropertyChanged。</value>
   </data>
   <data name="DLA005" xml:space="preserve">
-    <value>Compiled 模式要求启用 EnsureKeysIdentical</value>
+    <value>Compiled 模式要求启用 AreIdenticalKeysRequired</value>
   </data>
   <data name="DLA005_Message" xml:space="preserve">
-    <value>Compiled 模式要求设置 EnsureKeysIdentical = true。否则，缺失的语言项将在运行时静默返回空字符串。</value>
+    <value>Compiled 模式要求设置 AreIdenticalKeysRequired = true。否则，缺失的语言项将在运行时静默返回空字符串。</value>
   </data>
   <data name="DLA006" xml:space="preserve">
     <value>Compiled 模式不支持添加 Provider</value>
   </data>
   <data name="DLA006_Message" xml:space="preserve">
     <value>Compiled 模式将文本直接编译到强类型属性中，因此不能启用 SupportsAddingProviders。请改用 Dictionary 模式，或设置 SupportsAddingProviders = false。</value>
+  </data>
+  <data name="DLA007" xml:space="preserve">
+    <value>语言项重复</value>
+  </data>
+  <data name="DLA007_Message" xml:space="preserve">
+    <value>语言“{0}”中的语言项“{1}”和“{2}”被视为同一项，请只保留其中一项。</value>
+  </data>
+  <data name="DLA008" xml:space="preserve">
+    <value>不同语言中存在仅大小写不同的语言项</value>
+  </data>
+  <data name="DLA008_Message" xml:space="preserve">
+    <value>语言项“{0}”（{1}）和“{2}”（{3}）仅大小写不同，在 AreKeysCaseSensitive 为 false 时，应使用完全相同的大小写</value>
   </data>
 </root>

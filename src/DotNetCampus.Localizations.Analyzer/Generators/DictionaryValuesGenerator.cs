@@ -44,6 +44,10 @@ public class DictionaryValuesGenerator
         {
             ExecuteCore(context, values);
         }
+        catch (DiagnosticsException)
+        {
+            // 只有 `InterfaceTreeGenerator` 会在所有情况下生成代码，因此多语言文件和多语言项的编译时错误统一由此处检查并报告。
+        }
         catch (Exception ex)
         {
             context.ReportUnknownError(ex.Message);
@@ -87,7 +91,7 @@ public class DictionaryValuesGenerator
         var referenceLanguageTag = model.DefaultLanguage;
 
         var group = allLocalizationModels[referenceLanguageTag];
-        var transformer = new LocalizationCodeTransformer(group);
+        var transformer = LocalizationCodeTransformer.Create(group, model);
 
         var valuesGen = new DictionaryValuesCodeGenerator(transformer);
         var immutableCode = valuesGen.GenerateImmutable(model);
